@@ -7,9 +7,15 @@
     <script src="database.js"></script>
     <style>
         :root {
-            --primary-blue: #0066cc; --primary-orange: #ff6600; --success-color: #198754; --danger-color: #dc3545;
-            --light-bg: #f8f9fa; --white: #ffffff; --border-color: #dee2e6; --text-color: #212529; 
-            --shadow-sm: 0 .125rem .25rem rgba(0,0,0,.075);
+            --primary-blue: #0066cc; --primary-orange: #ff6600; --success: #10b981; --error: #ef4444; --white: #ffffff;
+            --info-bg: #eff6ff; --info-border: #93c5fd;
+            --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db;
+            --gray-700: #374151; --gray-900: #111827; --bg-primary: var(--gray-100);
+            --bg-secondary: var(--white); --text-primary: var(--gray-900); --text-secondary: var(--gray-700);
+            --border-primary: var(--gray-200); --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --success-color: #1a7431; --warning-color: #f39c12; --danger-color: #c92a2a;
+            --purple-color: #862e9c; --blue-color: #1c7ed6;
+            --shadow-light: 0 4px 15px rgba(0,0,0,0.1); --weekend-bg: #f1f3f5;
         }
         body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--light-bg); display: flex; height: 100vh; overflow: hidden; }
         #sidebar { width: 250px; background-color: #002b49; color: white; padding: 1.5rem 0; display: flex; flex-direction: column; flex-shrink: 0; }
@@ -19,18 +25,23 @@
         #sidebar nav a:hover { background-color: rgba(255, 255, 255, 0.1); color: white; }
         #sidebar nav a.active { background-color: var(--primary-blue); color: white; border-left-color: var(--primary-orange); }
         #main-content { flex-grow: 1; overflow-y: auto; padding: 2rem; }
-        #module-container { max-width: 1400px; margin: 0 auto; }
-        /* Styles génériques (vous pouvez ajouter les styles spécifiques de chaque module ici si besoin) */
+        #module-container { max-width: 1400px; margin: 0 auto; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Importation des styles génériques des modules */
         .card { background: white; border-radius: 1rem; box-shadow: var(--shadow-sm); padding: 1.5rem; margin-bottom: 2rem; border: 1px solid var(--border-color); }
         .form-label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 1rem; color: #6c757d; }
-        .form-select, .form-input { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1.1rem; }
+        .form-select, .form-input, .form-textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; }
+        .btn { background: var(--secondary-color); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: all 0.3s ease; }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn-add { background: var(--success); color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; margin-top: 1rem; }
+        .btn-remove { background: var(--error); color: white; border: none; padding: 0.2rem 0.5rem; border-radius: 50%; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
     <aside id="sidebar">
         <h1>Gestion Chantiers</h1>
         <nav>
-             <ul>
+            <ul>
                 <li><a href="#" class="nav-link active" data-module="tableau_de_bord">📊 Tableau de Bord</a></li>
                 <li><a href="#" class="nav-link" data-module="chantier">🚧 Infos Chantier</a></li>
                 <li><a href="#" class="nav-link" data-module="equipe">👥 Équipe</a></li>
@@ -53,11 +64,9 @@
             async function loadModule(moduleName) {
                 try {
                     const response = await fetch(`${moduleName}.html`);
-                    if (!response.ok) throw new Error(`Module ${moduleName}.html introuvable.`);
-                    
+                    if (!response.ok) throw new Error(`Le module ${moduleName}.html est introuvable.`);
                     const content = await response.text();
                     moduleContainer.innerHTML = content;
-                    
                     if (window.moduleInitializers && moduleInitializers[moduleName]) {
                         moduleInitializers[moduleName]();
                     }
@@ -71,53 +80,39 @@
                 'tableau_de_bord': () => {
                     const chantierSelect = document.getElementById('chantier-select-tdb');
                     if (!chantierSelect) return;
-
                     const chantiers = DB.getChantiers();
-                    chantiers.forEach(c => {
-                        chantierSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-                    });
-
+                    chantiers.forEach(c => { chantierSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`; });
                     function formatCurrency(value) { return `${Math.round(value).toLocaleString('fr-FR')} €`; }
-
                     function updateDashboard() {
                         const chantierId = chantierSelect.value;
                         if (!chantierId) return;
-
                         const chantier = DB.getChantierById(chantierId);
                         const tasks = DB.getPlanningForChantier(chantierId);
-                        
                         const coutParOperateur = parseFloat(document.getElementById('cout-operateur').value) || 0;
                         const heuresRealisees = parseFloat(document.getElementById('heures-realisees').value) || 0;
                         const imprevusPct = parseFloat(document.getElementById('imprevus-pct').value) || 0;
                         const depenseST = parseFloat(document.getElementById('depense-st').value) || 0;
                         const depenseFournitures = parseFloat(document.getElementById('depense-fournitures').value) || 0;
                         const depenseLocations = parseFloat(document.getElementById('depense-locations').value) || 0;
-
                         const coutMOActuel = heuresRealisees * coutParOperateur;
                         const resteMO = chantier.budgetMO - coutMOActuel;
                         const resteST = chantier.budgetST - depenseST;
                         const resteFournitures = chantier.budgetFournitures - depenseFournitures;
                         const resteLocations = chantier.budgetLocations - depenseLocations;
-
                         const totalBudgetDirect = chantier.budgetMO + chantier.budgetST + chantier.budgetFournitures + chantier.budgetLocations;
                         const totalDepenseDirect = coutMOActuel + depenseST + depenseFournitures + depenseLocations;
                         const totalResteDirect = resteMO + resteST + resteFournitures + resteLocations;
-                        
                         const montantImprevus = totalBudgetDirect * (imprevusPct / 100);
                         const coutTotalProjete = totalDepenseDirect + totalResteDirect + montantImprevus;
                         const margePrevisionnelle = chantier.devisValide - coutTotalProjete;
                         const margePct = chantier.devisValide > 0 ? (margePrevisionnelle / chantier.devisValide) * 100 : 0;
-                        
                         function updateCell(id, value, isCurrency = true) {
                             const el = document.getElementById(id);
                             if (el) el.textContent = isCurrency ? formatCurrency(value) : value;
                         }
-                        
-                        // Mettre à jour toutes les cellules du tableau de bord...
                         updateCell('budget-mo', chantier.budgetMO);
                         updateCell('depense-mo', coutMOActuel);
                         updateCell('reste-mo', resteMO);
-                        updateCell('budget-st', chantier.budgetST);
                         updateCell('display-depense-st', depenseST);
                         updateCell('reste-st', resteST);
                         updateCell('budget-fournitures', chantier.budgetFournitures);
@@ -132,7 +127,6 @@
                         updateCell('cout-total-projete', coutTotalProjete);
                         updateCell('prix-devis', chantier.devisValide);
                         updateCell('kpi-cout-projete', coutTotalProjete);
-                        
                         const kpiMargeEur = document.getElementById('kpi-marge-eur');
                         kpiMargeEur.textContent = formatCurrency(margePrevisionnelle);
                         kpiMargeEur.className = margePrevisionnelle >= 0 ? "value positive" : "value negative";
@@ -140,31 +134,51 @@
                         kpiMargePct.textContent = `${margePct.toFixed(1)} %`;
                         kpiMargePct.className = margePct >= 0 ? "value positive" : "value negative";
                     }
-
                     document.getElementById('inputs-card').addEventListener('input', updateDashboard);
                     if (chantiers.length > 0) updateDashboard();
                 },
                 'planning': () => {
-                    // Ici on met la classe GanttChart complète et son initialisation
-                    class GanttChart { /* ... la classe complète du planning ... */ }
+                    class GanttChart { /* ... La classe GanttChart complète ... */ }
                     const gantt = new GanttChart('ganttContainer');
-                    // Logique pour charger les chantiers dans le select et charger les tâches
+                    const chantierSelectPlanning = document.getElementById('chantier-select-planning');
+                    const chantiersForPlanning = DB.getChantiers();
+                    chantiersForPlanning.forEach(c => { chantierSelectPlanning.innerHTML += `<option value="${c.id}">${c.name}</option>`; });
+                    function loadAndDisplayPlanning() {
+                        const selectedChantierId = chantierSelectPlanning.value;
+                        if (!selectedChantierId) { gantt.loadTasks([]); return; }
+                        const chantierData = DB.getChantierById(selectedChantierId);
+                        gantt.estimatedHoursBudget = chantierData.budgetInitialHeures || 0;
+                        const tasks = DB.getPlanningForChantier(selectedChantierId);
+                        gantt.loadTasks(tasks);
+                    }
+                    chantierSelectPlanning.addEventListener('change', loadAndDisplayPlanning);
+                    gantt.saveTask = function(taskData) {
+                        const chantierId = chantierSelectPlanning.value;
+                        const index = this.tasks.findIndex(t => t.id === taskData.id);
+                        if (index !== -1) { this.tasks[index] = taskData; } else { this.tasks.push(taskData); }
+                        DB.savePlanningForChantier(chantierId, this.tasks);
+                        this.render();
+                    };
+                    loadAndDisplayPlanning();
+                },
+                'chantier': () => {
+                    // Logique pour le module chantier (ajout, modification)
+                    console.log("Module Chantier initialisé. Logique à implémenter.");
                 },
                 'equipe': () => {
                     // La classe TeamModule et son initialisation
-                },
-                'chantier': () => {
-                    // La logique du formulaire chantier
+                    console.log("Module Équipe initialisé. Logique à implémenter.");
                 },
                 'travaux_materiaux': () => {
-                     // La logique du formulaire travaux & matériaux
+                    // La logique du formulaire travaux & matériaux
+                     console.log("Module Travaux & Matériaux initialisé. Logique à implémenter.");
                 },
                 'reunion': () => {
                      // La logique du module réunion avec ses 3 modes
+                     console.log("Module Réunion initialisé. Logique à implémenter.");
                 }
             };
 
-            // --- GESTION DE LA NAVIGATION ---
             navLinks.forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -174,7 +188,6 @@
                 });
             });
 
-            // Charger le module par défaut
             loadModule('tableau_de_bord');
         });
     </script>
