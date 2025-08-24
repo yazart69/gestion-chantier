@@ -1,910 +1,641 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FormulAIRE Tugrul V0.8.1 - Altrad Prezioso</title>
-    <link rel="stylesheet" href="assets/css/shared.css">
-    <link rel="stylesheet" href="assets/css/print.css" media="print">
-    <style>
-        :root {
-            --primary-red: #dc2626;
-            --primary-orange: #ff6600;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --info: #3b82f6;
-            --white: #ffffff;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-600: #4b5563;
-            --gray-700: #374151;
-            --gray-900: #111827;
-            --bg-primary: var(--gray-50);
-            --bg-secondary: var(--white);
-            --text-primary: var(--gray-900);
-            --text-secondary: var(--gray-600);
-            --border-primary: var(--gray-200);
-            --border-secondary: var(--gray-300);
-            --space-1: 0.25rem;
-            --space-2: 0.5rem;
-            --space-3: 0.75rem;
-            --space-4: 1rem;
-            --space-6: 1.5rem;
-            --space-8: 2rem;
-            --radius-md: 0.375rem;
-            --radius-lg: 0.5rem;
-            --radius-xl: 0.75rem;
-            --radius-full: 9999px;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --transition-fast: 150ms ease;
-            --transition-normal: 250ms ease;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            background: var(--bg-primary); 
-            color: var(--text-primary); 
-            line-height: 1.6; 
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 280px;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border-primary);
-            padding: var(--space-6);
-            box-shadow: var(--shadow-md);
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            overflow-y: auto;
-        }
-
-        .logo-section {
-            text-align: center;
-            margin-bottom: var(--space-8);
-            padding-bottom: var(--space-6);
-            border-bottom: 2px solid var(--primary-red);
-        }
-
-        .app-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-red);
-            margin-bottom: var(--space-2);
-        }
-
-        .app-version {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            background: var(--gray-100);
-            padding: var(--space-1) var(--space-3);
-            border-radius: var(--radius-full);
-        }
-
-        .nav-section {
-            margin-bottom: var(--space-6);
-        }
-
-        .nav-section-title {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            margin-bottom: var(--space-3);
-            padding-left: var(--space-2);
-        }
-
-        .nav-list {
-            list-style: none;
-        }
-
-        .nav-item {
-            margin-bottom: var(--space-1);
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: var(--space-3) var(--space-4);
-            color: var(--text-primary);
-            text-decoration: none;
-            border-radius: var(--radius-md);
-            transition: all var(--transition-fast);
-        }
-
-        .nav-link:hover {
-            background: var(--gray-100);
-            color: var(--primary-red);
-        }
-
-        .nav-link.active {
-            background: var(--primary-red);
-            color: var(--white);
-        }
-
-        .nav-icon {
-            width: 20px;
-            height: 20px;
-            margin-right: var(--space-3);
-            opacity: 0.7;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            padding: var(--space-8);
-            overflow-y: auto;
-        }
-
-        .page-header {
-            text-align: center;
-            margin-bottom: var(--space-8);
-        }
-
-        .page-title {
-            font-size: 2.25rem;
-            font-weight: 700;
-            color: var(--primary-red);
-            margin-bottom: var(--space-2);
-        }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: var(--space-8);
-            margin-bottom: var(--space-8);
-        }
-
-        .card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-primary);
-            border-radius: var(--radius-xl);
-            padding: var(--space-6);
-            box-shadow: var(--shadow-md);
-            transition: all var(--transition-normal);
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: var(--space-4);
-            padding-bottom: var(--space-3);
-            border-bottom: 2px solid var(--primary-red);
-            position: relative;
-        }
-
-        .card-title::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 60px;
-            height: 2px;
-            background: var(--primary-orange);
-        }
-
-        /* Chantiers */
-        .chantier-item {
-            padding: var(--space-4);
-            border: 1px solid var(--border-primary);
-            border-radius: var(--radius-md);
-            margin-bottom: var(--space-4);
-            background: var(--gray-50);
-        }
-
-        .chantier-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--space-3);
-        }
-
-        .chantier-name {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .chantier-status {
-            padding: var(--space-1) var(--space-3);
-            border-radius: var(--radius-full);
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .status-en-cours {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
-
-        .status-a-venir {
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--info);
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: var(--gray-200);
-            border-radius: var(--radius-full);
-            margin-bottom: var(--space-3);
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-red), var(--primary-orange));
-            transition: width var(--transition-normal);
-        }
-
-        .chantier-details {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            margin-bottom: var(--space-3);
-        }
-
-        .otp-checkboxes {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--space-4);
-            margin-top: var(--space-3);
-        }
-
-        .otp-group {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-2);
-        }
-
-        .otp-title {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        .checkbox-group {
-            display: flex;
-            gap: var(--space-4);
-        }
-
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: var(--space-1);
-            font-size: 0.75rem;
-        }
-
-        /* Réunions */
-        .reunion-summary {
-            background: var(--gray-50);
-            padding: var(--space-4);
-            border-radius: var(--radius-md);
-            border-left: 4px solid var(--primary-red);
-        }
-
-        .reunion-date {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            margin-bottom: var(--space-2);
-        }
-
-        .reunion-points {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .reunion-points li {
-            padding: var(--space-1) 0;
-            font-size: 0.875rem;
-            position: relative;
-            padding-left: var(--space-4);
-        }
-
-        .reunion-points li::before {
-            content: '•';
-            color: var(--primary-red);
-            font-weight: bold;
-            position: absolute;
-            left: 0;
-        }
-
-        /* Statistiques */
-        .stats-section {
-            margin-top: var(--space-8);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: var(--space-4);
-        }
-
-        .stat-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-primary);
-            border-radius: var(--radius-lg);
-            padding: var(--space-4);
-            text-align: center;
-            transition: all var(--transition-fast);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary-red);
-        }
-
-        .stat-label {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            margin-top: var(--space-1);
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: var(--space-2);
-            padding: var(--space-2) var(--space-4);
-            border: 1px solid transparent;
-            border-radius: var(--radius-md);
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: var(--primary-red);
-            color: var(--white);
-            border-color: var(--primary-red);
-        }
-
-        .btn-primary:hover {
-            background: #b91c1c;
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-
-        /* Styles d'impression A4 */
-        @media print {
-            * {
-                -webkit-print-color-adjust: exact !important;
-                color-adjust: exact !important;
-            }
-
-            body {
-                background: white !important;
-                color: black !important;
-                font-size: 12pt;
-                line-height: 1.4;
-                display: block;
-                margin: 0;
-                padding: 15mm;
-            }
-
-            .sidebar {
-                display: none !important;
-            }
-
-            .main-content {
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-
-            .page-header {
-                margin-bottom: 20pt;
-                text-align: center;
-                border-bottom: 2pt solid var(--primary-red);
-                padding-bottom: 10pt;
-            }
-
-            .page-title {
-                font-size: 18pt;
-                margin-bottom: 5pt;
-            }
-
-            .content-grid {
-                display: block !important;
-            }
-
-            .card {
-                break-inside: avoid;
-                margin-bottom: 15pt;
-                border: 1pt solid #ccc;
-                box-shadow: none;
-            }
-
-            .card-title {
-                font-size: 14pt;
-                margin-bottom: 10pt;
-                border-bottom: 1pt solid var(--primary-red);
-            }
-
-            .chantier-item {
-                break-inside: avoid;
-                margin-bottom: 10pt;
-                padding: 8pt;
-                border: 1pt solid #ddd;
-            }
-
-            .progress-bar {
-                height: 4pt;
-                border: 1pt solid #ccc;
-            }
-
-            .stats-section {
-                page-break-before: auto;
-                margin-top: 15pt;
-            }
-
-            .stats-grid {
-                display: grid !important;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 10pt;
-            }
-
-            .stat-card {
-                border: 1pt solid #ccc;
-                padding: 8pt;
-                text-align: center;
-            }
-
-            .otp-checkboxes {
-                font-size: 9pt;
-            }
-
-            .reunion-summary {
-                border-left: 3pt solid var(--primary-red);
-                padding: 8pt;
-                background: #f9f9f9 !important;
-            }
-
-            /* Éviter les coupures */
-            .chantier-item,
-            .reunion-summary,
-            .stat-card {
-                break-inside: avoid;
-                page-break-inside: avoid;
-            }
-
-            h2, h3, h4 {
-                break-after: avoid;
-                page-break-after: avoid;
-            }
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gestion Chantier – V7.2</title>
+  <style>
+    :root{
+      --primary:#C41230; /* rouge Altrad */
+      --bg:#f6f7f9;
+      --card:#ffffff;
+      --text:#1a1a1a;
+      --muted:#6b7280;
+      --ok:#16a34a; --warn:#f59e0b; --danger:#dc2626; --info:#2563eb;
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    header{position:sticky;top:0;z-index:10;background:var(--card);border-bottom:1px solid #e5e7eb}
+    .wrap{max-width:1200px;margin:0 auto;padding:16px}
+    nav{display:flex;gap:8px;flex-wrap:wrap}
+    nav button{border:1px solid #e5e7eb;background:#fff;color:#111;padding:10px 14px;border-radius:10px;cursor:pointer}
+    nav button.active, .btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+    main{max-width:1200px;margin:18px auto;padding:0 16px 40px}
+    .grid{display:grid;gap:16px}
+    .g2{grid-template-columns:1.2fr 1fr}
+    .g3{grid-template-columns:1fr 1fr 1fr}
+    @media (max-width: 900px){.g2,.g3{grid-template-columns:1fr}}
+
+    .card{background:var(--card);border:1px solid #e5e7eb;border-radius:var(--radius);padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+    .card h2,.card h3{margin:0 0 8px}
+    .muted{color:var(--muted);font-size:.9rem}
+    label{display:block;margin:8px 0 4px}
+    input,select,textarea{width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff}
+    textarea{min-height:100px}
+    .row{display:flex;gap:10px;align-items:center}
+    .row > *{flex:1}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .badge{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid #e5e7eb;background:#fff;font-size:.85rem}
+    .table{width:100%;border-collapse:separate;border-spacing:0}
+    .table th,.table td{border-bottom:1px solid #eee;padding:10px;text-align:left}
+    .table th{background:#fafafa}
+    .table .num{text-align:right}
+    .pill{padding:4px 10px;border-radius:999px;color:#fff;font-size:.8rem}
+    .pill.ok{background:var(--ok)}.pill.warn{background:var(--warn)}.pill.danger{background:var(--danger)}.pill.info{background:var(--info)}
+    .sr-only{position:absolute;left:-9999px}
+    .right{float:right}
+
+    /* Print */
+    @media print{
+      header, nav, .no-print{display:none !important}
+      main{margin:0;max-width:none}
+      .card{box-shadow:none;border:0;padding:0}
+      .printable{page-break-inside:avoid}
+    }
+  </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="logo-section">
-            <h1 class="app-title">FormulAIRE Tugrul</h1>
-            <span class="app-version">V0.8.1</span>
+  <header>
+    <div class="wrap">
+      <div class="row" style="align-items:center;gap:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:36px;height:36px;border-radius:9px;background:var(--primary)"></div>
+          <strong>FormulAIRE – Gestion Chantier V7.2</strong>
         </div>
-        
-        <nav class="sidebar-nav">
-            <div class="nav-section">
-                <h3 class="nav-section-title">Gestion</h3>
-                <ul class="nav-list">
-                    <li class="nav-item">
-                        <a href="#" class="nav-link active">
-                            <span class="nav-icon">🏠</span>
-                            <span class="nav-text">Accueil</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="modules/chantier.html" class="nav-link">
-                            <span class="nav-icon">🏗️</span>
-                            <span class="nav-text">Nouveau Chantier</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="modules/equipe.html" class="nav-link">
-                            <span class="nav-icon">👥</span>
-                            <span class="nav-text">Gestion Équipe</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            
-            <div class="nav-section">
-                <h3 class="nav-section-title">Travaux</h3>
-                <ul class="nav-list">
-                    <li class="nav-item">
-                        <a href="modules/travaux_materiaux.html" class="nav-link">
-                            <span class="nav-icon">🔧</span>
-                            <span class="nav-text">Travaux & Matériaux</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="modules/tableau_bord.html" class="nav-link">
-                            <span class="nav-icon">💰</span>
-                            <span class="nav-text">Tableau de Bord</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="modules/planning.html" class="nav-link">
-                            <span class="nav-icon">📅</span>
-                            <span class="nav-text">Planning</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            
-            <div class="nav-section">
-                <h3 class="nav-section-title">Documents</h3>
-                <ul class="nav-list">
-                    <li class="nav-item">
-                        <a href="reunion copie.html" class="nav-link">
-                            <span class="nav-icon">📋</span>
-                            <span class="nav-text">Réunions</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            
-            <div class="nav-section">
-                <h3 class="nav-section-title">Configuration</h3>
-                <ul class="nav-list">
-                    <li class="nav-item">
-                        <a href="modules/parametres.html" class="nav-link">
-                            <span class="nav-icon">⚙️</span>
-                            <span class="nav-text">Paramètres</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-    </aside>
+        <span class="badge">Local • 100% Offline</span>
+      </div>
+      <nav class="wrap" style="padding-left:0">
+        <button data-nav="home" class="active">Accueil</button>
+        <button data-nav="reunion">Réunion</button>
+        <button data-nav="chantiers">Chantiers</button>
+        <button data-nav="docs">Documents</button>
+        <button data-nav="parametres">Paramètres</button>
+        <button class="right no-print" onclick="printCurrent()">🖨️ Imprimer</button>
+      </nav>
+    </div>
+  </header>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <div class="page-header">
-            <h1 class="page-title">Tableau de Bord - Équipe 41</h1>
+  <main>
+    <!-- ACCUEIL -->
+    <section id="page-home" class="grid g2">
+      <div class="card printable" id="home-last-meeting">
+        <h2>Dernière réunion</h2>
+        <div id="lastMeetingBlock" class="muted">Aucun compte rendu pour le moment.</div>
+        <div class="actions no-print">
+          <button class="btn-primary" onclick="go('reunion')">Créer une réunion</button>
+          <button onclick="openLastMeetingForPrint()">Imprimer le dernier CR</button>
         </div>
+      </div>
 
-        <div class="content-grid">
-            <!-- Chantiers -->
-            <div class="card">
-                <h2 class="card-title">📊 Chantiers en Cours</h2>
-                
-                <div class="chantier-item">
-                    <div class="chantier-header">
-                        <h3 class="chantier-name">Grand Lyon – Pont de Chasse</h3>
-                        <span class="chantier-status status-en-cours">En cours</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 75%;"></div>
-                    </div>
-                    <div class="chantier-details">
-                        N° 22111 13275 • Chef: FARID MESSAL • 75% terminé
-                    </div>
-                </div>
-
-                <div class="chantier-item">
-                    <div class="chantier-header">
-                        <h3 class="chantier-name">VICHY</h3>
-                        <span class="chantier-status status-en-cours">En cours</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 45%;"></div>
-                    </div>
-                    <div class="chantier-details">
-                        N° 22341113974 • Chef: CLEMENTE MICKAEL • 45% terminé
-                    </div>
-                </div>
-
-                <div class="chantier-item">
-                    <div class="chantier-header">
-                        <h3 class="chantier-name">CAMPENON BERNARD</h3>
-                        <span class="chantier-status status-en-cours">En cours</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 60%;"></div>
-                    </div>
-                    <div class="chantier-details">
-                        N° 22441114303 • Chef: ANTUNEZ LOIC • 60% terminé
-                    </div>
-                </div>
-
-                <div class="chantier-item">
-                    <div class="chantier-header">
-                        <h3 class="chantier-name">EFFIA PARKING BARET</h3>
-                        <span class="chantier-status status-en-cours">En cours</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 25%;"></div>
-                    </div>
-                    <div class="chantier-details">
-                        N° 22541114454 • Chef: A MOHAMED • 25% terminé
-                    </div>
-                </div>
-
-                <h3 style="margin-top: 2rem; margin-bottom: 1rem; font-size: 1.25rem; color: var(--text-primary);">🔜 Chantiers à Venir</h3>
-                
-                <div class="chantier-item">
-                    <div class="chantier-header">
-                        <h3 class="chantier-name">EFFIA – MONTPELLIER</h3>
-                        <span class="chantier-status status-a-venir">À venir</span>
-                    </div>
-                    <div class="chantier-details">
-                        N° 22541100038 • Chef: À définir
-                    </div>
-                    <div class="otp-checkboxes">
-                        <div class="otp-group">
-                            <div class="otp-title">OTP SAP</div>
-                            <div class="checkbox-group">
-                                <label class="checkbox-item">
-                                    <input type="radio" name="sap-montpellier" value="oui" checked>
-                                    <span>Oui</span>
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="radio" name="sap-montpellier" value="en-cours">
-                                    <span>En cours</span>
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="radio" name="sap-montpellier" value="non">
-                                    <span>Non</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="otp-group">
-                            <div class="otp-title">OTP SharePoint</div>
-                            <div class="checkbox-group">
-                                <label class="checkbox-item">
-                                    <input type="radio" name="sp-montpellier" value="oui">
-                                    <span>Oui</span>
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="radio" name="sp-montpellier" value="en-cours" checked>
-                                    <span>En cours</span>
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="radio" name="sp-montpellier" value="non">
-                                    <span>Non</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="chantier-item">
-                    <div class="chantier-header">
-                        <h3 class="chantier-name">QPARK HDV Marseille</h3>
-                        <span class="chantier-status status-a-venir">À venir</span>
-                    </div>
-                    <div class="chantier-details">
-                        Chef: CUKUR MUSTAFA
-                    </div>
-                    <div class="otp-checkboxes">
-                        <div class="otp-group">
-                            <div class="otp-title">OTP SAP</div>
-                            <div class="checkbox-group">
-                                <label class="checkbox-item">
-                                    <input type="radio" name="sap-marseille" value="oui">
-                                    <span>Oui</span>
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="radio" name="sap-marseille" value="en-cours">
-                                    <span>En cours</span>
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="radio" name="sap-marseille" value="non" checked>
-                                    <span>Non</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="otp-group">
-                            <div class="otp-title">OTP SharePoint</div>
-                            <div class="checkbox-group">
-                                <label class="checkbox-item">
-                                    <input type="radio" name="sp-marseille" value="oui">
-                                    <span>Oui</span>
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="radio" name="sp-marseille" value="en-cours">
-                                    <span>En cours</span>
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="radio" name="sp-marseille" value="non" checked>
-                                    <span>Non</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="chantier-item">
-                    <div class="chantier-header">
-                        <h3 class="chantier-name">FRAMATOME</h3>
-                        <span class="chantier-status status-a-venir">À venir</span>
-                    </div>
-                    <div class="chantier-details">
-                        N° 22141100002 • Chef: GRANDADAM G
-                    </div>
-                    <div class="otp-checkboxes">
-                        <div class="otp-group">
-                            <div class="otp-title">OTP SAP</div>
-                            <div class="checkbox-group">
-                                <label class="checkbox-item">
-                                    <input type="radio" name="sap-framatome" value="oui">
-                                    <span>Oui</span>
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="radio" name="sap-framatome" value="en-cours" checked>
-                                    <span>En cours</span>
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="radio" name="sap-framatome" value="non">
-                                    <span>Non</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="otp-group">
-                            <div class="otp-title">OTP SharePoint</div>
-                            <div class="checkbox-group">
-                                <label class="checkbox-item">
-                                    <input type="radio" name="sp-framatome" value="oui" checked>
-                                    <span>Oui</span>
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="radio" name="sp-framatome" value="en-cours">
-                                    <span>En cours</span>
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="radio" name="sp-framatome" value="non">
-                                    <span>Non</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+      <div class="card printable">
+        <h2>Infos équipe & logistique</h2>
+        <div class="grid g3">
+          <div>
+            <h3>Congés</h3>
+            <ul id="listConges" class="muted"></ul>
+            <div class="row no-print">
+              <input id="inConges" placeholder="Nom Prénom" />
+              <button onclick="addHomeItem('conges')">Ajouter</button>
             </div>
-
-            <!-- Dernière Réunion -->
-            <div class="card">
-                <h2 class="card-title">📋 Dernière Réunion Équipe 41</h2>
-                
-                <div class="reunion-summary">
-                    <div class="reunion-date">📅 Réunion n°003-2025 du 20 août 2025</div>
-                    
-                    <h4 style="margin-bottom: 0.5rem; color: var(--text-primary);">Points clés discutés :</h4>
-                    <ul class="reunion-points">
-                        <li>Démarrage chantier Lyon confirmé pour le 21 août</li>
-                        <li>Affectation Farid MESSAL comme chef de chantier</li>
-                        <li>Formation ATEX prévue pour 3 opérateurs</li>
-                        <li>Commande matériel abrasif validée</li>
-                        <li>Point sécurité : port du masque obligatoire</li>
-                    </ul>
-                    
-                    <h4 style="margin: 1rem 0 0.5rem; color: var(--text-primary);">Actions à suivre :</h4>
-                    <ul class="reunion-points">
-                        <li>Finaliser OTP SharePoint (Responsable: CA)</li>
-                        <li>Programmer visite médicale Mickael (RH)</li>
-                        <li>Vérifier stock peinture atelier (Magasinier)</li>
-                    </ul>
-                    
-                    <div style="text-align: right; margin-top: 1rem;">
-                        <a href="reunion copie.html" class="btn btn-primary">Voir toutes les réunions</a>
-                    </div>
-                </div>
+          </div>
+          <div>
+            <h3>Maladies</h3>
+            <ul id="listMaladies" class="muted"></ul>
+            <div class="row no-print">
+              <input id="inMaladies" placeholder="Nom Prénom" />
+              <button onclick="addHomeItem('maladies')">Ajouter</button>
             </div>
+          </div>
+          <div>
+            <h3>Stocks à prévoir</h3>
+            <ul id="listStocks" class="muted"></ul>
+            <div class="row no-print">
+              <input id="inStocks" placeholder="Désignation" />
+              <button onclick="addHomeItem('stocks')">Ajouter</button>
+            </div>
+          </div>
+        </div>
+        <div class="grid g3" style="margin-top:12px">
+          <div>
+            <h3>Commandes à passer</h3>
+            <ul id="listCommandes" class="muted"></ul>
+            <div class="row no-print">
+              <input id="inCommandes" placeholder="Désignation / fournisseur" />
+              <button onclick="addHomeItem('commandes')">Ajouter</button>
+            </div>
+          </div>
+          <div>
+            <h3>Raccourcis</h3>
+            <div class="actions no-print">
+              <button onclick="go('docs')">Centre de documents</button>
+              <button onclick="go('chantiers')">Fiches chantiers</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REUNION -->
+    <section id="page-reunion" class="grid g2" style="display:none">
+      <div class="card printable">
+        <h2>Nouvelle réunion</h2>
+        <div class="row">
+          <div>
+            <label>Titre</label>
+            <input id="meetTitle" placeholder="Ex: Réunion hebdo exploitation" />
+          </div>
+          <div>
+            <label>Date</label>
+            <input id="meetDate" type="date" />
+          </div>
+        </div>
+        <label>Participants (séparés par des virgules)</label>
+        <input id="meetPeople" placeholder="Ex: Sylvain Garreau, A. Martin, ..." />
+        <label>Ordre du jour</label>
+        <textarea id="meetAgenda" placeholder="Points à traiter..."></textarea>
+        <label>Décisions</label>
+        <textarea id="meetDecisions" placeholder="Décisions actées..."></textarea>
+        <label>Actions / TODO</label>
+        <textarea id="meetTodos" placeholder="Qui fait quoi, pour quand..."></textarea>
+        <div class="actions no-print">
+          <button class="btn-primary" onclick="saveMeeting()">Enregistrer</button>
+          <button onclick="printMeetingPreview()">Imprimer le CR</button>
+          <button onclick="exportMeeting()">Exporter (HTML)</button>
+        </div>
+      </div>
+      <div class="card printable">
+        <h2>Historique</h2>
+        <table class="table" id="meetingsTable">
+          <thead><tr><th>Date</th><th>Titre</th><th>Participants</th><th class="no-print">Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CHANTIERS -->
+    <section id="page-chantiers" style="display:none">
+      <div class="card printable">
+        <h2>Fiche chantier</h2>
+        <div class="grid g3">
+          <div>
+            <label>Nom du chantier</label>
+            <input id="chName" placeholder="Ex: Rénovation ERP Bât. A" />
+          </div>
+          <div>
+            <label>Client</label>
+            <input id="chClient" placeholder="Ex: Ville de Lyon" />
+          </div>
+          <div>
+            <label>Adresse</label>
+            <input id="chAddress" placeholder="Adresse du chantier" />
+          </div>
+        </div>
+        <div class="grid g3">
+          <div>
+            <label>Contact principal</label>
+            <input id="chContact" value="Sylvain Garreau" />
+          </div>
+          <div>
+            <label>Chef de chantier (optionnel)</label>
+            <input id="chChef" placeholder="Non obligatoire" />
+          </div>
+          <div>
+            <label>Téléphone contact</label>
+            <input id="chPhone" placeholder="Ex: 06 00 00 00 00" />
+          </div>
         </div>
 
-        <!-- Statistiques -->
-        <div class="stats-section">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value">9</div>
-                    <div class="stat-label">Chantiers actifs</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">35</div>
-                    <div class="stat-label">Membres équipe</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">51%</div>
-                    <div class="stat-label">Progression moyenne</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">3</div>
-                    <div class="stat-label">Chantiers à venir</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">92%</div>
-                    <div class="stat-label">Disponibilité équipe</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">5</div>
-                    <div class="stat-label">Jours depuis dernière réunion</div>
-                </div>
-            </div>
+        <h3 style="margin-top:16px">Types de travaux & surfaces (m²)</h3>
+        <table class="table" id="tblWorks">
+          <thead>
+            <tr><th>Type</th><th>Description</th><th>Surface (m²)</th><th class="no-print">—</th></tr>
+          </thead>
+          <tbody></tbody>
+          <tfoot>
+            <tr><th colspan="2">Total</th><th class="num" id="worksTotal">0</th><th class="no-print"></th></tr>
+          </tfoot>
+        </table>
+        <div class="actions no-print">
+          <button onclick="addWorkRow()">+ Ajouter un type</button>
+          <button class="btn-primary" onclick="saveChantier()">Enregistrer la fiche</button>
+          <button onclick="printChantier()">Imprimer la fiche</button>
         </div>
-    </main>
+      </div>
 
-    <script>
-        // Animation des barres de progression au chargement
-        document.addEventListener('DOMContentLoaded', () => {
-            const progressBars = document.querySelectorAll('.progress-fill');
-            
-            setTimeout(() => {
-                progressBars.forEach(bar => {
-                    const width = bar.style.width;
-                    bar.style.width = '0%';
-                    setTimeout(() => {
-                        bar.style.width = width;
-                    }, 100);
-                });
-            }, 500);
+      <div class="card printable" style="margin-top:16px">
+        <h2>Chantiers enregistrés</h2>
+        <table class="table" id="chantiersTable">
+          <thead><tr><th>Nom</th><th>Client</th><th>Contact</th><th>Total m²</th><th class="no-print">Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
 
-            // Animation des statistiques
-            const statValues = document.querySelectorAll('.stat-value');
-            statValues.forEach((stat, index) => {
-                setTimeout(() => {
-                    stat.style.transform = 'scale(1.1)';
-                    setTimeout(() => {
-                        stat.style.transform = 'scale(1)';
-                    }, 200);
-            }, index * 100);
-            });
-            // Rendre les chantiers en cours cliquables pour le suivi.
-            // Lorsqu'on clique sur un chantier, on enregistre son nom dans localStorage
-            // afin de présélectionner ce chantier dans le tableau de bord et le planning.
-            document.querySelectorAll('.chantier-status.status-en-cours').forEach(el => {
-                const item = el.closest('.chantier-item');
-                if (item) {
-                    item.style.cursor = 'pointer';
-                    item.addEventListener('click', () => {
-                        const chantierNameElem = item.querySelector('.chantier-name');
-                        if (chantierNameElem) {
-                            const chantierName = chantierNameElem.textContent.trim();
-                            try {
-                                localStorage.setItem('selectedChantier', chantierName);
-                            } catch (e) {
-                                console.warn('Impossible de sauvegarder le chantier sélectionné dans localStorage:', e);
-                            }
-                        }
-                        window.location.href = 'modules/tableau_bord.html';
-                    });
-                }
-            });
+    <!-- DOCUMENTS -->
+    <section id="page-docs" style="display:none">
+      <div class="card printable">
+        <h2>Centre de documents</h2>
+        <p class="muted">Base dédiée aux documents importés et aux générations (impressions / exports).</p>
+        <div class="no-print">
+          <label class="no-print">Importer des documents (PDF, DOCX, XLSX…)</label>
+          <input id="docImport" type="file" multiple />
+          <div class="actions no-print">
+            <button onclick="importDocs()">Importer</button>
+          </div>
+        </div>
+
+        <h3 style="margin-top:16px">Documents importés</h3>
+        <table class="table" id="docsTable">
+          <thead><tr><th>Nom</th><th>Type</th><th>Taille</th><th>Date</th><th class="no-print">Actions</th></tr></thead>
+          <tbody></tbody>
+        </table>
+
+        <h3 style="margin-top:16px">Journal des impressions / exports</h3>
+        <table class="table" id="docLogsTable">
+          <thead><tr><th>Date</th><th>Type</th><th>Titre</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- PARAMETRES -->
+    <section id="page-parametres" style="display:none">
+      <div class="card printable">
+        <h2>Paramètres</h2>
+        <p class="muted">La base de données <strong>personnelles</strong> a été supprimée. Elle est remplacée par une <strong>base de documents</strong> (importés / générés).</p>
+        <div class="actions no-print">
+          <button onclick="go('docs')">Ouvrir le centre de documents</button>
+          <button onclick="purgeAll()" style="border-color:var(--danger);color:var(--danger)">Purger toutes les données</button>
+          <button onclick="go('home')">← Retour</button>
+        </div>
+        <div class="muted">Version V7.2 • Stockage: IndexedDB + localStorage</div>
+      </div>
+    </section>
+  </main>
+
+  <template id="meetingTemplate">
+    <div>
+      <h2 style="margin:0 0 6px">{{titre}}</h2>
+      <div class="muted">Date: {{date}} • Participants: {{people}}</div>
+      <h3>Ordre du jour</h3>
+      <div>{{agenda}}</div>
+      <h3>Décisions</h3>
+      <div>{{decisions}}</div>
+      <h3>Actions</h3>
+      <div>{{todos}}</div>
+    </div>
+  </template>
+
+  <script>
+    // --- Routing ---
+    const pages = {
+      home: document.getElementById('page-home'),
+      reunion: document.getElementById('page-reunion'),
+      chantiers: document.getElementById('page-chantiers'),
+      docs: document.getElementById('page-docs'),
+      parametres: document.getElementById('page-parametres'),
+    };
+    const navButtons = [...document.querySelectorAll('nav button[data-nav]')];
+    function go(page){
+      Object.values(pages).forEach(s=>s.style.display='none');
+      pages[page].style.display='';
+      navButtons.forEach(b=>b.classList.toggle('active', b.dataset.nav===page));
+      localStorage.setItem('route', page);
+      if(page==='docs'){ refreshDocs(); refreshDocLogs(); }
+      if(page==='reunion'){ refreshMeetings(); }
+      if(page==='chantiers'){ refreshChantiers(); if(!tblWorks.tbodyInitiated){addWorkRow(); addWorkRow(); tblWorks.tbodyInitiated=true;} }
+      if(page==='home'){ renderLastMeeting(); renderHomeInfo(); }
+    }
+
+    // Restore route
+    const lastRoute = localStorage.getItem('route')||'home';
+    navButtons.forEach(b=>b.addEventListener('click',()=>go(b.dataset.nav)));
+
+    // --- Home info state ---
+    const homeInfoKey = 'homeInfoV72';
+    function getHomeInfo(){ return JSON.parse(localStorage.getItem(homeInfoKey)||'{}'); }
+    function setHomeInfo(v){ localStorage.setItem(homeInfoKey, JSON.stringify(v)); renderHomeInfo(); }
+    function addHomeItem(kind){
+      const map = {conges:'inConges', maladies:'inMaladies', stocks:'inStocks', commandes:'inCommandes'};
+      const input = document.getElementById(map[kind]);
+      const val = (input.value||'').trim(); if(!val) return;
+      const data = getHomeInfo(); data[kind] = data[kind]||[]; data[kind].push(val); setHomeInfo(data); input.value='';
+    }
+    function renderHomeInfo(){
+      const d = getHomeInfo();
+      const renderList = (id, arr)=>{
+        const ul = document.getElementById(id); ul.innerHTML='';
+        (arr||[]).forEach((v,i)=>{
+          const li = document.createElement('li'); li.textContent=v; li.className='row';
+          const del = document.createElement('button'); del.textContent='Suppr'; del.className='no-print'; del.onclick=()=>{arr.splice(i,1); const x=getHomeInfo(); x[id.replace('list','').toLowerCase()] = arr; setHomeInfo(x);};
+          li.appendChild(del); ul.appendChild(li);
         });
+      };
+      renderList('listConges', d.conges||[]);
+      renderList('listMaladies', d.maladies||[]);
+      renderList('listStocks', d.stocks||[]);
+      renderList('listCommandes', d.commandes||[]);
+    }
 
-        // Sauvegarde automatique des états OTP
-        document.addEventListener('change', (e) => {
-            if (e.target.type === 'radio' && (e.target.name.includes('sap') || e.target.name.includes('sp'))) {
-                console.log(`État OTP mis à jour: ${e.target.name} = ${e.target.value}`);
-                // Ici on pourrait sauvegarder en localStorage ou envoyer au serveur
-                
-                // Notification visuelle
-                const chantierItem = e.target.closest('.chantier-item');
-                chantierItem.style.backgroundColor = '#f0fdf4';
-                setTimeout(() => {
-                    chantierItem.style.backgroundColor = '';
-                }, 1000);
-            }
+    // --- Meetings ---
+    const meetKey = 'meetingsV72';
+    function getMeetings(){ return JSON.parse(localStorage.getItem(meetKey)||'[]'); }
+    function setMeetings(v){ localStorage.setItem(meetKey, JSON.stringify(v)); refreshMeetings(); renderLastMeeting(); }
+    function saveMeeting(){
+      const m = {
+        id: crypto.randomUUID(),
+        titre: document.getElementById('meetTitle').value.trim()||'Réunion',
+        date: document.getElementById('meetDate').value||new Date().toISOString().slice(0,10),
+        people: document.getElementById('meetPeople').value.trim(),
+        agenda: sanitize(document.getElementById('meetAgenda').value),
+        decisions: sanitize(document.getElementById('meetDecisions').value),
+        todos: sanitize(document.getElementById('meetTodos').value),
+        createdAt: Date.now()
+      };
+      const arr = getMeetings();
+      arr.push(m); setMeetings(arr);
+      // Reset form
+      ['meetTitle','meetDate','meetPeople','meetAgenda','meetDecisions','meetTodos'].forEach(id=>document.getElementById(id).value='');
+    }
+    function refreshMeetings(){
+      const tbody = document.querySelector('#meetingsTable tbody'); tbody.innerHTML='';
+      const arr = getMeetings().sort((a,b)=>b.date.localeCompare(a.date));
+      arr.forEach(m=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML = `<td>${m.date}</td><td>${escapeHtml(m.titre)}</td><td>${escapeHtml(m.people||'')}</td><td class="no-print"></td>`;
+        const td = tr.querySelector('td.no-print');
+        const btn1 = mkBtn('Voir',()=>previewMeeting(m));
+        const btn2 = mkBtn('Impr.',()=>printHtml(renderMeetingHtml(m), `CR – ${m.date} ${m.titre}`));
+        const btn3 = mkBtn('Exporter',()=>exportAsHtml(renderMeetingHtml(m), `CR_${m.date}_${slug(m.titre)}.html`));
+        const btn4 = mkBtn('Suppr',()=>{ if(confirm('Supprimer ce CR ?')){ const a=getMeetings().filter(x=>x.id!==m.id); setMeetings(a);} });
+        [btn1,btn2,btn3,btn4].forEach(b=>td.appendChild(b));
+        tbody.appendChild(tr);
+      });
+    }
+    function renderLastMeeting(){
+      const last = getMeetings().sort((a,b)=>b.createdAt-a.createdAt)[0];
+      const el = document.getElementById('lastMeetingBlock');
+      if(!last){ el.textContent = 'Aucun compte rendu pour le moment.'; return; }
+      el.innerHTML = renderMeetingHtml(last);
+    }
+    function openLastMeetingForPrint(){
+      const last = getMeetings().sort((a,b)=>b.createdAt-a.createdAt)[0];
+      if(!last){ alert('Aucun CR trouvé'); return; }
+      printHtml(renderMeetingHtml(last), `CR – ${last.date} ${last.titre}`);
+    }
+    function renderMeetingHtml(m){
+      const tpl = document.getElementById('meetingTemplate').innerHTML;
+      return tpl
+        .replace('{{titre}}', escapeHtml(m.titre))
+        .replace('{{date}}', escapeHtml(m.date))
+        .replace('{{people}}', escapeHtml(m.people||''))
+        .replace('{{agenda}}', nl2br(escapeHtml(m.agenda||'')))
+        .replace('{{decisions}}', nl2br(escapeHtml(m.decisions||'')))
+        .replace('{{todos}}', nl2br(escapeHtml(m.todos||'')));
+    }
+    function previewMeeting(m){
+      const w = window.open('', '_blank');
+      w.document.write(`<html><head><title>CR ${escapeHtml(m.titre)}</title><meta charset='utf-8'><style>body{font-family:system-ui;line-height:1.45;padding:24px} h2{margin:0 0 6px} .muted{color:#6b7280}</style></head><body>${renderMeetingHtml(m)}</body></html>`);
+      w.document.close();
+    }
+    function printMeetingPreview(){
+      const m = {
+        titre: document.getElementById('meetTitle').value.trim()||'Réunion',
+        date: document.getElementById('meetDate').value||new Date().toISOString().slice(0,10),
+        people: document.getElementById('meetPeople').value.trim(),
+        agenda: document.getElementById('meetAgenda').value,
+        decisions: document.getElementById('meetDecisions').value,
+        todos: document.getElementById('meetTodos').value,
+      };
+      printHtml(renderMeetingHtml(m), `CR – ${m.date} ${m.titre}`);
+    }
+
+    // --- Chantiers ---
+    const chKey = 'chantiersV72';
+    function getChantiers(){ return JSON.parse(localStorage.getItem(chKey)||'[]'); }
+    function setChantiers(v){ localStorage.setItem(chKey, JSON.stringify(v)); refreshChantiers(); }
+
+    const tblWorks = document.getElementById('tblWorks');
+    function addWorkRow(row){
+      const tbody = tblWorks.querySelector('tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input placeholder="Ex: Peinture" value="${row?.type||''}"></td>
+        <td><input placeholder="Détail (optionnel)" value="${row?.desc||''}"></td>
+        <td><input type="number" step="0.01" min="0" value="${row?.m2||''}" oninput="recalcWorksTotal()" class="num"></td>
+        <td class="no-print"></td>`;
+      const del = mkBtn('Suppr', ()=>{ tr.remove(); recalcWorksTotal(); });
+      tr.querySelector('td.no-print').appendChild(del);
+      tbody.appendChild(tr);
+      recalcWorksTotal();
+    }
+    function recalcWorksTotal(){
+      const m2 = [...tblWorks.querySelectorAll('tbody tr')].reduce((sum,tr)=>{
+        const v = parseFloat(tr.children[2].querySelector('input').value||'0');
+        return sum + (isFinite(v)?v:0);
+      },0);
+      document.getElementById('worksTotal').textContent = m2.toFixed(2);
+    }
+    function collectWorks(){
+      return [...tblWorks.querySelectorAll('tbody tr')].map(tr=>({
+        type: tr.children[0].querySelector('input').value.trim(),
+        desc: tr.children[1].querySelector('input').value.trim(),
+        m2: parseFloat(tr.children[2].querySelector('input').value||'0')||0,
+      })).filter(r=>r.type||r.m2>0);
+    }
+    function saveChantier(){
+      const c = {
+        id: crypto.randomUUID(),
+        name: document.getElementById('chName').value.trim()||'Chantier',
+        client: document.getElementById('chClient').value.trim(),
+        address: document.getElementById('chAddress').value.trim(),
+        contact: document.getElementById('chContact').value.trim()||'Sylvain Garreau',
+        chef: document.getElementById('chChef').value.trim(), // optionnel
+        phone: document.getElementById('chPhone').value.trim(),
+        works: collectWorks(),
+        totalM2: parseFloat(document.getElementById('worksTotal').textContent)||0,
+        createdAt: Date.now(),
+      };
+      const arr = getChantiers(); arr.push(c); setChantiers(arr);
+      // reset form minimal
+      ['chName','chClient','chAddress','chChef','chPhone'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('chContact').value='Sylvain Garreau';
+      tblWorks.querySelector('tbody').innerHTML=''; addWorkRow(); recalcWorksTotal();
+      alert('Chantier enregistré.');
+    }
+    function refreshChantiers(){
+      const tbody = document.querySelector('#chantiersTable tbody'); tbody.innerHTML='';
+      getChantiers().sort((a,b)=>b.createdAt-a.createdAt).forEach(c=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${escapeHtml(c.name)}</td><td>${escapeHtml(c.client||'')}</td><td>${escapeHtml(c.contact||'')}</td><td class='num'>${(c.totalM2||0).toFixed(2)}</td><td class='no-print'></td>`;
+        const td=tr.querySelector('td.no-print');
+        td.appendChild(mkBtn('Voir',()=>previewChantier(c)));
+        td.appendChild(mkBtn('Impr.',()=>printHtml(renderChantierHtml(c), `Fiche chantier – ${c.name}`)));
+        td.appendChild(mkBtn('Suppr',()=>{ if(confirm('Supprimer cette fiche ?')){ setChantiers(getChantiers().filter(x=>x.id!==c.id)); } }));
+        tbody.appendChild(tr);
+      });
+    }
+    function renderChantierHtml(c){
+      const rows = c.works.map(w=>`<tr><td>${escapeHtml(w.type)}</td><td>${escapeHtml(w.desc||'')}</td><td class='num'>${w.m2.toFixed(2)}</td></tr>`).join('');
+      return `
+        <div>
+          <h2 style="margin:0 0 8px">${escapeHtml(c.name)}</h2>
+          <div class="muted">Client: ${escapeHtml(c.client||'-')} • Contact principal: ${escapeHtml(c.contact||'Sylvain Garreau')} • Chef de chantier: ${escapeHtml(c.chef||'—')} • Tél: ${escapeHtml(c.phone||'-')}</div>
+          <div class="muted">Adresse: ${escapeHtml(c.address||'-')}</div>
+          <h3 style="margin-top:12px">Types de travaux (m²)</h3>
+          <table style="width:100%;border-collapse:collapse" border="1" cellspacing="0" cellpadding="6">
+            <thead><tr><th>Type</th><th>Description</th><th style="text-align:right">Surface (m²)</th></tr></thead>
+            <tbody>${rows||'<tr><td colspan=3>Aucun type saisi</td></tr>'}</tbody>
+            <tfoot><tr><th colspan="2" style="text-align:right">Total</th><th style="text-align:right">${(c.totalM2||0).toFixed(2)}</th></tr></tfoot>
+          </table>
+        </div>`;
+    }
+    function previewChantier(c){
+      const w = window.open('','_blank');
+      w.document.write(`<html><head><title>Fiche ${escapeHtml(c.name)}</title><meta charset='utf-8'><style>body{font-family:system-ui;line-height:1.45;padding:24px}</style></head><body>${renderChantierHtml(c)}</body></html>`);
+      w.document.close();
+    }
+    function printChantier(){
+      const c = {
+        name: document.getElementById('chName').value.trim()||'Chantier',
+        client: document.getElementById('chClient').value.trim(),
+        address: document.getElementById('chAddress').value.trim(),
+        contact: document.getElementById('chContact').value.trim()||'Sylvain Garreau',
+        chef: document.getElementById('chChef').value.trim(),
+        phone: document.getElementById('chPhone').value.trim(),
+        works: collectWorks(),
+        totalM2: parseFloat(document.getElementById('worksTotal').textContent)||0,
+      };
+      printHtml(renderChantierHtml(c), `Fiche chantier – ${c.name}`);
+    }
+
+    // --- Printing & export helpers ---
+    function printCurrent(){ window.print(); }
+    function printHtml(html, title){
+      const w = window.open('', '_blank');
+      const css = `@media print { body{margin:0} } body{font-family:system-ui;line-height:1.45;padding:24px}`;
+      w.document.write(`<html><head><meta charset='utf-8'><title>${escapeHtml(title)}</title><style>${css}</style></head><body>${html}</body></html>`);
+      w.document.close();
+      try { w.focus(); } catch(e){}
+      // Log before print for reliability
+      logDoc('print', title);
+      w.print();
+    }
+    function exportAsHtml(html, filename){
+      const blob = new Blob([`<!doctype html><meta charset='utf-8'>${html}`], {type:'text/html'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download=filename; a.click();
+      setTimeout(()=>URL.revokeObjectURL(url), 1500);
+      logDoc('export', filename);
+    }
+
+    // --- Documents DB (IndexedDB) ---
+    let db; const DB_NAME='GestionAppV72'; const STORE='docs';
+    function openDb(){
+      return new Promise((resolve,reject)=>{
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = (e)=>{
+          const db = e.target.result;
+          if(!db.objectStoreNames.contains(STORE)){
+            const store = db.createObjectStore(STORE, {keyPath:'id', autoIncrement:true});
+            store.createIndex('createdAt','createdAt');
+          }
+        };
+        req.onsuccess = ()=>{ db=req.result; resolve(db); };
+        req.onerror = ()=>reject(req.error);
+      });
+    }
+    async function withStore(mode, fn){
+      if(!db) await openDb();
+      return new Promise((resolve,reject)=>{
+        const tx = db.transaction(STORE, mode);
+        const st = tx.objectStore(STORE);
+        const res = fn(st);
+        tx.oncomplete = ()=>resolve(res);
+        tx.onerror = ()=>reject(tx.error);
+      });
+    }
+    async function importDocs(){
+      const inp = document.getElementById('docImport');
+      const files = [...(inp.files||[])]; if(!files.length){ alert('Sélectionnez des fichiers.'); return; }
+      await withStore('readwrite', (st)=>{
+        files.forEach(f=>{
+          const rec = { name:f.name, type:f.type||'application/octet-stream', size:f.size, createdAt:Date.now(), blob:f };
+          st.add(rec);
         });
-    </script>
+      });
+      inp.value='';
+      refreshDocs();
+    }
+    async function refreshDocs(){
+      const tbody = document.querySelector('#docsTable tbody'); tbody.innerHTML='';
+      await withStore('readonly', (st)=>{
+        const idx = st.index('createdAt');
+        const req = idx.openCursor(null, 'prev');
+        req.onsuccess = ()=>{
+          const cur = req.result; if(cur){
+            const d = cur.value;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${escapeHtml(d.name)}</td><td>${escapeHtml(d.type||'-')}</td><td class='num'>${fmtSize(d.size)}</td><td>${fmtDate(d.createdAt)}</td><td class='no-print'></td>`;
+            const td = tr.querySelector('td.no-print');
+            td.appendChild(mkBtn('Télécharger',()=>downloadDoc(d.id)));
+            td.appendChild(mkBtn('Suppr',()=>deleteDoc(d.id)));
+            tbody.appendChild(tr);
+            cur.continue();
+          }
+        };
+      });
+    }
+    async function downloadDoc(id){
+      await withStore('readonly', (st)=>{
+        const req = st.get(id);
+        req.onsuccess = ()=>{
+          const d = req.result; if(!d) return;
+          const url = URL.createObjectURL(d.blob);
+          const a = document.createElement('a'); a.href=url; a.download=d.name; a.click();
+          setTimeout(()=>URL.revokeObjectURL(url),1500);
+        };
+      });
+    }
+    async function deleteDoc(id){
+      if(!confirm('Supprimer ce document importé ?')) return;
+      await withStore('readwrite', st=>st.delete(id));
+      refreshDocs();
+    }
+
+    // --- Document logs (prints/exports) ---
+    const logsKey='docLogsV72';
+    function getLogs(){ return JSON.parse(localStorage.getItem(logsKey)||'[]'); }
+    function setLogs(v){ localStorage.setItem(logsKey, JSON.stringify(v)); refreshDocLogs(); }
+    function logDoc(kind, title){
+      const arr=getLogs(); arr.unshift({id:crypto.randomUUID(), kind, title, at:Date.now()}); setLogs(arr.slice(0,500));
+    }
+    function refreshDocLogs(){
+      const tbody = document.querySelector('#docLogsTable tbody'); tbody.innerHTML='';
+      getLogs().forEach(l=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${fmtDate(l.at)}</td><td>${l.kind==='print'?'Impression':'Export'}</td><td>${escapeHtml(l.title||'')}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // --- Utils ---
+    function mkBtn(label, fn){ const b=document.createElement('button'); b.textContent=label; b.onclick=fn; return b; }
+    function sanitize(s){ return (s||'').replace(/[<>]/g,''); }
+    function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+    function nl2br(s){ return (s||'').replace(/\n/g,'<br>'); }
+    function slug(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'-'); }
+    function fmtSize(n){ if(n<1024) return n+' o'; if(n<1024*1024) return (n/1024).toFixed(1)+' Ko'; if(n<1024*1024*1024) return (n/1024/1024).toFixed(1)+' Mo'; return (n/1024/1024/1024).toFixed(1)+' Go'; }
+    function pad(n){ return String(n).padStart(2,'0'); }
+    function fmtDate(ts){ const d=new Date(ts); return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+
+    // Init
+    window.addEventListener('load', async ()=>{
+      await openDb();
+      go(lastRoute);
+    });
+  </script>
 </body>
 </html>
