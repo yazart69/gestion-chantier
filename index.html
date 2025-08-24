@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion de Chantier</title>
+    <script src="database.js"></script>
+    <style>
+        :root {
+            --primary-blue: #0066cc; --primary-orange: #ff6600; --success-color: #198754; --danger-color: #dc3545;
+            --light-bg: #f8f9fa; --white: #ffffff; --border-color: #dee2e6; --text-color: #212529; 
+            --shadow-sm: 0 .125rem .25rem rgba(0,0,0,.075);
+        }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--light-bg); display: flex; height: 100vh; overflow: hidden; }
+        #sidebar { width: 250px; background-color: #002b49; color: white; padding: 1.5rem 0; display: flex; flex-direction: column; flex-shrink: 0; }
+        #sidebar h1 { font-size: 1.5rem; text-align: center; margin: 0 1rem 2rem 1rem; color: white; }
+        #sidebar nav ul { list-style: none; padding: 0; margin: 0; }
+        #sidebar nav a { display: block; padding: 1rem 1.5rem; color: #d1d5db; text-decoration: none; font-weight: 500; transition: background-color 0.2s, color 0.2s; border-left: 4px solid transparent; }
+        #sidebar nav a:hover { background-color: rgba(255, 255, 255, 0.1); color: white; }
+        #sidebar nav a.active { background-color: var(--primary-blue); color: white; border-left-color: var(--primary-orange); }
+        #main-content { flex-grow: 1; overflow-y: auto; padding: 2rem; }
+        #module-container { max-width: 1400px; margin: 0 auto; }
+        /* Styles génériques (vous pouvez ajouter les styles spécifiques de chaque module ici si besoin) */
+        .card { background: white; border-radius: 1rem; box-shadow: var(--shadow-sm); padding: 1.5rem; margin-bottom: 2rem; border: 1px solid var(--border-color); }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 1rem; color: #6c757d; }
+        .form-select, .form-input { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+    <aside id="sidebar">
+        <h1>Gestion Chantiers</h1>
+        <nav>
+             <ul>
+                <li><a href="#" class="nav-link active" data-module="tableau_de_bord">📊 Tableau de Bord</a></li>
+                <li><a href="#" class="nav-link" data-module="chantier">🚧 Infos Chantier</a></li>
+                <li><a href="#" class="nav-link" data-module="equipe">👥 Équipe</a></li>
+                <li><a href="#" class="nav-link" data-module="travaux_materiaux">🛠️ Travaux & Matériaux</a></li>
+                <li><a href="#" class="nav-link" data-module="reunion">📝 Réunions</a></li>
+                <li><a href="#" class="nav-link" data-module="planning">📅 Planning</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main id="main-content">
+        <div id="module-container"></div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const moduleContainer = document.getElementById('module-container');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            async function loadModule(moduleName) {
+                try {
+                    const response = await fetch(`${moduleName}.html`);
+                    if (!response.ok) throw new Error(`Module ${moduleName}.html introuvable.`);
+                    
+                    const content = await response.text();
+                    moduleContainer.innerHTML = content;
+                    
+                    if (window.moduleInitializers && moduleInitializers[moduleName]) {
+                        moduleInitializers[moduleName]();
+                    }
+                } catch (error) {
+                    moduleContainer.innerHTML = `<p style="color: red;">Erreur: ${error.message}</p>`;
+                }
+            }
+
+            // --- OBJET CENTRAL CONTENANT LA LOGIQUE DE CHAQUE MODULE ---
+            window.moduleInitializers = {
+                'tableau_de_bord': () => {
+                    const chantierSelect = document.getElementById('chantier-select-tdb');
+                    if (!chantierSelect) return;
+
+                    const chantiers = DB.getChantiers();
+                    chantiers.forEach(c => {
+                        chantierSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                    });
+
+                    function formatCurrency(value) { return `${Math.round(value).toLocaleString('fr-FR')} €`; }
+
+                    function updateDashboard() {
+                        const chantierId = chantierSelect.value;
+                        if (!chantierId) return;
+
+                        const chantier = DB.getChantierById(chantierId);
+                        const tasks = DB.getPlanningForChantier(chantierId);
+                        
+                        const coutParOperateur = parseFloat(document.getElementById('cout-operateur').value) || 0;
+                        const heuresRealisees = parseFloat(document.getElementById('heures-realisees').value) || 0;
+                        const imprevusPct = parseFloat(document.getElementById('imprevus-pct').value) || 0;
+                        const depenseST = parseFloat(document.getElementById('depense-st').value) || 0;
+                        const depenseFournitures = parseFloat(document.getElementById('depense-fournitures').value) || 0;
+                        const depenseLocations = parseFloat(document.getElementById('depense-locations').value) || 0;
+
+                        const coutMOActuel = heuresRealisees * coutParOperateur;
+                        const resteMO = chantier.budgetMO - coutMOActuel;
+                        const resteST = chantier.budgetST - depenseST;
+                        const resteFournitures = chantier.budgetFournitures - depenseFournitures;
+                        const resteLocations = chantier.budgetLocations - depenseLocations;
+
+                        const totalBudgetDirect = chantier.budgetMO + chantier.budgetST + chantier.budgetFournitures + chantier.budgetLocations;
+                        const totalDepenseDirect = coutMOActuel + depenseST + depenseFournitures + depenseLocations;
+                        const totalResteDirect = resteMO + resteST + resteFournitures + resteLocations;
+                        
+                        const montantImprevus = totalBudgetDirect * (imprevusPct / 100);
+                        const coutTotalProjete = totalDepenseDirect + totalResteDirect + montantImprevus;
+                        const margePrevisionnelle = chantier.devisValide - coutTotalProjete;
+                        const margePct = chantier.devisValide > 0 ? (margePrevisionnelle / chantier.devisValide) * 100 : 0;
+                        
+                        function updateCell(id, value, isCurrency = true) {
+                            const el = document.getElementById(id);
+                            if (el) el.textContent = isCurrency ? formatCurrency(value) : value;
+                        }
+                        
+                        // Mettre à jour toutes les cellules du tableau de bord...
+                        updateCell('budget-mo', chantier.budgetMO);
+                        updateCell('depense-mo', coutMOActuel);
+                        updateCell('reste-mo', resteMO);
+                        updateCell('budget-st', chantier.budgetST);
+                        updateCell('display-depense-st', depenseST);
+                        updateCell('reste-st', resteST);
+                        updateCell('budget-fournitures', chantier.budgetFournitures);
+                        updateCell('display-depense-fournitures', depenseFournitures);
+                        updateCell('reste-fournitures', resteFournitures);
+                        updateCell('budget-locations', chantier.budgetLocations);
+                        updateCell('display-depense-locations', depenseLocations);
+                        updateCell('reste-locations', resteLocations);
+                        updateCell('total-budget-direct', totalBudgetDirect);
+                        updateCell('total-depense-direct', totalDepenseDirect);
+                        updateCell('total-reste-direct', totalResteDirect);
+                        updateCell('cout-total-projete', coutTotalProjete);
+                        updateCell('prix-devis', chantier.devisValide);
+                        updateCell('kpi-cout-projete', coutTotalProjete);
+                        
+                        const kpiMargeEur = document.getElementById('kpi-marge-eur');
+                        kpiMargeEur.textContent = formatCurrency(margePrevisionnelle);
+                        kpiMargeEur.className = margePrevisionnelle >= 0 ? "value positive" : "value negative";
+                        const kpiMargePct = document.getElementById('kpi-marge-pct');
+                        kpiMargePct.textContent = `${margePct.toFixed(1)} %`;
+                        kpiMargePct.className = margePct >= 0 ? "value positive" : "value negative";
+                    }
+
+                    document.getElementById('inputs-card').addEventListener('input', updateDashboard);
+                    if (chantiers.length > 0) updateDashboard();
+                },
+                'planning': () => {
+                    // Ici on met la classe GanttChart complète et son initialisation
+                    class GanttChart { /* ... la classe complète du planning ... */ }
+                    const gantt = new GanttChart('ganttContainer');
+                    // Logique pour charger les chantiers dans le select et charger les tâches
+                },
+                'equipe': () => {
+                    // La classe TeamModule et son initialisation
+                },
+                'chantier': () => {
+                    // La logique du formulaire chantier
+                },
+                'travaux_materiaux': () => {
+                     // La logique du formulaire travaux & matériaux
+                },
+                'reunion': () => {
+                     // La logique du module réunion avec ses 3 modes
+                }
+            };
+
+            // --- GESTION DE LA NAVIGATION ---
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    loadModule(e.currentTarget.dataset.module);
+                });
+            });
+
+            // Charger le module par défaut
+            loadModule('tableau_de_bord');
+        });
+    </script>
+</body>
+</html>

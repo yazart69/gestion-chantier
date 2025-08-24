@@ -1,0 +1,43 @@
+<div class="container">
+    <h1>Tableau de Bord de Gestion</h1>
+    
+    <div class="card" id="inputs-card">
+        <h2>Données d'Entrée</h2>
+        <div class="input-grid">
+            <div><label for="chantier-select-tdb">Chantier</label><select id="chantier-select-tdb" class="form-select"></select></div>
+            <div><label for="cout-operateur">Coût par Opérateur (€/h)</label><input type="number" id="cout-operateur" class="form-input" value="14"></div>
+            <div><label for="heures-realisees">Heures MO Réalisées (h)</label><input type="number" id="heures-realisees" class="form-input" value="0"></div>
+            <div><label for="depense-st">Dépenses Sous-Traitance (€)</label><input type="number" id="depense-st" class="form-input" value="0"></div>
+            <div><label for="depense-fournitures">Dépenses Fournitures (€)</label><input type="number" id="depense-fournitures" class="form-input" value="0"></div>
+            <div><label for="depense-locations">Dépenses Locations (€)</label><input type="number" id="depense-locations" class="form-input" value="0"></div>
+            <div><label for="imprevus-pct">Imprévus (%)</label><input type="number" id="imprevus-pct" class="form-input" value="7"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Analyse Financière</h2>
+        <table class="financial-table">
+            <thead><tr><th>Catégorie</th><th>Budgété (€)</th><th>Dépensé (€)</th><th>Reste (€)</th></tr></thead>
+            <tbody>
+                <tr><th>Main d'œuvre (Interne)</th><td id="budget-mo">0</td><td id="depense-mo">0</td><td id="reste-mo">0</td></tr>
+                <tr><th>Sous-Traitance</th><td id="budget-st">0</td><td id="display-depense-st">0</td><td id="reste-st">0</td></tr>
+                <tr><th>Fournitures & Matériel</th><td id="budget-fournitures">0</td><td id="display-depense-fournitures">0</td><td id="reste-fournitures">0</td></tr>
+                <tr><th>Locations</th><td id="budget-locations">0</td><td id="display-depense-locations">0</td><td id="reste-locations">0</td></tr>
+                <tr class="total-row"><th>TOTAL Coûts Directs</th><td id="total-budget-direct">0</td><td id="total-depense-direct">0</td><td id="total-reste-direct">0</td></tr>
+            </tbody>
+            <tfoot>
+                <tr class="grand-total-row"><th colspan="3">COÛT TOTAL PROJETÉ (avec imprévus)</th><td id="cout-total-projete">0</td></tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="card">
+         <h2>Indicateurs de Performance (KPI)</h2>
+        <div class="kpi-grid">
+            <div class="kpi-card"><h3>Prix de Vente (Devis)</h3><p class="value" id="prix-devis">0 €</p></div>
+            <div class="kpi-card"><h3>Coût Projeté</h3><p class="value" id="kpi-cout-projete">0 €</p></div>
+            <div class="kpi-card"><h3>Marge Prévisionnelle</h3><p class="value" id="kpi-marge-eur">0 €</p></div>
+            <div class="kpi-card"><h3>Taux de Marge</h3><p class="value" id="kpi-marge-pct">0 %</p></div>
+        </div>
+    </div>
+</div>
