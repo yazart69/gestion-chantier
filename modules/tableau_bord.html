@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord Financier - Tugrul V7.2</title>
+    <link rel="stylesheet" href="../assets/css/shared.css">
+    <link rel="stylesheet" href="../assets/css/print.css" media="print">
+    <style>
+        :root {
+            --primary-red: #dc2626;
+            --primary-orange: #ff6600;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            --light-bg: #f8fafc;
+            --white: #ffffff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-900: #111827;
+            --border-color: #e5e7eb;
+            --text-color: #374151;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(135deg, var(--light-bg) 0%, #e2e8f0 100%);
+            color: var(--text-color); 
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            padding: 2rem; 
+        }
+
+        /* Navigation de retour */
+        .back-nav {
+            margin-bottom: 2rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-red);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 150ms ease;
+            background: var(--white);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .back-link:hover {
+            background: var(--gray-50);
+            box-shadow: var(--shadow-md);
+        }
+        
+        h1 { 
+            text-align: center; 
+            color: var(--primary-red); 
+            margin-bottom: 3rem; 
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(220, 38, 38, 0.1);
+        }
+
+        /* Info Projet */
+        .projet-info {
+            background: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .projet-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-red), var(--primary-orange));
+            border-radius: 1rem 1rem 0 0;
+        }
+
+        .projet-info h2 {
+            color: var(--primary-red);
+            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        .projet-info p {
+            color: var(--gray-600);
+            font-size: 0.95rem;
+        }
+
+        /* Cards */
+        .card { 
+            background: var(--white); 
+            border-radius: 1rem; 
+            box-shadow: var(--shadow-lg); 
+            padding: 2rem; 
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            transition: all 300ms ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--gray-100);
+        }
+        
+        .card-title { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, var(--primary-red), var(--primary-orange));
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+        }
+        
+        .form-label { 
+            display: block; 
+            margin-bottom: 0.5rem; 
+            font-weight: 600; 
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+        
+        .form-input, .form-select { 
+            width: 100%; 
+            padding: 0.75rem 1rem; 
+            border: 2px solid var(--border-color); 
+            border-radius: 0.5rem; 
+            font-size: 1rem;
+            transition: all 200ms ease;
+            background: var(--white);
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+        
+        .input-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 1.5rem; 
+        }
+        
+        .financial-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 1.5rem; 
+            font-size: 1rem;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .financial-table th, .financial-table td { 
+            padding: 1rem 1.25rem; 
+            text-align: right; 
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 200ms ease;
+        }
+        
+        .financial-table th { 
+            text-align: left; 
+            font-weight: 700; 
+            color: var(--white);
+            background: linear-gradient(135deg, var(--primary-red), var(--primary-orange));
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .financial-table tbody tr:hover {
+            background: var(--gray-50);
+        }
+        
+        .financial-table .total-row { 
+            font-weight: 700; 
+            border-top: 2px solid var(--gray-300);
+            background: var(--gray-50);
+        }
+        
+        .financial-table .grand-total-row { 
+            font-weight: 700; 
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(255, 102, 0, 0.1));
+            font-size: 1.1rem;
+            color: var(--primary-red);
+        }
+        
+        .kpi-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 2rem; 
+        }
+        
+        .kpi-card { 
+            text-align: center; 
+            background: var(--white); 
+            padding: 2rem; 
+            border-radius: 1rem; 
+            box-shadow: var(--shadow-lg); 
+            border: 2px solid transparent;
+            transition: all 300ms ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-red), var(--primary-orange));
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .kpi-card h3 { 
+            font-size: 0.875rem; 
+            color: var(--gray-600); 
+            text-transform: uppercase; 
+            margin-bottom: 1rem; 
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .kpi-card .value { 
+            font-size: 2.25rem; 
+            font-weight: 700; 
+            line-height: 1.1;
+            margin-bottom: 0.5rem;
+        }
+        
+        .kpi-card .value.positive { 
+            color: var(--success-color);
+            text-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+        }
+        
+        .kpi-card .value.negative { 
+            color: var(--danger-color);
+            text-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+        }
+
+        .kpi-card .value.neutral {
+            color: var(--primary-red);
+            text-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
+        }
+
+        .kpi-card .trend {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            margin-top: 0.5rem;
+        }
+
+        /* Progress bars pour les budgets */
+        .progress-container {
+            margin-top: 2rem;
+        }
+
+        .progress-item {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--gray-50);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .progress-label {
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .progress-value {
+            font-weight: 700;
+            color: var(--primary-red);
+        }
+
+        .progress-bar {
+            height: 0.75rem;
+            background: var(--gray-200);
+            border-radius: 0.375rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-red), var(--primary-orange));
+            border-radius: 0.375rem;
+            transition: width 1s ease-in-out;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Alertes */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            border: 1px solid;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .input-grid { grid-template-columns: 1fr; }
+            .kpi-grid { grid-template-columns: 1fr; }
+            .financial-table { font-size: 0.875rem; }
+            .financial-table th, .financial-table td { padding: 0.75rem; }
+        }
+
+        /* Styles d'impression */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            body {
+                background: white !important;
+                font-size: 10pt;
+                line-height: 1.3;
+            }
+
+            .container {
+                max-width: none;
+                margin: 0;
+                padding: 15mm;
+            }
+
+            .back-nav {
+                display: none !important;
+            }
+
+            h1 {
+                font-size: 16pt;
+                color: #dc2626 !important;
+                margin-bottom: 15pt;
+            }
+
+            .card {
+                box-shadow: none;
+                border: 1pt solid #ccc;
+                margin-bottom: 15pt;
+                break-inside: avoid;
+            }
+
+            .financial-table th {
+                background: #dc2626 !important;
+                color: white !important;
+            }
+
+            .kpi-card .value.positive {
+                color: #10b981 !important;
+            }
+
+            .kpi-card .value.negative {
+                color: #ef4444 !important;
+            }
+
+            .progress-fill {
+                background: linear-gradient(90deg, #dc2626, #ff6600) !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="back-nav">
+            <a href="index.html" class="back-link">
+                ← Retour à l'accueil
+            </a>
+        </nav>
+
+        <h1>💰 Tableau de Bord Financier</h1>
+
+        <div class="projet-info">
+            <h2>📊 Suivi Budgétaire & Performance</h2>
+            <p>Analyse financière en temps réel • Équipe 41 Altrad Prezioso</p>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <div class="card-icon">⚙️</div>
+                    Données d'Entrée
+                </h2>
+            </div>
+            <div class="input-grid">
+                <div>
+                    <label class="form-label" for="chantier-select">Chantier</label>
+                    <select id="chantier-select" class="form-select">
+                        <option value="">-- Sélectionner un chantier --</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label" for="cout-operateur">Coût par Opérateur (€/h)</label>
+                    <input type="number" id="cout-operateur" class="form-input" value="14" step="0.1">
+                </div>
+                <div>
+                    <label class="form-label" for="heures-realisees">Heures MO Réalisées (h)</label>
+                    <input type="number" id="heures-realisees" class="form-input" value="155.5" step="0.1">
+                </div>
+                <div>
+                    <label class="form-label" for="depense-st">Dépenses Sous-Traitance (€)</label>
+                    <input type="number" id="depense-st" class="form-input" value="0" step="0.01">
+                </div>
+                <div>
+                    <label class="form-label" for="depense-fournitures">Dépenses Fournitures (€)</label>
+                    <input type="number" id="depense-fournitures" class="form-input" value="10500" step="0.01">
+                </div>
+                <div>
+                    <label class="form-label" for="depense-locations">Dépenses Locations (€)</label>
+                    <input type="number" id="depense-locations" class="form-input" value="0" step="0.01">
+                </div>
+                <div>
+                    <label class="form-label" for="imprevus-pct">Imprévus (%)</label>
+                    <input type="number" id="imprevus-pct" class="form-input" value="7" step="0.1" min="0" max="20">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <div class="card-icon">📋</div>
+                    Analyse Financière
+                </h2>
+            </div>
+            
+            <div id="budget-alerts"></div>
+
+            <table class="financial-table">
+                <thead>
+                    <tr>
+                        <th>Catégorie</th>
+                        <th>Budgété (€)</th>
+                        <th>Dépensé (€)</th>
+                        <th>Reste (€)</th>
+                        <th>% Utilisé</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Main d'œuvre (Interne)</th>
+                        <td id="budget-mo">0 €</td>
+                        <td id="depense-mo">0 €</td>
+                        <td id="reste-mo">0 €</td>
+                        <td id="pct-mo">0%</td>
+                    </tr>
+                    <tr>
+                        <th>Sous-Traitance</th>
+                        <td id="budget-st">0 €</td>
+                        <td id="display-depense-st">0 €</td>
+                        <td id="reste-st">0 €</td>
+                        <td id="pct-st">0%</td>
+                    </tr>
+                    <tr>
+                        <th>Fournitures & Matériel</th>
+                        <td id="budget-fournitures">0 €</td>
+                        <td id="display-depense-fournitures">0 €</td>
+                        <td id="reste-fournitures">0 €</td>
+                        <td id="pct-fournitures">0%</td>
+                    </tr>
+                    <tr>
+                        <th>Locations</th>
+                        <td id="budget-locations">0 €</td>
+                        <td id="display-depense-locations">0 €</td>
+                        <td id="reste-locations">0 €</td>
+                        <td id="pct-locations">0%</td>
+                    </tr>
+                    <tr class="total-row">
+                        <th>TOTAL Coûts Directs</th>
+                        <td id="total-budget-direct">0 €</td>
+                        <td id="total-depense-direct">0 €</td>
+                        <td id="total-reste-direct">0 €</td>
+                        <td id="pct-total">0%</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="grand-total-row">
+                        <th colspan="4">COÛT TOTAL PROJETÉ (avec imprévus)</th>
+                        <td id="cout-total-projete">0 €</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <!-- Barres de progression -->
+            <div class="progress-container">
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span class="progress-label">Main d'œuvre</span>
+                        <span class="progress-value" id="progress-mo-text">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-mo" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span class="progress-label">Fournitures</span>
+                        <span class="progress-value" id="progress-fournitures-text">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fournitures" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span class="progress-label">Budget Global</span>
+                        <span class="progress-value" id="progress-total-text">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-total" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <div class="card-icon">📊</div>
+                    Indicateurs de Performance (KPI)
+                </h2>
+            </div>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <h3>Prix de Vente (Devis)</h3>
+                    <p class="value neutral" id="prix-devis">0 €</p>
+                    <p class="trend">Montant contractuel</p>
+                </div>
+                <div class="kpi-card">
+                    <h3>Coût Projeté</h3>
+                    <p class="value neutral" id="kpi-cout-projete">0 €</p>
+                    <p class="trend">Avec imprévus</p>
+                </div>
+                <div class="kpi-card">
+                    <h3>Marge Prévisionnelle</h3>
+                    <p class="value" id="kpi-marge-eur">0 €</p>
+                    <p class="trend" id="trend-marge">Performance financière</p>
+                </div>
+                <div class="kpi-card">
+                    <h3>Taux de Marge</h3>
+                    <p class="value" id="kpi-marge-pct">0 %</p>
+                    <p class="trend" id="trend-taux">Rentabilité du projet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chantiersDB = [
+                { 
+                    id: 1, 
+                    name: 'Rénovation Usine Lyon', 
+                    devisValide: 55000, 
+                    budgetMO: 24000, 
+                    budgetFournitures: 12000, 
+                    budgetLocations: 3000, 
+                    budgetST: 0 
+                },
+                { 
+                    id: 2, 
+                    name: 'Chantier Naval - La Ciotat', 
+                    devisValide: 210000, 
+                    budgetMO: 90000, 
+                    budgetFournitures: 40000, 
+                    budgetLocations: 15000, 
+                    budgetST: 25000 
+                },
+                {
+                    id: 3,
+                    name: 'Grand Lyon - Pont de Chasse',
+                    devisValide: 125000,
+                    budgetMO: 45000,
+                    budgetFournitures: 28000,
+                    budgetLocations: 8000,
+                    budgetST: 15000
+                }
+            ];
+
+            const chantierSelect = document.getElementById('chantier-select');
+            
+            function formatCurrency(value) { 
+                return new Intl.NumberFormat('fr-FR', {
+                    style: 'currency',
+                    currency: 'EUR',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(Math.round(value));
+            }
+
+            function formatPercentage(value) {
+                return `${Math.round(value)}%`;
+            }
+
+            function updateProgressBar(elementId, percentage) {
+                const progressBar = document.getElementById(elementId);
+                const textElement = document.getElementById(elementId + '-text');
+                if (progressBar && textElement) {
+                    progressBar.style.width = `${Math.min(percentage, 100)}%`;
+                    textElement.textContent = formatPercentage(percentage);
+                    
+                    // Couleur de la barre selon le pourcentage
+                    if (percentage > 90) {
+                        progressBar.style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+                    } else if (percentage > 70) {
+                        progressBar.style.background = 'linear-gradient(90deg, #f59e0b, #d97706)';
+                    } else {
+                        progressBar.style.background = 'linear-gradient(90deg, var(--primary-red), var(--primary-orange))';
+                    }
+                }
+            }
+
+            function updateAlerts(chantier, totalDepense, budgetTotal, margePrevisionnelle) {
+                const alertsContainer = document.getElementById('budget-alerts');
+                let alerts = '';
+
+                const usagePercentage = budgetTotal > 0 ? (totalDepense / budgetTotal) * 100 : 0;
+
+                if (usagePercentage > 95) {
+                    alerts += '<div class="alert alert-danger">⚠️ Budget critique : Plus de 95% du budget utilisé !</div>';
+                } else if (usagePercentage > 80) {
+                    alerts += '<div class="alert alert-warning">⚠️ Attention : Plus de 80% du budget utilisé</div>';
+                } else if (usagePercentage < 50) {
+                    alerts += '<div class="alert alert-success">✅ Budget maîtrisé : Moins de 50% du budget utilisé</div>';
+                }
+
+                if (margePrevisionnelle < 0) {
+                    alerts += '<div class="alert alert-danger">💸 Projet déficitaire : Marge négative détectée</div>';
+                } else if (margePrevisionnelle < chantier.devisValide * 0.05) {
+                    alerts += '<div class="alert alert-warning">📊 Marge faible : Moins de 5% de marge prévue</div>';
+                }
+
+                alertsContainer.innerHTML = alerts;
+            }
+
+            function updateDashboard() {
+                const chantierId = chantierSelect.value;
+                if (!chantierId) {
+                    // Reset des valeurs si aucun chantier sélectionné
+                    document.querySelectorAll('[id^="budget-"], [id^="depense-"], [id^="reste-"], [id^="pct-"], [id^="kpi-"], [id^="prix-"], [id^="total-"], [id^="cout-"]').forEach(el => {
+                        el.textContent = el.id.includes('pct') ? '0%' : '0 €';
+                    });
+                    document.getElementById('budget-alerts').innerHTML = '';
+                    updateProgressBar('progress-mo', 0);
+                    updateProgressBar('progress-fournitures', 0);
+                    updateProgressBar('progress-total', 0);
+                    return;
+                }
+
+                const chantier = chantiersDB.find(c => c.id == chantierId);
+                const coutParOperateur = parseFloat(document.getElementById('cout-operateur').value) || 0;
+                const heuresRealisees = parseFloat(document.getElementById('heures-realisees').value) || 0;
+                const imprevusPct = parseFloat(document.getElementById('imprevus-pct').value) || 0;
+                const depenseST = parseFloat(document.getElementById('depense-st').value) || 0;
+                const depenseFournitures = parseFloat(document.getElementById('depense-fournitures').value) || 0;
+                const depenseLocations = parseFloat(document.getElementById('depense-locations').value) || 0;
+
+                const coutMOActuel = heuresRealisees * coutParOperateur;
+                const resteMO = chantier.budgetMO - coutMOActuel;
+                const resteST = chantier.budgetST - depenseST;
+                const resteFournitures = chantier.budgetFournitures - depenseFournitures;
+                const resteLocations = chantier.budgetLocations - depenseLocations;
+
+                const totalBudgetDirect = chantier.budgetMO + chantier.budgetST + chantier.budgetFournitures + chantier.budgetLocations;
+                const totalDepenseDirect = coutMOActuel + depenseST + depenseFournitures + depenseLocations;
+                const totalResteDirect = resteMO + resteST + resteFournitures + resteLocations;
+                
+                const montantImprevus = totalBudgetDirect * (imprevusPct / 100);
+                const coutTotalProjete = totalDepenseDirect + totalResteDirect + montantImprevus;
+                const margePrevisionnelle = chantier.devisValide - coutTotalProjete;
+                const margePct = chantier.devisValide > 0 ? (margePrevisionnelle / chantier.devisValide) * 100 : 0;
+                
+                // Calcul des pourcentages d'utilisation
+                const pctMO = chantier.budgetMO > 0 ? (coutMOActuel / chantier.budgetMO) * 100 : 0;
+                const pctST = chantier.budgetST > 0 ? (depenseST / chantier.budgetST) * 100 : 0;
+                const pctFournitures = chantier.budgetFournitures > 0 ? (depenseFournitures / chantier.budgetFournitures) * 100 : 0;
+                const pctLocations = chantier.budgetLocations > 0 ? (depenseLocations / chantier.budgetLocations) * 100 : 0;
+                const pctTotal = totalBudgetDirect > 0 ? (totalDepenseDirect / totalBudgetDirect) * 100 : 0;
+                
+                function updateCell(id, value) {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        if (id.includes('pct-')) {
+                            el.textContent = formatPercentage(value);
+                        } else {
+                            el.textContent = formatCurrency(value);
+                        }
+                    }
+                }
+                
+                // Mise à jour du tableau
+                updateCell('budget-mo', chantier.budgetMO);
+                updateCell('depense-mo', coutMOActuel);
+                updateCell('reste-mo', resteMO);
+                updateCell('pct-mo', pctMO);
+                
+                updateCell('budget-st', chantier.budgetST);
+                updateCell('display-depense-st', depenseST);
+                updateCell('reste-st', resteST);
+                updateCell('pct-st', pctST);
+
+                updateCell('budget-fournitures', chantier.budgetFournitures);
+                updateCell('display-depense-fournitures', depenseFournitures);
+                updateCell('reste-fournitures', resteFournitures);
+                updateCell('pct-fournitures', pctFournitures);
+
+                updateCell('budget-locations', chantier.budgetLocations);
+                updateCell('display-depense-locations', depenseLocations);
+                updateCell('reste-locations', resteLocations);
+                updateCell('pct-locations', pctLocations);
+
+                updateCell('total-budget-direct', totalBudgetDirect);
+                updateCell('total-depense-direct', totalDepenseDirect);
+                updateCell('total-reste-direct', totalResteDirect);
+                updateCell('pct-total', pctTotal);
+
+                updateCell('cout-total-projete', coutTotalProjete);
+
+                // Mise à jour des KPI
+                updateCell('prix-devis', chantier.devisValide);
+                updateCell('kpi-cout-projete', coutTotalProjete);
+                updateCell('kpi-marge-eur', margePrevisionnelle);
+                
+                const kpiMargeEur = document.getElementById('kpi-marge-eur');
+                const kpiMargePct = document.getElementById('kpi-marge-pct');
+                const trendMarge = document.getElementById('trend-marge');
+                const trendTaux = document.getElementById('trend-taux');
+                
+                kpiMargeEur.className = margePrevisionnelle >= 0 ? "value positive" : "value negative";
+                kpiMargePct.textContent = formatPercentage(margePct);
+                kpiMargePct.className = margePct >= 0 ? "value positive" : "value negative";
+                
+                // Tendances
+                if (margePct >= 15) {
+                    trendMarge.textContent = "Excellente rentabilité";
+                    trendTaux.textContent = "Performance optimale";
+                } else if (margePct >= 8) {
+                    trendMarge.textContent = "Bonne rentabilité";
+                    trendTaux.textContent = "Performance correcte";
+                } else if (margePct >= 0) {
+                    trendMarge.textContent = "Rentabilité faible";
+                    trendTaux.textContent = "Attention requise";
+                } else {
+                    trendMarge.textContent = "Projet déficitaire";
+                    trendTaux.textContent = "Situation critique";
+                }
+
+                // Mise à jour des barres de progression
+                updateProgressBar('progress-mo', pctMO);
+                updateProgressBar('progress-fournitures', pctFournitures);
+                updateProgressBar('progress-total', pctTotal);
+
+                // Mise à jour des alertes
+                updateAlerts(chantier, totalDepenseDirect, totalBudgetDirect, margePrevisionnelle);
+            }
+
+            // Initialisation
+            chantiersDB.forEach(c => { 
+                chantierSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`; 
+            });
+            
+            // Event listeners
+            document.querySelectorAll('.form-input, .form-select').forEach(el => {
+                el.addEventListener('input', updateDashboard);
+                el.addEventListener('change', updateDashboard);
+            });
+
+            // Sélection automatique du premier chantier
+            if (chantiersDB.length > 0) {
+                chantierSelect.value = chantiersDB[0].id;
+                updateDashboard();
+            }
+        });
+    </script>
+</body>
+</html>

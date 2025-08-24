@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Planning - Tugrul V0.8.2</title>
+    <link rel="stylesheet" href="../assets/css/shared.css">
+    <link rel="stylesheet" href="../assets/css/print.css" media="print">
+    <style>
+        :root {
+            --primary-red: #dc2626;
+            --primary-orange: #ff6600;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --light-bg: #f9fafb;
+            --purple-color: #862e9c;
+            --blue-color: #1c7ed6;
+            --border-color: #e5e7eb;
+            --text-color: #374151;
+            --shadow-light: 0 4px 15px rgba(0,0,0,0.1);
+            --weekend-bg: #f1f3f5;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: var(--light-bg); 
+            color: var(--text-color); 
+            line-height: 1.6; 
+        }
+        
+        .container { 
+            max-width: 95%; 
+            margin: 2rem auto; 
+            padding: 2rem; 
+            background: white; 
+            border-radius: 15px; 
+            box-shadow: var(--shadow-light); 
+        }
+
+        /* Navigation de retour */
+        .back-nav {
+            margin-bottom: 1.5rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-red);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            transition: all 150ms ease;
+        }
+
+        .back-link:hover {
+            background: var(--light-bg);
+        }
+        
+        h1 { 
+            text-align: center; 
+            color: var(--primary-red); 
+            margin-bottom: 2rem; 
+            font-size: 2.25rem;
+            font-weight: 700;
+        }
+
+        /* Info Équipe */
+        .equipe-info {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.05), rgba(255, 102, 0, 0.05));
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .equipe-info h3 {
+            color: var(--primary-red);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .equipe-info p {
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        /* Switch de chantier */
+        .chantier-switch {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .chantier-switch label {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .chantier-switch select {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            font-size: 1rem;
+        }
+        
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.5); 
+            backdrop-filter: blur(5px); 
+            align-items: center; 
+            justify-content: center; 
+        }
+        
+        .modal-content { 
+            background-color: white; 
+            padding: 2rem; 
+            border-radius: 15px; 
+            width: 90%; 
+            max-width: 500px; 
+            animation: modalSlideIn 0.3s ease; 
+        }
+        
+        @keyframes modalSlideIn { 
+            from { opacity: 0; transform: translateY(-50px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        .close { 
+            color: #aaa; 
+            float: right; 
+            font-size: 28px; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 0.5rem; 
+            font-weight: 600; 
+            color: var(--text-color);
+        }
+        
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 0.75rem; 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px; 
+            font-size: 1rem; 
+            transition: border-color 150ms ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+        
+        .two-column { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 1rem; 
+        }
+        
+        .btn { 
+            background: var(--primary-red); 
+            color: white; 
+            border: none; 
+            padding: 0.75rem 1.5rem; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 1rem; 
+            font-weight: 600; 
+            transition: all 0.3s ease; 
+        }
+        
+        .btn:hover { 
+            opacity: 0.9; 
+            transform: translateY(-2px); 
+        }
+        
+        .btn-success { background: var(--success-color); }
+        .btn-danger { background: var(--danger-color); }
+        
+        .gantt-professional { 
+            border-radius: 12px; 
+            padding: 1.5rem; 
+            box-shadow: var(--shadow-light); 
+            margin-top: 2rem; 
+            overflow-x: auto; 
+            background: #fff; 
+        }
+        
+        .gantt-controls { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 1rem; 
+            margin-bottom: 1.5rem; 
+            align-items: center; 
+        }
+        
+        .gantt-header-row { 
+            display: grid; 
+            grid-template-columns: 250px 1fr; 
+            background: var(--primary-red); 
+            color: white; 
+            font-weight: 600; 
+            height: 40px; 
+        }
+        
+        .gantt-task-header { 
+            display: flex; 
+            align-items: center; 
+            padding: 0 1rem; 
+            border-right: 1px solid rgba(255,255,255,0.3); 
+        }
+        
+        .gantt-dates-header { display: flex; }
+        
+        .gantt-date-cell { 
+            flex-shrink: 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border-right: 1px solid var(--border-color); 
+            font-size: 0.7rem; 
+            text-align: center; 
+        }
+        
+        .gantt-date-cell.weekend { background-color: var(--weekend-bg); }
+        
+        .gantt-body { position: relative; }
+        
+        .gantt-row { 
+            display: grid; 
+            grid-template-columns: 250px 1fr; 
+            min-height: 50px; 
+            border-bottom: 1px solid var(--border-color); 
+        }
+        
+        .gantt-task-cell { 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            padding: 0.5rem 1rem; 
+            background: var(--light-bg); 
+            border-right: 1px solid var(--border-color); 
+            position: relative; 
+            z-index: 5; 
+            cursor: pointer; 
+        }
+        
+        .gantt-task-name { 
+            font-weight: 600; 
+            font-size: 0.9rem; 
+        }
+        
+        .gantt-task-responsable { 
+            font-size: 0.8rem; 
+            color: #666; 
+        }
+        
+        .gantt-chart-cell { 
+            position: relative; 
+            background-image: linear-gradient(to right, var(--border-color) 1px, transparent 1px); 
+        }
+        
+        .gantt-bar { 
+            position: absolute; 
+            height: 24px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 0.8rem; 
+            font-weight: 600; 
+            color: white; 
+            padding: 0 10px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+            cursor: pointer; 
+            overflow: hidden; 
+            white-space: nowrap; 
+        }
+        
+        .gantt-bar-planifie { background: var(--blue-color); }
+        .gantt-bar-en-cours { background: var(--success-color); }
+        .gantt-bar-en-retard { background: var(--danger-color); }
+        .gantt-bar-termine { background: #14532d; }
+        .gantt-bar-travaux-sup { background: var(--purple-color); }
+        
+        .gantt-progress { 
+            position: absolute; 
+            left: 0; 
+            top: 0; 
+            height: 100%; 
+            background: rgba(255,255,255,0.3); 
+            border-radius: 12px; 
+        }
+        
+        .gantt-summary { 
+            margin-top: 2rem; 
+            padding: 1.5rem; 
+            background: var(--light-bg); 
+            border-radius: 12px; 
+        }
+        
+        .summary-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 1rem; 
+            text-align: center; 
+        }
+        
+        .summary-item h3 { 
+            font-size: 1rem; 
+            color: var(--text-color); 
+            margin-bottom: 0.5rem; 
+        }
+        
+        .summary-item .value { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            color: var(--primary-red); 
+        }
+        
+        .summary-budget { 
+            margin-top: 1rem; 
+            padding-top: 1rem; 
+            border-top: 1px solid var(--border-color); 
+        }
+        
+        .summary-budget.on-track .value { color: var(--success-color); }
+        .summary-budget.over-budget .value { color: var(--danger-color); }
+
+        /* Dashboard Summary Styles */
+        .dashboard-summary {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid rgba(220, 38, 38, 0.1);
+        }
+
+        .progress-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .progress-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-red), var(--primary-orange));
+        }
+
+        .progress-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .progress-header h3 {
+            font-size: 1rem;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        .progress-values {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+
+        .current-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-red);
+        }
+
+        .total-value {
+            font-size: 1.2rem;
+            color: var(--text-color);
+        }
+
+        .total-value::before {
+            content: '/ ';
+            color: #ccc;
+        }
+
+        .total-value::after {
+            content: 'h';
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        .progress-bar-container {
+            position: relative;
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-red), var(--primary-orange));
+            border-radius: 10px;
+            transition: width 1s ease-in-out;
+            position: relative;
+        }
+
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-percentage {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .circular-progress-section {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 3rem;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        .circular-progress {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--primary-red) 0%, var(--primary-orange) var(--progress-angle, 0%), #e5e7eb var(--progress-angle, 0%));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .circular-progress-inner {
+            width: 140px;
+            height: 140px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .circular-progress-percentage {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-red);
+            line-height: 1;
+        }
+
+        .circular-progress-label {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            margin-top: 0.25rem;
+        }
+
+        .project-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            transition: transform 0.2s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateX(5px);
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-red), var(--primary-orange));
+            border-radius: 12px;
+            color: white;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-title {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .mini-timeline {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+
+        .timeline-items {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary-red);
+            transition: all 0.2s ease;
+        }
+
+        .timeline-item:hover {
+            background: #f1f5f9;
+            transform: translateX(5px);
+        }
+
+        .timeline-date {
+            font-size: 0.75rem;
+            color: var(--primary-red);
+            font-weight: 600;
+            min-width: 60px;
+        }
+
+        .timeline-task {
+            flex: 1;
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+
+        .timeline-status {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            background: #e5e7eb;
+            color: #666;
+        }
+
+        .timeline-status.en-cours {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .timeline-status.planifie {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--blue-color);
+        }
+
+        /* Styles d'impression A4 CORRIGÉS */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 10pt;
+                line-height: 1.3;
+                margin: 0;
+                padding: 15mm;
+            }
+
+            .container {
+                max-width: none;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .back-nav {
+                display: none !important;
+            }
+
+            h1 {
+                font-size: 16pt;
+                margin-bottom: 12pt;
+                text-align: center;
+                border-bottom: 2pt solid #dc2626;
+                padding-bottom: 6pt;
+                color: #dc2626 !important;
+            }
+
+            .equipe-info {
+                border: 1pt solid #dc2626;
+                background: rgba(220, 38, 38, 0.1) !important;
+                margin-bottom: 10pt;
+                padding: 8pt;
+                break-inside: avoid;
+            }
+
+            .equipe-info h3 {
+                font-size: 10pt;
+                margin-bottom: 3pt;
+                color: #dc2626 !important;
+            }
+
+            .equipe-info p {
+                font-size: 8pt;
+            }
+
+            .gantt-controls {
+                display: none !important;
+            }
+
+            .btn {
+                display: none !important;
+            }
+
+            .modal {
+                display: none !important;
+            }
+
+            .gantt-professional {
+                box-shadow: none;
+                border: 1pt solid #ccc;
+                padding: 8pt;
+                margin-top: 10pt;
+            }
+
+            .gantt-header-row {
+                background: #dc2626 !important;
+                color: white !important;
+                height: auto;
+                border-bottom: 2pt solid #dc2626;
+            }
+
+            .gantt-task-header,
+            .gantt-date-cell {
+                padding: 4pt;
+                font-size: 8pt;
+                border-right: 1pt solid white;
+                color: white !important;
+            }
+
+            .gantt-row {
+                min-height: 25pt;
+                border-bottom: 1pt solid #ddd;
+            }
+
+            .gantt-task-cell {
+                background: #f9f9f9 !important;
+                padding: 3pt 6pt;
+                border-right: 1pt solid #ccc;
+            }
+
+            .gantt-task-name {
+                font-size: 8pt;
+                font-weight: bold;
+            }
+
+            .gantt-task-responsable {
+                font-size: 7pt;
+                color: #666 !important;
+            }
+
+            .gantt-bar {
+                height: 12pt;
+                font-size: 6pt;
+                padding: 0 4pt;
+                box-shadow: none;
+                border: 1pt solid #333;
+            }
+
+            /* COULEURS CORRIGÉES POUR L'IMPRESSION */
+            .gantt-bar-planifie {
+                background: #1c7ed6 !important;
+                color: white !important;
+            }
+
+            .gantt-bar-en-cours {
+                background: #10b981 !important;
+                color: white !important;
+            }
+
+            .gantt-bar-termine {
+                background: #14532d !important;
+                color: white !important;
+            }
+
+            .gantt-bar-en-retard {
+                background: #ef4444 !important;
+                color: white !important;
+            }
+
+            .gantt-bar-travaux-sup {
+                background: #862e9c !important;
+                color: white !important;
+            }
+
+            .gantt-progress {
+                background: rgba(255,255,255,0.3) !important;
+            }
+
+            /* Dashboard en impression */
+            .dashboard-summary {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                background: #f8f9fa !important;
+                border: 1pt solid #dc2626;
+            }
+
+            .progress-card {
+                background: white !important;
+                border: 1pt solid #ddd;
+                box-shadow: none;
+                margin-bottom: 10pt;
+            }
+
+            .progress-card::before {
+                background: linear-gradient(90deg, #dc2626, #ff6600) !important;
+            }
+
+            .current-value {
+                color: #dc2626 !important;
+            }
+
+            .circular-progress {
+                background: conic-gradient(from 0deg, #dc2626 0%, #ff6600 var(--progress-angle, 0%), #e5e7eb var(--progress-angle, 0%)) !important;
+            }
+
+            .circular-progress-percentage {
+                color: #dc2626 !important;
+            }
+
+            .stat-icon {
+                background: linear-gradient(135deg, #dc2626, #ff6600) !important;
+                color: white !important;
+            }
+
+            /* Éviter les coupures */
+            .equipe-info,
+            .gantt-professional,
+            .dashboard-summary {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .gantt-row {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            h1, h2, h3 {
+                break-after: avoid;
+                page-break-after: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="modalTache" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span><h3 id="modalTitreAction"></h3>
+            <div class="form-group"><label>Nom de la tâche *</label><input type="text" id="modalTacheNom"></div>
+            <div class="two-column">
+                <div class="form-group"><label>Heures-Homme Prévues *</label><input type="number" id="modalTacheHeures" min="1" value="8"></div>
+                <div class="form-group"><label>Nombre d'Opérateurs *</label><input type="number" id="modalTacheOperateurs" min="1" value="1"></div>
+            </div>
+            <div class="form-group"><label>Responsable *</label><select id="modalTacheResponsable"></select></div>
+            <div class="form-group"><label>Date de début *</label><input type="date" id="modalTacheDateDebut"></div>
+            <div class="two-column">
+                <div class="form-group"><label>Progression (%)</label><input type="range" id="modalTacheProgression" min="0" max="100" value="0" oninput="this.nextElementSibling.textContent = this.value + '%'"><span>0%</span></div>
+                <div class="form-group"><label>Statut</label><select id="modalTacheStatut"></select></div>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <button class="btn btn-danger" id="btnSupprimerTache">Supprimer</button>
+                <button class="btn" id="cancelModalTache">Annuler</button>
+                <button class="btn btn-success" id="btnSauvegarderTache">Valider</button>
+            </div>
+        </div>
+    </div>
+    <div id="modalProgression" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <span class="close">&times;</span><h3>📊 Modifier la Progression</h3>
+            <div class="form-group"><label id="modalProgressionTacheNom"></label></div>
+            <div class="form-group"><label>Progression</label><input type="range" id="modalProgressionSlider" min="0" max="100" oninput="this.nextElementSibling.textContent = this.value + '%'"><span>0%</span></div>
+            <div class="form-group"><label>Statut</label><select id="modalProgressionStatut"></select></div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <button class="btn" id="cancelModalProgression">Annuler</button>
+                <button class="btn btn-success" id="btnSauvegarderProgression">Valider</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalHeures" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <span class="close">&times;</span><h3>⏱️ Modifier Budget Heures</h3>
+            <div class="form-group">
+                <label>Budget heures total du projet</label>
+                <input type="number" id="budgetHeuresInput" min="1" value="278">
+                <small style="color: #666; font-size: 0.8rem;">Nombre d'heures prévues pour l'ensemble du chantier</small>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <button class="btn" id="cancelModalHeures">Annuler</button>
+                <button class="btn btn-success" id="btnSauvegarderHeures">Valider</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <nav class="back-nav">
+            <a href="index.html" class="back-link">
+                ← Retour à l'accueil
+            </a>
+        </nav>
+
+        <h1>Planning de Chantier</h1>
+
+        <div class="equipe-info">
+            <h3>📅 Chantier : Grand Lyon – Pont de Chasse</h3>
+            <p>Suivi des étapes et progression • Équipe 41 Altrad Prezioso</p>
+        </div>
+        
+        <div class="chantier-switch">
+            <label for="chantierSelect">Sélectionner le chantier :</label>
+            <select id="chantierSelect">
+                <option value="Grand Lyon – Pont de Chasse">Grand Lyon – Pont de Chasse</option>
+                <option value="VICHY">VICHY</option>
+                <option value="CAMPENON BERNARD">CAMPENON BERNARD</option>
+                <option value="EFFIA PARKING BARET">EFFIA PARKING BARET</option>
+            </select>
+        </div>
+        
+        <div class="gantt-controls">
+            <button class="btn" id="addTaskBtn">➕ Ajouter une Tâche</button>
+            <button class="btn" id="editHoursBtn" style="background: var(--primary-orange);">⏱️ Modifier Budget (<span id="budget-display">278</span>h)</button>
+            <div style="margin-left: auto; display: flex; gap: 0.5rem;">
+                <button class="btn" id="viewDayBtn">Jour</button>
+                <button class="btn" id="viewWeekBtn">Semaine</button>
+                <button class="btn" id="viewMonthBtn">Mois</button>
+            </div>
+            <button class="btn btn-success" onclick="window.print()" style="margin-left: 1rem;">🖨️ Imprimer</button>
+        </div>
+        <div id="ganttContainer"></div>
+        
+        <!-- Résumé graphique corrigé -->
+        <div class="dashboard-summary" id="dashboardSummary">
+            <h2 style="text-align: center; color: var(--primary-red); margin-bottom: 2rem; font-size: 1.5rem;">📊 Tableau de Bord du Projet</h2>
+            
+            <!-- Barres de progression principales -->
+            <div class="progress-cards">
+                <div class="progress-card">
+                    <div class="progress-header">
+                        <h3>⏱️ Heures de Travail</h3>
+                        <div class="progress-values">
+                            <span class="current-value" id="heures-passees-display">0</span>
+                            <span class="total-value" id="heures-budget-display">0</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="heures-progress-bar"></div>
+                        <div class="progress-percentage" id="heures-percentage">0%</div>
+                    </div>
+                    <div class="progress-labels">
+                        <span>Passées</span>
+                        <span>Budget</span>
+                    </div>
+                </div>
+
+                <div class="progress-card">
+                    <div class="progress-header">
+                        <h3>📈 Avancement Global</h3>
+                        <div class="progress-values">
+                            <span class="current-value" id="taches-terminees">0</span>
+                            <span class="total-value" id="taches-totales">0</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="taches-progress-bar"></div>
+                        <div class="progress-percentage" id="taches-percentage">0%</div>
+                    </div>
+                    <div class="progress-labels">
+                        <span>Tâches terminées</span>
+                        <span>Total tâches</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graphique en anneau -->
+            <div class="circular-progress-section">
+                <div class="circular-progress" id="circular-progress">
+                    <div class="circular-progress-inner">
+                        <div class="circular-progress-percentage" id="circular-percentage">0%</div>
+                        <div class="circular-progress-label">Progression</div>
+                    </div>
+                </div>
+                
+                <div class="project-stats">
+                    <div class="stat-item">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-content">
+                            <div class="stat-title">Statut Projet</div>
+                            <div class="stat-value" id="project-status">En cours</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-content">
+                            <div class="stat-title">Productivité</div>
+                            <div class="stat-value" id="productivity-rate">7.2 h/j</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-content">
+                            <div class="stat-title">Fin estimée</div>
+                            <div class="stat-value" id="estimated-end">10 sept</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <div class="stat-title">Budget Heures</div>
+                            <div class="stat-value" id="budget-status">Dans les temps</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline mini -->
+            <div class="mini-timeline">
+                <h4 style="margin-bottom: 1rem; color: var(--text-color);">🗓️ Prochaines étapes</h4>
+                <div class="timeline-items" id="timeline-items">
+                    <!-- Items générés dynamiquement -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class GanttChart {
+            constructor(containerId) {
+                this.container = document.getElementById(containerId);
+                this.tasks = [];
+                this.viewMode = 'week';
+                this.responsables = [
+                    'FARID MESSAL (Chef de chantier)',
+                    'A MOHAMED (Chef d\'équipe)', 
+                    'ANTUNEZ LOIC (Chef d\'équipe)',
+                    'CLEMENTE MICKAEL (Chef d\'équipe)',
+                    'CUKUR MUSTAFA (Chef d\'équipe)',
+                    'GRANDADAM G (Chef d\'équipe)',
+                    'RIBEIRO-CASAL A (Chef d\'équipe)',
+                    'MOREAU JC (Chef d\'équipe)',
+                    'YASAR ERTUGRUL (Conducteur de travaux)',
+                    'SYLVAIN GARREAU (Chargé d\'affaires)',
+                    'LOU PIEDIGROSSI (HSE)',
+                    'MARTIN HANGARD (Responsable d\'agence)'
+                ];
+                this.statuts = {
+                    'planifie': 'Planifié',
+                    'en-cours': 'En cours',
+                    'en-retard': 'En retard',
+                    'termine': 'Terminé',
+                    'travaux-sup': 'Travaux sup'
+                };
+                this.hoursPerDay = 8.5;
+                this.estimatedHoursBudget = 278;
+                this.initModals();
+                this.initControls();
+            }
+
+            calculateEndDate(start, workingDays) {
+                let d = new Date(start);
+                let addedDays = 0;
+                if (workingDays < 1) return d;
+                let initialDay = d.getDay();
+                if (initialDay !== 0 && initialDay !== 6) {
+                    addedDays = 1;
+                }
+                while (addedDays < workingDays) {
+                    d.setDate(d.getDate() + 1);
+                    if (d.getDay() !== 0 && d.getDay() !== 6) { addedDays++; }
+                }
+                return d;
+            }
+
+            loadTasks(tasks) { 
+                this.tasks = tasks.map(t => ({...t, dateDebut: new Date(t.dateDebut)})); 
+                this.render(); 
+            }
+            
+            saveTask(taskData) {
+                const index = this.tasks.findIndex(t => t.id === taskData.id);
+                if (index !== -1) { this.tasks[index] = taskData; } else { this.tasks.push(taskData); }
+                this.render();
+            }
+            
+            deleteTask(id) {
+                if (confirm('Supprimer cette tâche ?')) { 
+                    this.tasks = this.tasks.filter(t => t.id !== id); 
+                    this.render(); 
+                }
+            }
+
+            populateStatusSelect(selectElement, selectedValue) {
+                selectElement.innerHTML = '';
+                for (const [key, value] of Object.entries(this.statuts)) {
+                    selectElement.innerHTML += `<option value="${key}" ${key === selectedValue ? 'selected' : ''}>${value}</option>`;
+                }
+            }
+
+            initModals() {
+                this.modalTache = document.getElementById('modalTache');
+                this.modalProgression = document.getElementById('modalProgression');
+                this.modalHeures = document.getElementById('modalHeures');
+                
+                this.modalTache.querySelector('.close').onclick = () => this.closeTaskModal();
+                document.getElementById('cancelModalTache').onclick = () => this.closeTaskModal();
+                document.getElementById('btnSauvegarderTache').onclick = () => this.handleSaveTask();
+                document.getElementById('btnSupprimerTache').onclick = () => this.handleDeleteTask();
+                
+                this.modalProgression.querySelector('.close').onclick = () => this.closeProgressModal();
+                document.getElementById('cancelModalProgression').onclick = () => this.closeProgressModal();
+                document.getElementById('btnSauvegarderProgression').onclick = () => this.handleSaveProgress();
+
+                this.modalHeures.querySelector('.close').onclick = () => this.closeHoursModal();
+                document.getElementById('cancelModalHeures').onclick = () => this.closeHoursModal();
+                document.getElementById('btnSauvegarderHeures').onclick = () => this.handleSaveHours();
+            }
+            
+            openTaskModal(taskId = null) {
+                this.currentEditingTaskId = taskId;
+                const isEditing = taskId !== null;
+                const task = isEditing ? this.tasks.find(t=>t.id===taskId) : {};
+                
+                document.getElementById('modalTitreAction').textContent = isEditing ? '✏️ Modifier la Tâche' : '➕ Ajouter une Tâche';
+                document.getElementById('btnSupprimerTache').style.display = isEditing ? 'inline-flex' : 'none';
+                
+                const selectResponsable = document.getElementById('modalTacheResponsable');
+                selectResponsable.innerHTML = this.responsables.map(r => `<option value="${r}" ${task.responsable === r ? 'selected' : ''}>${r}</option>`).join('');
+                
+                this.populateStatusSelect(document.getElementById('modalTacheStatut'), task.statut || 'planifie');
+
+                document.getElementById('modalTacheNom').value = task.nom || '';
+                document.getElementById('modalTacheDateDebut').value = (task.dateDebut || new Date()).toISOString().split('T')[0];
+                document.getElementById('modalTacheHeures').value = task.heuresHomme || 8;
+                document.getElementById('modalTacheOperateurs').value = task.operateurs || 1;
+                document.getElementById('modalTacheProgression').value = task.progression || 0;
+                document.getElementById('modalTacheProgression').nextElementSibling.textContent = `${task.progression || 0}%`;
+                
+                this.modalTache.style.display = 'flex';
+            }
+
+            handleSaveTask() {
+                const nom = document.getElementById('modalTacheNom').value.trim();
+                if (!nom) { alert('Le nom est obligatoire.'); return; }
+                const heuresHomme = parseFloat(document.getElementById('modalTacheHeures').value) || 0;
+                const operateurs = parseInt(document.getElementById('modalTacheOperateurs').value) || 1;
+
+                const taskData = {
+                    id: this.currentEditingTaskId || Date.now(), 
+                    nom,
+                    responsable: document.getElementById('modalTacheResponsable').value,
+                    dateDebut: new Date(document.getElementById('modalTacheDateDebut').value),
+                    heuresHomme: heuresHomme,
+                    operateurs: operateurs,
+                    duree: Math.ceil(heuresHomme / (operateurs * this.hoursPerDay)),
+                    progression: parseInt(document.getElementById('modalTacheProgression').value),
+                    statut: document.getElementById('modalTacheStatut').value
+                };
+                this.saveTask(taskData);
+                this.closeTaskModal();
+            }
+            
+            handleDeleteTask() { 
+                if (this.currentEditingTaskId) { 
+                    this.deleteTask(this.currentEditingTaskId); 
+                    this.closeTaskModal(); 
+                } 
+            }
+            
+            closeTaskModal() { this.modalTache.style.display = 'none'; }
+            
+            openProgressModal(taskId) {
+                const task = this.tasks.find(t=>t.id===taskId);
+                if (!task) return;
+                this.currentProgressTaskId = taskId;
+                document.getElementById('modalProgressionTacheNom').textContent = `Tâche : ${task.nom}`;
+                const slider = document.getElementById('modalProgressionSlider');
+                slider.value = task.progression;
+                slider.nextElementSibling.textContent = `${task.progression}%`;
+                this.populateStatusSelect(document.getElementById('modalProgressionStatut'), task.statut);
+                this.modalProgression.style.display = 'flex';
+            }
+            
+            handleSaveProgress() {
+                const task = this.tasks.find(t=>t.id===this.currentProgressTaskId);
+                if (!task) return;
+                task.progression = parseInt(document.getElementById('modalProgressionSlider').value);
+                task.statut = document.getElementById('modalProgressionStatut').value;
+                this.saveTask(task);
+                this.closeProgressModal();
+            }
+            
+            closeProgressModal() { this.modalProgression.style.display = 'none'; }
+
+            openHoursModal() {
+                document.getElementById('budgetHeuresInput').value = this.estimatedHoursBudget;
+                this.modalHeures.style.display = 'flex';
+            }
+
+            handleSaveHours() {
+                const newBudget = parseFloat(document.getElementById('budgetHeuresInput').value) || 278;
+                this.estimatedHoursBudget = newBudget;
+                
+                // Mise à jour du bouton
+                document.getElementById('budget-display').textContent = newBudget;
+                
+                // Mise à jour du dashboard
+                this.updateDashboard();
+                this.closeHoursModal();
+            }
+
+            closeHoursModal() { this.modalHeures.style.display = 'none'; }
+            
+            initControls() {
+                document.getElementById('addTaskBtn').onclick = () => this.openTaskModal();
+                document.getElementById('editHoursBtn').onclick = () => this.openHoursModal();
+                document.getElementById('viewDayBtn').onclick = () => { this.viewMode = 'day'; this.render(); };
+                document.getElementById('viewWeekBtn').onclick = () => { this.viewMode = 'week'; this.render(); };
+                document.getElementById('viewMonthBtn').onclick = () => { this.viewMode = 'month'; this.render(); };
+            }
+
+            render() {
+                this.container.innerHTML = '';
+                if (this.tasks.length === 0) {
+                    this.container.innerHTML = `<div style="text-align: center; color: #666; padding: 40px; background: var(--light-bg); border-radius: 8px;"><p>Le planning est vide.</p></div>`;
+                    this.updateDashboard(); 
+                    return;
+                }
+                this.tasks.sort((a, b) => a.dateDebut - b.dateDebut);
+                const minDate = new Date(this.tasks[0].dateDebut);
+                let maxDate = new Date(minDate);
+                this.tasks.forEach(task => {
+                    const endDate = this.calculateEndDate(task.dateDebut, task.duree);
+                    if (endDate > maxDate) maxDate = endDate;
+                });
+                const headerCells = this.generateDateHeader(minDate, maxDate);
+                const ganttProfessional = document.createElement('div');
+                ganttProfessional.className = 'gantt-professional';
+                const ganttContainer = document.createElement('div');
+                ganttContainer.className = 'gantt-container';
+                const headerRow = document.createElement('div');
+                headerRow.className = 'gantt-header-row';
+                headerRow.innerHTML = `<div class="gantt-task-header">Tâches</div><div class="gantt-dates-header">${headerCells.html}</div>`;
+                const ganttBody = document.createElement('div');
+                ganttBody.className = 'gantt-body';
+                this.tasks.forEach(task => ganttBody.appendChild(this.generateTaskRow(task, minDate, headerCells.colWidth)));
+                ganttContainer.appendChild(headerRow);
+                ganttContainer.appendChild(ganttBody);
+                ganttProfessional.appendChild(ganttContainer);
+                this.container.appendChild(ganttProfessional);
+                this.updateDashboard();
+            }
+            
+            updateDashboard() {
+                const totalHeuresTaches = this.tasks.reduce((sum, task) => sum + task.heuresHomme, 0);
+                const heuresPassees = this.tasks.reduce((sum, task) => sum + (task.heuresHomme * (task.progression / 100)), 0);
+                
+                // CORRECTION : Utiliser le budget configuré, pas la somme des tâches
+                const progressionGlobaleVsBudget = this.estimatedHoursBudget > 0 ? (heuresPassees / this.estimatedHoursBudget) * 100 : 0;
+                const progressionGlobaleTaches = totalHeuresTaches > 0 ? (heuresPassees / totalHeuresTaches) * 100 : 0;
+                
+                // Tâches terminées vs totales
+                const tachesTerminees = this.tasks.filter(t => t.progression === 100).length;
+                const tachesTotales = this.tasks.length;
+                const tachesProgression = tachesTotales > 0 ? (tachesTerminees / tachesTotales) * 100 : 0;
+
+                // Mise à jour heures - CORRIGÉ
+                document.getElementById('heures-passees-display').textContent = Math.round(heuresPassees);
+                document.getElementById('heures-budget-display').textContent = this.estimatedHoursBudget;
+                document.getElementById('heures-percentage').textContent = `${Math.round(progressionGlobaleVsBudget)}%`;
+                
+                const heuresBar = document.getElementById('heures-progress-bar');
+                heuresBar.style.width = `${Math.min(progressionGlobaleVsBudget, 100)}%`;
+
+                // Mise à jour tâches
+                document.getElementById('taches-terminees').textContent = tachesTerminees;
+                document.getElementById('taches-totales').textContent = tachesTotales;
+                document.getElementById('taches-percentage').textContent = `${Math.round(tachesProgression)}%`;
+                
+                const tachesBar = document.getElementById('taches-progress-bar');
+                tachesBar.style.width = `${tachesProgression}%`;
+
+                // Graphique circulaire - CORRIGÉ : utiliser la progression basée sur les tâches pour l'affichage
+                const circularProgress = document.getElementById('circular-progress');
+                const circularPercentage = document.getElementById('circular-percentage');
+                circularPercentage.textContent = `${Math.round(progressionGlobaleTaches)}%`;
+                circularProgress.style.setProperty('--progress-angle', `${progressionGlobaleTaches * 3.6}deg`);
+
+                // Statut projet
+                let statutProjet = 'Planifié';
+                if (progressionGlobaleTaches >= 100) statutProjet = 'Terminé';
+                else if (progressionGlobaleTaches >= 50) statutProjet = 'En cours avancé';
+                else if (progressionGlobaleTaches > 0) statutProjet = 'En cours';
+                
+                document.getElementById('project-status').textContent = statutProjet;
+
+                // Productivité moyenne
+                const joursEcoules = Math.ceil((new Date() - new Date('2025-08-21')) / (1000 * 60 * 60 * 24));
+                const productivite = joursEcoules > 0 ? (heuresPassees / Math.max(joursEcoules, 1)).toFixed(1) : '0.0';
+                document.getElementById('productivity-rate').textContent = `${productivite} h/j`;
+
+                // Statut budget - NOUVEAU
+                const budgetStatus = document.getElementById('budget-status');
+                if (heuresPassees > this.estimatedHoursBudget * 1.1) {
+                    budgetStatus.textContent = 'Dépassé';
+                    budgetStatus.style.color = 'var(--danger-color)';
+                } else if (heuresPassees > this.estimatedHoursBudget * 0.9) {
+                    budgetStatus.textContent = 'Attention';
+                    budgetStatus.style.color = 'var(--warning-color)';
+                } else {
+                    budgetStatus.textContent = 'Dans les temps';
+                    budgetStatus.style.color = 'var(--success-color)';
+                }
+
+                // Timeline des prochaines tâches
+                this.updateTimeline();
+            }
+
+            updateTimeline() {
+                const timelineContainer = document.getElementById('timeline-items');
+                const prochainesToches = this.tasks
+                    .filter(t => t.progression < 100)
+                    .sort((a, b) => a.dateDebut - b.dateDebut)
+                    .slice(0, 4);
+
+                timelineContainer.innerHTML = prochainesToches.map(task => {
+                    const dateStr = task.dateDebut.toLocaleDateString('fr-FR', {day: 'numeric', month: 'short'});
+                    const statusClass = task.statut === 'en-cours' ? 'en-cours' : 'planifie';
+                    const statusText = task.statut === 'en-cours' ? 'En cours' : 'À faire';
+                    
+                    return `
+                        <div class="timeline-item">
+                            <div class="timeline-date">${dateStr}</div>
+                            <div class="timeline-task">${task.nom}</div>
+                            <div class="timeline-status ${statusClass}">${statusText}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            generateDateHeader(minDate, maxDate) {
+                let html = '', colWidth = 40;
+                let currentDate = new Date(minDate); 
+                currentDate.setDate(currentDate.getDate() - 2);
+                let endDate = new Date(maxDate); 
+                endDate.setDate(endDate.getDate() + 7);
+                if (this.viewMode === 'day') {
+                    colWidth = 50;
+                    while (currentDate <= endDate) { 
+                        const day = currentDate.getDay(); 
+                        html += `<div class="gantt-date-cell ${day === 0 || day === 6 ? 'weekend' : ''}" style="width:${colWidth}px;">${currentDate.toLocaleDateString('fr-FR', {day: '2-digit'})}</div>`; 
+                        currentDate.setDate(currentDate.getDate() + 1); 
+                    }
+                } else if (this.viewMode === 'week') {
+                    colWidth = 80;
+                    while (currentDate <= endDate) { 
+                        html += `<div class="gantt-date-cell" style="width:${colWidth}px;">Sem. ${this.getWeekNumber(currentDate)}</div>`; 
+                        currentDate.setDate(currentDate.getDate() + 7); 
+                    }
+                } else { 
+                    colWidth = 120; 
+                    currentDate.setDate(1);
+                    while (currentDate <= endDate) { 
+                        html += `<div class="gantt-date-cell" style="width:${colWidth}px;">${currentDate.toLocaleDateString('fr-FR', {month: 'long', year: '2-digit'})}</div>`; 
+                        currentDate.setMonth(currentDate.getMonth() + 1); 
+                    }
+                }
+                return { html, colWidth };
+            }
+
+            generateTaskRow(task, minDate, colWidth) {
+                const row = document.createElement('div');
+                row.className = 'gantt-row';
+                const endDate = this.calculateEndDate(task.dateDebut, task.duree);
+                const calendarDuration = (endDate - task.dateDebut) / 86400000;
+                let daysFromStart = (task.dateDebut - minDate) / 86400000 + 2;
+                let barWidth, barLeft;
+                if (this.viewMode === 'day') { 
+                    barLeft = daysFromStart * colWidth; 
+                    barWidth = calendarDuration * colWidth; 
+                } else if (this.viewMode === 'week') { 
+                    barLeft = (daysFromStart / 7) * colWidth; 
+                    barWidth = (calendarDuration / 7) * colWidth; 
+                } else { 
+                    barLeft = (daysFromStart / 30.4) * colWidth; 
+                    barWidth = (calendarDuration / 30.4) * colWidth; 
+                }
+                
+                row.innerHTML = `
+                    <div class="gantt-task-cell">
+                        <div class="gantt-task-name">${task.nom}</div>
+                        <div class="gantt-task-responsable">${task.responsable}</div>
+                    </div>
+                    <div class="gantt-chart-cell">
+                        <div class="gantt-bar gantt-bar-${task.statut}" style="left: ${barLeft}px; width: ${barWidth}px;">
+                            ${task.progression}%
+                            <div class="gantt-progress" style="width: ${task.progression}%;"></div>
+                        </div>
+                    </div>`;
+                row.querySelector('.gantt-task-cell').addEventListener('click', () => this.openTaskModal(task.id));
+                row.querySelector('.gantt-bar').addEventListener('click', (e) => { e.stopPropagation(); this.openProgressModal(task.id); });
+                return row;
+            }
+
+            getWeekNumber(d) {
+                d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+                d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+                var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+                return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            }
+        }
+        
+        const gantt = new GanttChart('ganttContainer');
+        
+        // Définition des tâches par chantier
+        const tasksGL = [
+            { id: 1, nom: 'Préparation & Installation chantier', responsable: 'FARID MESSAL (Chef de chantier)', dateDebut: '2025-08-21', heuresHomme: 24, operateurs: 2, duree: 2, progression: 100, statut: 'termine' },
+            { id: 2, nom: 'Sablage surfaces métalliques', responsable: 'A MOHAMED (Chef d\'équipe)', dateDebut: '2025-08-23', heuresHomme: 68, operateurs: 3, duree: 3, progression: 85, statut: 'en-cours' },
+            { id: 3, nom: 'Application primaire anticorrosion', responsable: 'CLEMENTE MICKAEL (Chef d\'équipe)', dateDebut: '2025-08-26', heuresHomme: 51, operateurs: 2, duree: 3, progression: 60, statut: 'en-cours' },
+            { id: 4, nom: 'Application peinture intermédiaire', responsable: 'ANTUNEZ LOIC (Chef d\'équipe)', dateDebut: '2025-08-29', heuresHomme: 45, operateurs: 2, duree: 3, progression: 25, statut: 'en-cours' },
+            { id: 5, nom: 'Application finition', responsable: 'CUKUR MUSTAFA (Chef d\'équipe)', dateDebut: '2025-09-02', heuresHomme: 38, operateurs: 2, duree: 2, progression: 0, statut: 'planifie' },
+            { id: 6, nom: 'Contrôles qualité & mesures DFT', responsable: 'LOU PIEDIGROSSI (HSE)', dateDebut: '2025-09-04', heuresHomme: 16, operateurs: 1, duree: 2, progression: 0, statut: 'planifie' },
+            { id: 7, nom: 'Retouches & finitions', responsable: 'GRANDADAM G (Chef d\'équipe)', dateDebut: '2025-09-06', heuresHomme: 22, operateurs: 2, duree: 2, progression: 0, statut: 'planifie' },
+            { id: 8, nom: 'Nettoyage & repli chantier', responsable: 'FARID MESSAL (Chef de chantier)', dateDebut: '2025-09-09', heuresHomme: 14, operateurs: 2, duree: 1, progression: 0, statut: 'planifie' }
+        ];
+        // Utilisation du même planning pour les autres chantiers (peut être personnalisé)
+        const tasksByChantier = {
+            'Grand Lyon – Pont de Chasse': tasksGL,
+            'VICHY': tasksGL,
+            'CAMPENON BERNARD': tasksGL,
+            'EFFIA PARKING BARET': tasksGL
+        };
+        // Chargement initial
+        gantt.loadTasks(tasksByChantier['Grand Lyon – Pont de Chasse']);
+        document.getElementById('chantierSelect').addEventListener('change', (e) => {
+            const chantier = e.target.value;
+            gantt.loadTasks(tasksByChantier[chantier]);
+            document.querySelector('.equipe-info h3').innerText = `📅 Chantier : ${chantier}`;
+        });
+    </script>
+</body>
+</html>
