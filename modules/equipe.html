@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Équipe - Tugrul V0.8.1</title>
+    
+
+  <link rel="stylesheet" href="../assets/css/shared.css">
+  <link rel="stylesheet" href="../assets/css/print.css" media="print">
+
+</head>
+<body>
+  <div id="helpMount"></div>
+
+    <div class="container">
+        <nav class="back-nav">
+            <a href="index.html" class="back-link">
+                ← Retour à l'accueil
+            </a>
+        </nav>
+
+        <div class="page-header">
+            <h1 class="page-title">Gestion Équipe</h1>
+            <p class="page-subtitle">Base de données du personnel : collaborateurs, intérimaires et sous-traitants</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalMembers">0</div>
+                <div class="stat-label">Effectif total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="availableMembers">0</div>
+                <div class="stat-label">Disponibles</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="unavailableMembers">0</div>
+                <div class="stat-label">Indisponibles</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="certifiedMembers">0</div>
+                <div class="stat-label">Certifiés</div>
+            </div>
+        </div>
+
+        <div class="actions-bar">
+            <div class="search-filters">
+                <input type="text" class="search-input" id="searchInput" placeholder="🔍 Rechercher par nom, poste...">
+                <select class="filter-select" id="filterRole">
+                    <option value="">Tous les postes</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" id="addMemberBtn">➕ Ajouter une personne</button>
+        </div>
+        
+        <div class="team-grid" id="teamGrid"></div>
+
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <h3>👥 Aucune personne trouvée</h3>
+            <p>Commencez par ajouter du personnel à votre base de données.</p>
+            <button class="btn btn-primary" onclick="teamModule.addMember()">Ajouter la première personne</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="memberModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Ajouter une personne</h2>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="memberForm">
+                    <input type="hidden" id="memberId" name="id">
+                    <div class="form-grid">
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label required" for="firstName">Prénom</label>
+                                <input type="text" id="firstName" name="firstName" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required" for="lastName">Nom</label>
+                                <input type="text" id="lastName" name="lastName" class="form-input" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label required" for="role">Poste / Statut</label>
+                            <select id="role" name="role" class="form-select" required></select>
+                        </div>
+                        
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label" for="phone">Téléphone</label>
+                                <input type="tel" id="phone" name="phone" class="form-input" placeholder="06 XX XX XX XX">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="email">Email</label>
+                                <input type="email" id="email" name="email" class="form-input">
+                            </div>
+                        </div>
+
+                        <hr style="margin: 1rem 0; border: none; border-top: 1px solid var(--border-primary);">
+
+                        <div class="form-group">
+                            <label class="form-label">Disponibilité</label>
+                            <select id="availabilityType" name="availabilityType" class="form-select">
+                                <option value="available">Disponible</option>
+                                <option value="conge">En Congé</option>
+                                <option value="arret">Arrêt Maladie</option>
+                                <option value="formation">En Formation</option>
+                            </select>
+                        </div>
+
+                        <div id="availabilityDetails" class="hidden">
+                             <div class="form-grid form-grid-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="availabilityStart">Date de début</label>
+                                    <input type="date" id="availabilityStart" name="availabilityStart" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="availabilityEnd">Date de fin</label>
+                                    <input type="date" id="availabilityEnd" name="availabilityEnd" class="form-input">
+                                </div>
+                            </div>
+                            <div class="form-group hidden" id="formationDetails">
+                                <label class="form-label" for="formationType">Type de formation</label>
+                                <input type="text" id="formationType" name="formationType" class="form-input">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="certifications">Certifications</label>
+                            <input type="text" id="certifications" name="certifications" class="form-input" placeholder="Ex: CACES, Soudage, ATEX...">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="cancelBtn">Annuler</button>
+                <button type="submit" class="btn btn-primary" id="saveBtn" form="memberForm">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="notification-template" style="display: none;">
+        <div class="notification">
+            <span class="notification-icon"></span>
+            <span class="notification-message"></span>
+        </div>
+    </div>
+
+    <script>
+    class TeamModule {
+        constructor() {
+            this.roles = {
+                'responsable-agence': "Responsable d'agence",
+                'charge-affaires': "Chargé d'affaires",
+                'conducteur-travaux': "Conducteur de travaux",
+                'chef-chantier': "Chef de chantier",
+                'chef-equipe': "Chef d'équipe",
+                'operateur': "Opérateur",
+                'hse': "HSE",
+                'interimaire': "Intérimaire",
+                'sous-traitant': "Sous-traitant",
+                'altrad-autre': "Altrad Autres"
+            };
+            this.members = this.loadMembers();
+            if (this.members.length === 0) {
+                this.initializeRealData();
+            }
+            this.filteredMembers = [...this.members];
+            this.init();
+        }
+
+        init() {
+            this.populateRoleFilters();
+            this.setupEventListeners();
+            this.applyFilters();
+        }
+
+        populateRoleFilters() {
+            const roleFilter = document.getElementById('filterRole');
+            const roleForm = document.getElementById('role');
+            roleFilter.innerHTML = '<option value="">Tous les postes</option>';
+            roleForm.innerHTML = '';
+            for (const [key, value] of Object.entries(this.roles)) {
+                roleFilter.innerHTML += `<option value="${key}">${value}</option>`;
+                roleForm.innerHTML += `<option value="${key}">${value}</option>`;
+            }
+        }
+
+        setupEventListeners() {
+            document.getElementById('addMemberBtn').addEventListener('click', () => this.openModal());
+            document.getElementById('closeModal').addEventListener('click', () => this.closeModal());
+            document.getElementById('cancelBtn').addEventListener('click', () => this.closeModal());
+            document.getElementById('memberForm').addEventListener('submit', (e) => this.handleSubmit(e));
+            document.getElementById('searchInput').addEventListener('input', () => this.applyFilters());
+            document.getElementById('filterRole').addEventListener('change', () => this.applyFilters());
+            document.getElementById('memberModal').addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal-overlay')) this.closeModal();
+            });
+            document.getElementById('availabilityType').addEventListener('change', (e) => this.toggleAvailabilityDetails(e.target.value));
+        }
+
+        loadMembers() {
+            try {
+                const saved = localStorage.getItem('equipe_data_v3');
+                return saved ? JSON.parse(saved) : [];
+            } catch (error) { console.error('Erreur de chargement:', error); return []; }
+        }
+
+        saveMembers() {
+            try {
+                localStorage.setItem('equipe_data_v3', JSON.stringify(this.members));
+            } catch (error) { console.error('Erreur de sauvegarde:', error); }
+        }
+        
+        generateId() {
+            return 'member_' + Date.now() + Math.random().toString(36).substring(2, 9);
+        }
+        
+        getInitials(firstName, lastName) { 
+            return (firstName.charAt(0) + (lastName || ' ').charAt(0)).toUpperCase(); 
+        }
+        
+        getRoleDisplayName(role) { 
+            return this.roles[role] || role; 
+        }
+
+        getAvailabilityDisplay(member) {
+            const availability = member.availability || { type: 'available' };
+            const formatDate = (date) => date ? new Date(date).toLocaleDateString('fr-FR') : '...';
+            switch (availability.type) {
+                case 'conge': return `<span class="availability-badge unavailable">En Congé (fin: ${formatDate(availability.end)})</span>`;
+                case 'arret': return `<span class="availability-badge unavailable">Arrêt Maladie (fin: ${formatDate(availability.end)})</span>`;
+                case 'formation': return `<span class="availability-badge unavailable">En Formation (${availability.formationType || ''})</span>`;
+                default: return '<span class="availability-badge available">Disponible</span>';
+            }
+        }
+        
+        render() {
+            this.renderMembers();
+            this.updateStats();
+        }
+
+        renderMembers() {
+            const grid = document.getElementById('teamGrid');
+            const emptyState = document.getElementById('emptyState');
+            if (this.filteredMembers.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+            grid.innerHTML = this.filteredMembers.map(member => `
+                <div class="member-card" data-id="${member.id}">
+                    <div class="member-header">
+                        <div class="member-avatar">${this.getInitials(member.firstName, member.lastName)}</div>
+                        <div class="member-info">
+                            <h3>${member.firstName} ${member.lastName}</h3>
+                            <div class="member-role">${this.getRoleDisplayName(member.role)}</div>
+                        </div>
+                    </div>
+                    <div class="member-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Téléphone:</span>
+                            <span class="detail-value">${member.phone || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Email:</span>
+                            <span class="detail-value">${member.email || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Disponibilité:</span>
+                            <span class="detail-value">${this.getAvailabilityDisplay(member)}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Certifications:</span>
+                            <span class="detail-value">${member.certifications || 'Aucune'}</span>
+                        </div>
+                    </div>
+                    <div class="member-actions">
+                        <button class="btn btn-sm btn-secondary" onclick="teamModule.editMember('${member.id}')">✏️ Modifier</button>
+                        <button class="btn btn-sm btn-danger" onclick="teamModule.deleteMember('${member.id}')">🗑️ Supprimer</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        updateStats() {
+            const total = this.members.length;
+            const available = this.members.filter(m => !m.availability || m.availability.type === 'available').length;
+            const certified = this.members.filter(m => m.certifications && m.certifications.trim()).length;
+            document.getElementById('totalMembers').textContent = total;
+            document.getElementById('availableMembers').textContent = available;
+            document.getElementById('unavailableMembers').textContent = total - available;
+            document.getElementById('certifiedMembers').textContent = certified;
+        }
+
+        openModal(member = null) {
+            const form = document.getElementById('memberForm');
+            form.reset();
+            if (member) {
+                document.getElementById('modalTitle').textContent = 'Modifier la personne';
+                Object.keys(member).forEach(key => {
+                    const field = form.elements[key];
+                    if (field && typeof member[key] !== 'object') field.value = member[key] || '';
+                });
+                const availability = member.availability || { type: 'available' };
+                form.elements.availabilityType.value = availability.type;
+                form.elements.availabilityStart.value = availability.start || '';
+                form.elements.availabilityEnd.value = availability.end || '';
+                form.elements.formationType.value = availability.formationType || '';
+            } else {
+                document.getElementById('modalTitle').textContent = 'Ajouter une personne';
+                form.elements.id.value = this.generateId();
+            }
+            this.toggleAvailabilityDetails(form.elements.availabilityType.value);
+            document.getElementById('memberModal').style.display = 'flex';
+        }
+
+        closeModal() {
+            document.getElementById('memberModal').style.display = 'none';
+        }
+
+        toggleAvailabilityDetails(type) {
+            document.getElementById('availabilityDetails').classList.toggle('hidden', type === 'available');
+            document.getElementById('formationDetails').classList.toggle('hidden', type !== 'formation');
+        }
+
+        handleSubmit(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            if (!data.firstName || !data.lastName || !data.role) {
+                this.showNotification('Veuillez remplir les champs Prénom, Nom et Poste.', 'error');
+                return;
+            }
+            const memberData = {
+                id: data.id, firstName: data.firstName, lastName: data.lastName, role: data.role,
+                phone: data.phone, email: data.email, certifications: data.certifications,
+                availability: {
+                    type: data.availabilityType, start: data.availabilityStart,
+                    end: data.availabilityEnd, formationType: data.formationType
+                }
+            };
+            const memberIndex = this.members.findIndex(m => m.id === memberData.id);
+            if (memberIndex > -1) {
+                this.members[memberIndex] = memberData;
+                this.showNotification('Personne modifiée avec succès', 'success');
+            } else {
+                this.members.push(memberData);
+                this.showNotification('Personne ajoutée avec succès', 'success');
+            }
+            this.saveMembers();
+            this.applyFilters();
+            this.closeModal();
+        }
+
+        editMember(id) {
+            const member = this.members.find(m => m.id === id);
+            if (member) this.openModal(member);
+        }
+
+        deleteMember(id) {
+            const member = this.members.find(m => m.id === id);
+            if (member && confirm(`Voulez-vous vraiment supprimer ${member.firstName} ${member.lastName} ?`)) {
+                this.members = this.members.filter(m => m.id !== id);
+                this.saveMembers();
+                this.applyFilters();
+                this.showNotification('Personne supprimée', 'info');
+            }
+        }
+
+        applyFilters() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const role = document.getElementById('filterRole').value;
+            this.filteredMembers = this.members.filter(m => {
+                const matchSearch = (`${m.firstName} ${m.lastName}`).toLowerCase().includes(search) || this.getRoleDisplayName(m.role).toLowerCase().includes(search);
+                const matchRole = !role || m.role === role;
+                return matchSearch && matchRole;
+            });
+            this.render();
+        }
+        
+        showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `<span>${type === 'success' ? '✓' : 'ℹ'}</span><span>${message}</span>`;
+            notification.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 2000; 
+                background: ${type === 'success' ? '#10b981' : '#3b82f6'}; 
+                color: white; padding: 12px 20px; border-radius: 8px; 
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-weight: 500;
+                transform: translateX(100%); transition: transform 0.3s ease;
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.style.transform = 'translateX(0)', 100);
+            setTimeout(() => { 
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        initializeRealData() {
+            this.members = [
+                // Management
+                { id: this.generateId(), firstName: 'MARTIN', lastName: 'HANGARD', role: 'responsable-agence', phone: '0634567890', email: 'martin.hangard@altrad.com', certifications: 'Management, Sécurité' },
+                { id: this.generateId(), firstName: 'YASAR', lastName: 'ERTUGRUL', role: 'conducteur-travaux', phone: '0645678901', email: 'yasar.ertugrul@altrad.com', certifications: 'Conducteur de travaux' },
+                { id: this.generateId(), firstName: 'SYLVAIN', lastName: 'GARREAU', role: 'charge-affaires', phone: '0656789012', email: 'sylvain.garreau@altrad.com' },
+                { id: this.generateId(), firstName: 'LOU', lastName: 'PIEDIGROSSI', role: 'hse', phone: '0667890123', email: 'lou.piedigrossi@altrad.com', certifications: 'HSE, Sécurité' },
+                
+                // Chef de chantier
+                { id: this.generateId(), firstName: 'FARID', lastName: 'MESSAL', role: 'chef-chantier', phone: '0611223344', certifications: 'Management, Secourisme' },
+                
+                // Chefs d'équipe
+                { id: this.generateId(), firstName: 'A', lastName: 'MOHAMED', role: 'chef-equipe', phone: '0633445566' },
+                { id: this.generateId(), firstName: 'ANTUNEZ', lastName: 'LOIC', role: 'chef-equipe', phone: '0644556677' },
+                { id: this.generateId(), firstName: 'CLEMENTE', lastName: 'MICKAEL', role: 'chef-equipe', phone: '0666778899' },
+                { id: this.generateId(), firstName: 'CUKUR', lastName: 'MUSTAFA', role: 'chef-equipe', phone: '0688990011' },
+                { id: this.generateId(), firstName: 'GRANDADAM', lastName: 'G', role: 'chef-equipe', phone: '0612121212' },
+                { id: this.generateId(), firstName: 'RIBEIRO-CASAL', lastName: 'A', role: 'chef-equipe', phone: '0645454545', availability: { type: 'conge', end: '2025-09-05' } },
+                { id: this.generateId(), firstName: 'MOREAU', lastName: 'JC', role: 'chef-equipe', phone: '0656565656' },
+                
+                // Opérateurs
+                { id: this.generateId(), firstName: 'BLANC', lastName: 'MARQUIS D', role: 'operateur', phone: '0655667788' },
+                { id: this.generateId(), firstName: 'CUKUR', lastName: 'AYHAN', role: 'operateur', phone: '0677889900' },
+                { id: this.generateId(), firstName: 'MORGADO', lastName: 'ALEX', role: 'operateur', phone: '0699001122' },
+                { id: this.generateId(), firstName: 'ROCHDI', lastName: 'YOUSSEF', role: 'operateur', phone: '0600112233' },
+                { id: this.generateId(), firstName: 'HADIDI', lastName: 'A', role: 'operateur', phone: '0623232323' },
+                { id: this.generateId(), firstName: 'ROBIC', lastName: 'NICOLAS', role: 'operateur', phone: '0634343434' },
+                
+                // Altrad autre
+                { id: this.generateId(), firstName: 'DJEBBAR', lastName: 'Khalil', role: 'altrad-autre', phone: '0622334455' },
+                
+                // Sous-traitants
+                { id: this.generateId(), firstName: 'EURO PEINTURE', lastName: '1', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'EURO PEINTURE', lastName: '2', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'EURO PEINTURE', lastName: '3', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'EURO PEINTURE', lastName: '4', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'SAINT\'ELEC', lastName: '1', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'SAINT\'ELEC', lastName: '2', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'SAINT\'ELEC', lastName: '3', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'SAINT\'ELEC', lastName: '4', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'SAINT\'ELEC', lastName: '5', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'SAINT\'ELEC', lastName: '6', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'DALZEMIR', lastName: '1', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'DALZEMIR', lastName: '2', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'DALZEMIR', lastName: '3', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'DALZEMIR', lastName: '4', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'DALZEMIR', lastName: '5', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'DALZEMIR', lastName: '6', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'DALZEMIR', lastName: '7', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'GUILLE', lastName: 'Pascal', role: 'sous-traitant' },
+                
+                // Intérimaires
+                { id: this.generateId(), firstName: 'NASSER', lastName: 'MESSAL', role: 'interimaire' },
+                { id: this.generateId(), firstName: 'LAARAJ', lastName: '', role: 'interimaire' }
+            ];
+            this.saveMembers();
+        }
+    }
+
+    let teamModule;
+    document.addEventListener('DOMContentLoaded', () => { 
+        teamModule = new TeamModule(); 
+    });
+    </script>
+
+  <script type="module">
+    import { mountHelp } from '../assets/js/help.js';
+    mountHelp(document.getElementById('helpMount') || document.body);
+  </script>
+
+</body>
+</html>

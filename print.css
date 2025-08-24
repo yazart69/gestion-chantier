@@ -1,0 +1,7 @@
+
+@page { size: A4; margin: 12mm }
+*{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}
+header,.btn-row,.help-button,.tabs{display:none !important}
+.card{box-shadow:none;border:1pt solid #ccc;page-break-inside:avoid}
+.table thead th{background:#dc2626 !important;color:#fff !important}
+h1{color:#000 !important}

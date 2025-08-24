@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Planning - Tugrul V0.8.2</title>
+    
+
+  <link rel="stylesheet" href="../assets/css/shared.css">
+  <link rel="stylesheet" href="../assets/css/print.css" media="print">
+
+</head>
+<body>
+  <div id="helpMount"></div>
+
+    <div id="modalTache" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span><h3 id="modalTitreAction"></h3>
+            <div class="form-group"><label>Nom de la tâche *</label><input type="text" id="modalTacheNom"></div>
+            <div class="two-column">
+                <div class="form-group"><label>Heures-Homme Prévues *</label><input type="number" id="modalTacheHeures" min="1" value="8"></div>
+                <div class="form-group"><label>Nombre d'Opérateurs *</label><input type="number" id="modalTacheOperateurs" min="1" value="1"></div>
+            </div>
+            <div class="form-group"><label>Responsable *</label><select id="modalTacheResponsable"></select></div>
+            <div class="form-group"><label>Date de début *</label><input type="date" id="modalTacheDateDebut"></div>
+            <div class="two-column">
+                <div class="form-group"><label>Progression (%)</label><input type="range" id="modalTacheProgression" min="0" max="100" value="0" oninput="this.nextElementSibling.textContent = this.value + '%'"><span>0%</span></div>
+                <div class="form-group"><label>Statut</label><select id="modalTacheStatut"></select></div>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <button class="btn btn-danger" id="btnSupprimerTache">Supprimer</button>
+                <button class="btn" id="cancelModalTache">Annuler</button>
+                <button class="btn btn-success" id="btnSauvegarderTache">Valider</button>
+            </div>
+        </div>
+    </div>
+    <div id="modalProgression" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <span class="close">&times;</span><h3>📊 Modifier la Progression</h3>
+            <div class="form-group"><label id="modalProgressionTacheNom"></label></div>
+            <div class="form-group"><label>Progression</label><input type="range" id="modalProgressionSlider" min="0" max="100" oninput="this.nextElementSibling.textContent = this.value + '%'"><span>0%</span></div>
+            <div class="form-group"><label>Statut</label><select id="modalProgressionStatut"></select></div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <button class="btn" id="cancelModalProgression">Annuler</button>
+                <button class="btn btn-success" id="btnSauvegarderProgression">Valider</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalHeures" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <span class="close">&times;</span><h3>⏱️ Modifier Budget Heures</h3>
+            <div class="form-group">
+                <label>Budget heures total du projet</label>
+                <input type="number" id="budgetHeuresInput" min="1" value="278">
+                <small style="color: #666; font-size: 0.8rem;">Nombre d'heures prévues pour l'ensemble du chantier</small>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <button class="btn" id="cancelModalHeures">Annuler</button>
+                <button class="btn btn-success" id="btnSauvegarderHeures">Valider</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <nav class="back-nav">
+            <a href="index.html" class="back-link">
+                ← Retour à l'accueil
+            </a>
+        </nav>
+
+        <h1>Planning de Chantier</h1>
+
+        <div class="equipe-info">
+            <h3>📅 Chantier : Grand Lyon – Pont de Chasse</h3>
+            <p>Suivi des étapes et progression • Équipe 41 Altrad Prezioso</p>
+        </div>
+        
+        <div class="gantt-controls">
+            <button class="btn" id="addTaskBtn">➕ Ajouter une Tâche</button>
+            <button class="btn" id="editHoursBtn" style="background: var(--primary-orange);">⏱️ Modifier Budget (<span id="budget-display">278</span>h)</button>
+            <div style="margin-left: auto; display: flex; gap: 0.5rem;">
+                <button class="btn" id="viewDayBtn">Jour</button>
+                <button class="btn" id="viewWeekBtn">Semaine</button>
+                <button class="btn" id="viewMonthBtn">Mois</button>
+            </div>
+            <button class="btn btn-success" onclick="window.print()" style="margin-left: 1rem;">🖨️ Imprimer</button>
+        </div>
+        <div id="ganttContainer"></div>
+        
+        <!-- Résumé graphique corrigé -->
+        <div class="dashboard-summary" id="dashboardSummary">
+            <h2 style="text-align: center; color: var(--primary-red); margin-bottom: 2rem; font-size: 1.5rem;">📊 Tableau de Bord du Projet</h2>
+            
+            <!-- Barres de progression principales -->
+            <div class="progress-cards">
+                <div class="progress-card">
+                    <div class="progress-header">
+                        <h3>⏱️ Heures de Travail</h3>
+                        <div class="progress-values">
+                            <span class="current-value" id="heures-passees-display">0</span>
+                            <span class="total-value" id="heures-budget-display">0</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="heures-progress-bar"></div>
+                        <div class="progress-percentage" id="heures-percentage">0%</div>
+                    </div>
+                    <div class="progress-labels">
+                        <span>Passées</span>
+                        <span>Budget</span>
+                    </div>
+                </div>
+
+                <div class="progress-card">
+                    <div class="progress-header">
+                        <h3>📈 Avancement Global</h3>
+                        <div class="progress-values">
+                            <span class="current-value" id="taches-terminees">0</span>
+                            <span class="total-value" id="taches-totales">0</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="taches-progress-bar"></div>
+                        <div class="progress-percentage" id="taches-percentage">0%</div>
+                    </div>
+                    <div class="progress-labels">
+                        <span>Tâches terminées</span>
+                        <span>Total tâches</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graphique en anneau -->
+            <div class="circular-progress-section">
+                <div class="circular-progress" id="circular-progress">
+                    <div class="circular-progress-inner">
+                        <div class="circular-progress-percentage" id="circular-percentage">0%</div>
+                        <div class="circular-progress-label">Progression</div>
+                    </div>
+                </div>
+                
+                <div class="project-stats">
+                    <div class="stat-item">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-content">
+                            <div class="stat-title">Statut Projet</div>
+                            <div class="stat-value" id="project-status">En cours</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-content">
+                            <div class="stat-title">Productivité</div>
+                            <div class="stat-value" id="productivity-rate">7.2 h/j</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-content">
+                            <div class="stat-title">Fin estimée</div>
+                            <div class="stat-value" id="estimated-end">10 sept</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <div class="stat-title">Budget Heures</div>
+                            <div class="stat-value" id="budget-status">Dans les temps</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline mini -->
+            <div class="mini-timeline">
+                <h4 style="margin-bottom: 1rem; color: var(--text-color);">🗓️ Prochaines étapes</h4>
+                <div class="timeline-items" id="timeline-items">
+                    <!-- Items générés dynamiquement -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class GanttChart {
+            constructor(containerId) {
+                this.container = document.getElementById(containerId);
+                this.tasks = [];
+                this.viewMode = 'week';
+                this.responsables = [
+                    'FARID MESSAL (Chef de chantier)',
+                    'A MOHAMED (Chef d\'équipe)', 
+                    'ANTUNEZ LOIC (Chef d\'équipe)',
+                    'CLEMENTE MICKAEL (Chef d\'équipe)',
+                    'CUKUR MUSTAFA (Chef d\'équipe)',
+                    'GRANDADAM G (Chef d\'équipe)',
+                    'RIBEIRO-CASAL A (Chef d\'équipe)',
+                    'MOREAU JC (Chef d\'équipe)',
+                    'YASAR ERTUGRUL (Conducteur de travaux)',
+                    'SYLVAIN GARREAU (Chargé d\'affaires)',
+                    'LOU PIEDIGROSSI (HSE)',
+                    'MARTIN HANGARD (Responsable d\'agence)'
+                ];
+                this.statuts = {
+                    'planifie': 'Planifié',
+                    'en-cours': 'En cours',
+                    'en-retard': 'En retard',
+                    'termine': 'Terminé',
+                    'travaux-sup': 'Travaux sup'
+                };
+                this.hoursPerDay = 8.5;
+                this.estimatedHoursBudget = 278;
+                this.initModals();
+                this.initControls();
+            }
+
+            calculateEndDate(start, workingDays) {
+                let d = new Date(start);
+                let addedDays = 0;
+                if (workingDays < 1) return d;
+                let initialDay = d.getDay();
+                if (initialDay !== 0 && initialDay !== 6) {
+                    addedDays = 1;
+                }
+                while (addedDays < workingDays) {
+                    d.setDate(d.getDate() + 1);
+                    if (d.getDay() !== 0 && d.getDay() !== 6) { addedDays++; }
+                }
+                return d;
+            }
+
+            loadTasks(tasks) { 
+                this.tasks = tasks.map(t => ({...t, dateDebut: new Date(t.dateDebut)})); 
+                this.render(); 
+            }
+            
+            saveTask(taskData) {
+                const index = this.tasks.findIndex(t => t.id === taskData.id);
+                if (index !== -1) { this.tasks[index] = taskData; } else { this.tasks.push(taskData); }
+                this.render();
+            }
+            
+            deleteTask(id) {
+                if (confirm('Supprimer cette tâche ?')) { 
+                    this.tasks = this.tasks.filter(t => t.id !== id); 
+                    this.render(); 
+                }
+            }
+
+            populateStatusSelect(selectElement, selectedValue) {
+                selectElement.innerHTML = '';
+                for (const [key, value] of Object.entries(this.statuts)) {
+                    selectElement.innerHTML += `<option value="${key}" ${key === selectedValue ? 'selected' : ''}>${value}</option>`;
+                }
+            }
+
+            initModals() {
+                this.modalTache = document.getElementById('modalTache');
+                this.modalProgression = document.getElementById('modalProgression');
+                this.modalHeures = document.getElementById('modalHeures');
+                
+                this.modalTache.querySelector('.close').onclick = () => this.closeTaskModal();
+                document.getElementById('cancelModalTache').onclick = () => this.closeTaskModal();
+                document.getElementById('btnSauvegarderTache').onclick = () => this.handleSaveTask();
+                document.getElementById('btnSupprimerTache').onclick = () => this.handleDeleteTask();
+                
+                this.modalProgression.querySelector('.close').onclick = () => this.closeProgressModal();
+                document.getElementById('cancelModalProgression').onclick = () => this.closeProgressModal();
+                document.getElementById('btnSauvegarderProgression').onclick = () => this.handleSaveProgress();
+
+                this.modalHeures.querySelector('.close').onclick = () => this.closeHoursModal();
+                document.getElementById('cancelModalHeures').onclick = () => this.closeHoursModal();
+                document.getElementById('btnSauvegarderHeures').onclick = () => this.handleSaveHours();
+            }
+            
+            openTaskModal(taskId = null) {
+                this.currentEditingTaskId = taskId;
+                const isEditing = taskId !== null;
+                const task = isEditing ? this.tasks.find(t=>t.id===taskId) : {};
+                
+                document.getElementById('modalTitreAction').textContent = isEditing ? '✏️ Modifier la Tâche' : '➕ Ajouter une Tâche';
+                document.getElementById('btnSupprimerTache').style.display = isEditing ? 'inline-flex' : 'none';
+                
+                const selectResponsable = document.getElementById('modalTacheResponsable');
+                selectResponsable.innerHTML = this.responsables.map(r => `<option value="${r}" ${task.responsable === r ? 'selected' : ''}>${r}</option>`).join('');
+                
+                this.populateStatusSelect(document.getElementById('modalTacheStatut'), task.statut || 'planifie');
+
+                document.getElementById('modalTacheNom').value = task.nom || '';
+                document.getElementById('modalTacheDateDebut').value = (task.dateDebut || new Date()).toISOString().split('T')[0];
+                document.getElementById('modalTacheHeures').value = task.heuresHomme || 8;
+                document.getElementById('modalTacheOperateurs').value = task.operateurs || 1;
+                document.getElementById('modalTacheProgression').value = task.progression || 0;
+                document.getElementById('modalTacheProgression').nextElementSibling.textContent = `${task.progression || 0}%`;
+                
+                this.modalTache.style.display = 'flex';
+            }
+
+            handleSaveTask() {
+                const nom = document.getElementById('modalTacheNom').value.trim();
+                if (!nom) { alert('Le nom est obligatoire.'); return; }
+                const heuresHomme = parseFloat(document.getElementById('modalTacheHeures').value) || 0;
+                const operateurs = parseInt(document.getElementById('modalTacheOperateurs').value) || 1;
+
+                const taskData = {
+                    id: this.currentEditingTaskId || Date.now(), 
+                    nom,
+                    responsable: document.getElementById('modalTacheResponsable').value,
+                    dateDebut: new Date(document.getElementById('modalTacheDateDebut').value),
+                    heuresHomme: heuresHomme,
+                    operateurs: operateurs,
+                    duree: Math.ceil(heuresHomme / (operateurs * this.hoursPerDay)),
+                    progression: parseInt(document.getElementById('modalTacheProgression').value),
+                    statut: document.getElementById('modalTacheStatut').value
+                };
+                this.saveTask(taskData);
+                this.closeTaskModal();
+            }
+            
+            handleDeleteTask() { 
+                if (this.currentEditingTaskId) { 
+                    this.deleteTask(this.currentEditingTaskId); 
+                    this.closeTaskModal(); 
+                } 
+            }
+            
+            closeTaskModal() { this.modalTache.style.display = 'none'; }
+            
+            openProgressModal(taskId) {
+                const task = this.tasks.find(t=>t.id===taskId);
+                if (!task) return;
+                this.currentProgressTaskId = taskId;
+                document.getElementById('modalProgressionTacheNom').textContent = `Tâche : ${task.nom}`;
+                const slider = document.getElementById('modalProgressionSlider');
+                slider.value = task.progression;
+                slider.nextElementSibling.textContent = `${task.progression}%`;
+                this.populateStatusSelect(document.getElementById('modalProgressionStatut'), task.statut);
+                this.modalProgression.style.display = 'flex';
+            }
+            
+            handleSaveProgress() {
+                const task = this.tasks.find(t=>t.id===this.currentProgressTaskId);
+                if (!task) return;
+                task.progression = parseInt(document.getElementById('modalProgressionSlider').value);
+                task.statut = document.getElementById('modalProgressionStatut').value;
+                this.saveTask(task);
+                this.closeProgressModal();
+            }
+            
+            closeProgressModal() { this.modalProgression.style.display = 'none'; }
+
+            openHoursModal() {
+                document.getElementById('budgetHeuresInput').value = this.estimatedHoursBudget;
+                this.modalHeures.style.display = 'flex';
+            }
+
+            handleSaveHours() {
+                const newBudget = parseFloat(document.getElementById('budgetHeuresInput').value) || 278;
+                this.estimatedHoursBudget = newBudget;
+                
+                // Mise à jour du bouton
+                document.getElementById('budget-display').textContent = newBudget;
+                
+                // Mise à jour du dashboard
+                this.updateDashboard();
+                this.closeHoursModal();
+            }
+
+            closeHoursModal() { this.modalHeures.style.display = 'none'; }
+            
+            initControls() {
+                document.getElementById('addTaskBtn').onclick = () => this.openTaskModal();
+                document.getElementById('editHoursBtn').onclick = () => this.openHoursModal();
+                document.getElementById('viewDayBtn').onclick = () => { this.viewMode = 'day'; this.render(); };
+                document.getElementById('viewWeekBtn').onclick = () => { this.viewMode = 'week'; this.render(); };
+                document.getElementById('viewMonthBtn').onclick = () => { this.viewMode = 'month'; this.render(); };
+            }
+
+            render() {
+                this.container.innerHTML = '';
+                if (this.tasks.length === 0) {
+                    this.container.innerHTML = `<div style="text-align: center; color: #666; padding: 40px; background: var(--light-bg); border-radius: 8px;"><p>Le planning est vide.</p></div>`;
+                    this.updateDashboard(); 
+                    return;
+                }
+                this.tasks.sort((a, b) => a.dateDebut - b.dateDebut);
+                const minDate = new Date(this.tasks[0].dateDebut);
+                let maxDate = new Date(minDate);
+                this.tasks.forEach(task => {
+                    const endDate = this.calculateEndDate(task.dateDebut, task.duree);
+                    if (endDate > maxDate) maxDate = endDate;
+                });
+                const headerCells = this.generateDateHeader(minDate, maxDate);
+                const ganttProfessional = document.createElement('div');
+                ganttProfessional.className = 'gantt-professional';
+                const ganttContainer = document.createElement('div');
+                ganttContainer.className = 'gantt-container';
+                const headerRow = document.createElement('div');
+                headerRow.className = 'gantt-header-row';
+                headerRow.innerHTML = `<div class="gantt-task-header">Tâches</div><div class="gantt-dates-header">${headerCells.html}</div>`;
+                const ganttBody = document.createElement('div');
+                ganttBody.className = 'gantt-body';
+                this.tasks.forEach(task => ganttBody.appendChild(this.generateTaskRow(task, minDate, headerCells.colWidth)));
+                ganttContainer.appendChild(headerRow);
+                ganttContainer.appendChild(ganttBody);
+                ganttProfessional.appendChild(ganttContainer);
+                this.container.appendChild(ganttProfessional);
+                this.updateDashboard();
+            }
+            
+            updateDashboard() {
+                const totalHeuresTaches = this.tasks.reduce((sum, task) => sum + task.heuresHomme, 0);
+                const heuresPassees = this.tasks.reduce((sum, task) => sum + (task.heuresHomme * (task.progression / 100)), 0);
+                
+                // CORRECTION : Utiliser le budget configuré, pas la somme des tâches
+                const progressionGlobaleVsBudget = this.estimatedHoursBudget > 0 ? (heuresPassees / this.estimatedHoursBudget) * 100 : 0;
+                const progressionGlobaleTaches = totalHeuresTaches > 0 ? (heuresPassees / totalHeuresTaches) * 100 : 0;
+                
+                // Tâches terminées vs totales
+                const tachesTerminees = this.tasks.filter(t => t.progression === 100).length;
+                const tachesTotales = this.tasks.length;
+                const tachesProgression = tachesTotales > 0 ? (tachesTerminees / tachesTotales) * 100 : 0;
+
+                // Mise à jour heures - CORRIGÉ
+                document.getElementById('heures-passees-display').textContent = Math.round(heuresPassees);
+                document.getElementById('heures-budget-display').textContent = this.estimatedHoursBudget;
+                document.getElementById('heures-percentage').textContent = `${Math.round(progressionGlobaleVsBudget)}%`;
+                
+                const heuresBar = document.getElementById('heures-progress-bar');
+                heuresBar.style.width = `${Math.min(progressionGlobaleVsBudget, 100)}%`;
+
+                // Mise à jour tâches
+                document.getElementById('taches-terminees').textContent = tachesTerminees;
+                document.getElementById('taches-totales').textContent = tachesTotales;
+                document.getElementById('taches-percentage').textContent = `${Math.round(tachesProgression)}%`;
+                
+                const tachesBar = document.getElementById('taches-progress-bar');
+                tachesBar.style.width = `${tachesProgression}%`;
+
+                // Graphique circulaire - CORRIGÉ : utiliser la progression basée sur les tâches pour l'affichage
+                const circularProgress = document.getElementById('circular-progress');
+                const circularPercentage = document.getElementById('circular-percentage');
+                circularPercentage.textContent = `${Math.round(progressionGlobaleTaches)}%`;
+                circularProgress.style.setProperty('--progress-angle', `${progressionGlobaleTaches * 3.6}deg`);
+
+                // Statut projet
+                let statutProjet = 'Planifié';
+                if (progressionGlobaleTaches >= 100) statutProjet = 'Terminé';
+                else if (progressionGlobaleTaches >= 50) statutProjet = 'En cours avancé';
+                else if (progressionGlobaleTaches > 0) statutProjet = 'En cours';
+                
+                document.getElementById('project-status').textContent = statutProjet;
+
+                // Productivité moyenne
+                const joursEcoules = Math.ceil((new Date() - new Date('2025-08-21')) / (1000 * 60 * 60 * 24));
+                const productivite = joursEcoules > 0 ? (heuresPassees / Math.max(joursEcoules, 1)).toFixed(1) : '0.0';
+                document.getElementById('productivity-rate').textContent = `${productivite} h/j`;
+
+                // Statut budget - NOUVEAU
+                const budgetStatus = document.getElementById('budget-status');
+                if (heuresPassees > this.estimatedHoursBudget * 1.1) {
+                    budgetStatus.textContent = 'Dépassé';
+                    budgetStatus.style.color = 'var(--danger-color)';
+                } else if (heuresPassees > this.estimatedHoursBudget * 0.9) {
+                    budgetStatus.textContent = 'Attention';
+                    budgetStatus.style.color = 'var(--warning-color)';
+                } else {
+                    budgetStatus.textContent = 'Dans les temps';
+                    budgetStatus.style.color = 'var(--success-color)';
+                }
+
+                // Timeline des prochaines tâches
+                this.updateTimeline();
+            }
+
+            updateTimeline() {
+                const timelineContainer = document.getElementById('timeline-items');
+                const prochainesToches = this.tasks
+                    .filter(t => t.progression < 100)
+                    .sort((a, b) => a.dateDebut - b.dateDebut)
+                    .slice(0, 4);
+
+                timelineContainer.innerHTML = prochainesToches.map(task => {
+                    const dateStr = task.dateDebut.toLocaleDateString('fr-FR', {day: 'numeric', month: 'short'});
+                    const statusClass = task.statut === 'en-cours' ? 'en-cours' : 'planifie';
+                    const statusText = task.statut === 'en-cours' ? 'En cours' : 'À faire';
+                    
+                    return `
+                        <div class="timeline-item">
+                            <div class="timeline-date">${dateStr}</div>
+                            <div class="timeline-task">${task.nom}</div>
+                            <div class="timeline-status ${statusClass}">${statusText}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            generateDateHeader(minDate, maxDate) {
+                let html = '', colWidth = 40;
+                let currentDate = new Date(minDate); 
+                currentDate.setDate(currentDate.getDate() - 2);
+                let endDate = new Date(maxDate); 
+                endDate.setDate(endDate.getDate() + 7);
+                if (this.viewMode === 'day') {
+                    colWidth = 50;
+                    while (currentDate <= endDate) { 
+                        const day = currentDate.getDay(); 
+                        html += `<div class="gantt-date-cell ${day === 0 || day === 6 ? 'weekend' : ''}" style="width:${colWidth}px;">${currentDate.toLocaleDateString('fr-FR', {day: '2-digit'})}</div>`; 
+                        currentDate.setDate(currentDate.getDate() + 1); 
+                    }
+                } else if (this.viewMode === 'week') {
+                    colWidth = 80;
+                    while (currentDate <= endDate) { 
+                        html += `<div class="gantt-date-cell" style="width:${colWidth}px;">Sem. ${this.getWeekNumber(currentDate)}</div>`; 
+                        currentDate.setDate(currentDate.getDate() + 7); 
+                    }
+                } else { 
+                    colWidth = 120; 
+                    currentDate.setDate(1);
+                    while (currentDate <= endDate) { 
+                        html += `<div class="gantt-date-cell" style="width:${colWidth}px;">${currentDate.toLocaleDateString('fr-FR', {month: 'long', year: '2-digit'})}</div>`; 
+                        currentDate.setMonth(currentDate.getMonth() + 1); 
+                    }
+                }
+                return { html, colWidth };
+            }
+
+            generateTaskRow(task, minDate, colWidth) {
+                const row = document.createElement('div');
+                row.className = 'gantt-row';
+                const endDate = this.calculateEndDate(task.dateDebut, task.duree);
+                const calendarDuration = (endDate - task.dateDebut) / 86400000;
+                let daysFromStart = (task.dateDebut - minDate) / 86400000 + 2;
+                let barWidth, barLeft;
+                if (this.viewMode === 'day') { 
+                    barLeft = daysFromStart * colWidth; 
+                    barWidth = calendarDuration * colWidth; 
+                } else if (this.viewMode === 'week') { 
+                    barLeft = (daysFromStart / 7) * colWidth; 
+                    barWidth = (calendarDuration / 7) * colWidth; 
+                } else { 
+                    barLeft = (daysFromStart / 30.4) * colWidth; 
+                    barWidth = (calendarDuration / 30.4) * colWidth; 
+                }
+                
+                row.innerHTML = `
+                    <div class="gantt-task-cell">
+                        <div class="gantt-task-name">${task.nom}</div>
+                        <div class="gantt-task-responsable">${task.responsable}</div>
+                    </div>
+                    <div class="gantt-chart-cell">
+                        <div class="gantt-bar gantt-bar-${task.statut}" style="left: ${barLeft}px; width: ${barWidth}px;">
+                            ${task.progression}%
+                            <div class="gantt-progress" style="width: ${task.progression}%;"></div>
+                        </div>
+                    </div>`;
+                row.querySelector('.gantt-task-cell').addEventListener('click', () => this.openTaskModal(task.id));
+                row.querySelector('.gantt-bar').addEventListener('click', (e) => { e.stopPropagation(); this.openProgressModal(task.id); });
+                return row;
+            }
+
+            getWeekNumber(d) {
+                d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+                d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+                var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+                return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            }
+        }
+        
+        const gantt = new GanttChart('ganttContainer');
+        
+        // Chargement avec les étapes du chantier Grand Lyon – Pont de Chasse
+        gantt.loadTasks([
+            { 
+                id: 1, 
+                nom: 'Préparation & Installation chantier', 
+                responsable: 'FARID MESSAL (Chef de chantier)', 
+                dateDebut: '2025-08-21', 
+                heuresHomme: 24, 
+                operateurs: 2, 
+                duree: 2, 
+                progression: 100, 
+                statut: 'termine' 
+            },
+            { 
+                id: 2, 
+                nom: 'Sablage surfaces métalliques', 
+                responsable: 'A MOHAMED (Chef d\'équipe)', 
+                dateDebut: '2025-08-23', 
+                heuresHomme: 68, 
+                operateurs: 3, 
+                duree: 3, 
+                progression: 85, 
+                statut: 'en-cours' 
+            },
+            { 
+                id: 3, 
+                nom: 'Application primaire anticorrosion', 
+                responsable: 'CLEMENTE MICKAEL (Chef d\'équipe)', 
+                dateDebut: '2025-08-26', 
+                heuresHomme: 51, 
+                operateurs: 2, 
+                duree: 3, 
+                progression: 60, 
+                statut: 'en-cours' 
+            },
+            { 
+                id: 4, 
+                nom: 'Application peinture intermédiaire', 
+                responsable: 'ANTUNEZ LOIC (Chef d\'équipe)', 
+                dateDebut: '2025-08-29', 
+                heuresHomme: 45, 
+                operateurs: 2, 
+                duree: 3, 
+                progression: 25, 
+                statut: 'en-cours' 
+            },
+            { 
+                id: 5, 
+                nom: 'Application finition', 
+                responsable: 'CUKUR MUSTAFA (Chef d\'équipe)', 
+                dateDebut: '2025-09-02', 
+                heuresHomme: 38, 
+                operateurs: 2, 
+                duree: 2, 
+                progression: 0, 
+                statut: 'planifie' 
+            },
+            { 
+                id: 6, 
+                nom: 'Contrôles qualité & mesures DFT', 
+                responsable: 'LOU PIEDIGROSSI (HSE)', 
+                dateDebut: '2025-09-04', 
+                heuresHomme: 16, 
+                operateurs: 1, 
+                duree: 2, 
+                progression: 0, 
+                statut: 'planifie' 
+            },
+            { 
+                id: 7, 
+                nom: 'Retouches & finitions', 
+                responsable: 'GRANDADAM G (Chef d\'équipe)', 
+                dateDebut: '2025-09-06', 
+                heuresHomme: 22, 
+                operateurs: 2, 
+                duree: 2, 
+                progression: 0, 
+                statut: 'planifie' 
+            },
+            { 
+                id: 8, 
+                nom: 'Nettoyage & repli chantier', 
+                responsable: 'FARID MESSAL (Chef de chantier)', 
+                dateDebut: '2025-09-09', 
+                heuresHomme: 14, 
+                operateurs: 2, 
+                duree: 1, 
+                progression: 0, 
+                statut: 'planifie' 
+            }
+        ]);
+    </script>
+
+  <script type="module">
+    import { mountHelp } from '../assets/js/help.js';
+    mountHelp(document.getElementById('helpMount') || document.body);
+  </script>
+
+</body>
+</html>
