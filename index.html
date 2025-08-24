@@ -3,167 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion de Chantier</title>
-    <script src="database.js"></script>
+    <title>Gestion de Chantier Pro</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
         :root {
-            --primary-blue: #0066cc; --primary-orange: #ff6600; --success-color: #198754; --danger-color: #dc3545;
-            --light-bg: #f8f9fa; --white: #ffffff; --border-color: #dee2e6; --text-color: #212529; 
-            --shadow-sm: 0 .125rem .25rem rgba(0,0,0,.075); --shadow-md: 0 .5rem 1rem rgba(0,0,0,.15);
+            --primary-blue: #0066cc; --primary-orange: #ff6600; --success-color: #198754;
+            --danger-color: #dc3545; --light-bg: #f8f9fa; --white: #ffffff;
+            --border-color: #dee2e6; --text-color: #212529; --shadow-sm: 0 .125rem .25rem rgba(0,0,0,.075);
         }
         body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--light-bg); display: flex; height: 100vh; overflow: hidden; }
+        #app { display: flex; width: 100%; height: 100%; } /* L'application Vue prend toute la page */
         #sidebar { width: 250px; background-color: #002b49; color: white; padding: 1.5rem 0; display: flex; flex-direction: column; flex-shrink: 0; }
         #sidebar h1 { font-size: 1.5rem; text-align: center; margin: 0 1rem 2rem 1rem; color: white; }
         #sidebar nav ul { list-style: none; padding: 0; margin: 0; }
-        #sidebar nav a { display: block; padding: 1rem 1.5rem; color: #d1d5db; text-decoration: none; font-weight: 500; transition: background-color 0.2s, color 0.2s; border-left: 4px solid transparent; }
-        #sidebar nav a:hover { background-color: rgba(255, 255, 255, 0.1); color: white; }
+        #sidebar nav a { display: block; padding: 1rem 1.5rem; color: #d1d5db; text-decoration: none; font-weight: 500; cursor: pointer; border-left: 4px solid transparent; }
         #sidebar nav a.active { background-color: var(--primary-blue); color: white; border-left-color: var(--primary-orange); }
         #main-content { flex-grow: 1; overflow-y: auto; padding: 2rem; }
-        #module-container { max-width: 1400px; margin: 0 auto; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        /* Styles génériques pour les modules chargés */
-        .card { background: white; border-radius: 1rem; box-shadow: var(--shadow-sm); padding: 2rem; margin-bottom: 2rem; border: 1px solid var(--border-color); }
+        #module-container { max-width: 1400px; margin: 0 auto; }
+        .card { background: white; border-radius: 1rem; box-shadow: var(--shadow-sm); padding: 1.5rem; margin-bottom: 2rem; border: 1px solid var(--border-color); }
         .form-label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 1rem; color: #6c757d; }
-        .form-select, .form-input, .form-textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1.1rem; }
-        .btn { border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: all 0.3s ease; }
-        /* ... autres styles ... */
+        .form-select, .form-input { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1.1rem; }
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
+        .financial-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 1.1rem; }
+        .financial-table th, .financial-table td { padding: 0.85rem 1rem; text-align: right; border-bottom: 1px solid var(--border-color); }
+        .financial-table th { text-align: left; font-weight: 600; color: #6c757d; }
+        .financial-table .total-row { font-weight: bold; border-top: 2px solid var(--text-color); }
+        .financial-table .grand-total-row { font-weight: bold; background-color: var(--light-bg); font-size: 1.2rem; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+        .kpi-card { text-align: center; background: white; padding: 1.5rem; border-radius: 1rem; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
+        .kpi-card h3 { font-size: 1rem; color: #6c757d; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .kpi-card .value { font-size: 2.5rem; font-weight: 700; }
+        .kpi-card .value.positive { color: var(--success-color); }
+        .kpi-card .value.negative { color: var(--danger-color); }
     </style>
 </head>
 <body>
-    <aside id="sidebar">
-        <h1>Gestion Chantiers</h1>
-        <nav>
-             <ul>
-                <li><a href="#" class="nav-link active" data-module="tableau_de_bord">📊 Tableau de Bord</a></li>
-                <li><a href="#" class="nav-link" data-module="planning">📅 Planning</a></li>
-                <li><a href="#" class="nav-link" data-module="reunion">📝 Réunions</a></li>
-                <li><a href="#" class="nav-link" data-module="travaux_materiaux">🛠️ Travaux & Matériaux</a></li>
-                <li><a href="#" class="nav-link" data-module="equipe">👥 Équipe</a></li>
-                <li><a href="#" class="nav-link" data-module="chantier">🚧 Infos Chantier</a></li>
-            </ul>
-        </nav>
-    </aside>
 
-    <main id="main-content">
-        <div id="module-container"></div>
-    </main>
+    <div id="app">
+        <aside id="sidebar">
+            <h1>Gestion Chantiers</h1>
+            <nav>
+                <ul>
+                    <li><a @click="currentModule = 'tableau-de-bord'" :class="{ active: currentModule === 'tableau-de-bord' }">📊 Tableau de Bord</a></li>
+                    <li><a @click="currentModule = 'planning'" :class="{ active: currentModule === 'planning' }">📅 Planning</a></li>
+                    </ul>
+            </nav>
+        </aside>
+        <main id="main-content">
+            <div id="module-container">
+                <tableau-de-bord v-if="currentModule === 'tableau-de-bord'"></tableau-de-bord>
+                <planning v-if="currentModule === 'planning'"></planning>
+            </div>
+        </main>
+    </div>
 
     <script>
-        // --- CERVEAU CENTRAL DE L'APPLICATION ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const moduleContainer = document.getElementById('module-container');
-            const navLinks = document.querySelectorAll('.nav-link');
+        // 3. Le "cerveau" de l'application (le script Vue.js)
+        const { createApp, ref, computed } = Vue;
 
-            async function loadModule(moduleName) {
-                try {
-                    const response = await fetch(`${moduleName}.html`);
-                    if (!response.ok) throw new Error(`Le module ${moduleName}.html est introuvable.`);
-                    const content = await response.text();
-                    moduleContainer.innerHTML = content;
-                    
-                    if (window.moduleInitializers && moduleInitializers[moduleName]) {
-                        moduleInitializers[moduleName]();
-                    }
-                } catch (error) {
-                    moduleContainer.innerHTML = `<p style="color: red;">Erreur: ${error.message}</p>`;
-                }
-            }
-
-            // --- OBJET CONTENANT LA LOGIQUE DE CHAQUE MODULE ---
-            window.moduleInitializers = {
-                'tableau_de_bord': () => {
-                    const chantierSelect = document.getElementById('chantier-select-tdb');
-                    if (!chantierSelect) return;
-                    
-                    const chantiers = DB.getChantiers();
-                    chantiers.forEach(c => {
-                        chantierSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-                    });
-                    
-                    function formatCurrency(value) { return `${Math.round(value).toLocaleString('fr-FR')} €`; }
-                    
-                    function updateDashboard() {
-                        const chantierId = chantierSelect.value;
-                        if (!chantierId) return;
-                        
-                        const chantier = DB.getChantierById(chantierId);
-                        const tasks = DB.getPlanningForChantier(chantierId);
-                        const coutParOperateur = parseFloat(document.getElementById('cout-operateur').value) || 0;
-                        const heuresRealisees = tasks.reduce((sum, task) => sum + (task.heuresHomme * (task.progression / 100)), 0);
-                        document.getElementById('heures-realisees').value = heuresRealisees.toFixed(1);
-
-                        const imprevusPct = parseFloat(document.getElementById('imprevus-pct').value) || 0;
-                        const depenseST = parseFloat(document.getElementById('depense-st').value) || 0;
-                        const depenseFournitures = parseFloat(document.getElementById('depense-fournitures').value) || 0;
-                        const depenseLocations = parseFloat(document.getElementById('depense-locations').value) || 0;
-                        
-                        const coutMOActuel = heuresRealisees * coutParOperateur;
-                        const projectionCoutMO = (tasks.reduce((sum, task) => sum + task.heuresHomme, 0)) * coutParOperateur;
-                        
-                        const resteMO = projectionCoutMO - coutMOActuel;
-                        const resteST = chantier.budgetST - depenseST;
-                        const resteFournitures = chantier.budgetFournitures - depenseFournitures;
-                        const resteLocations = chantier.budgetLocations - depenseLocations;
-                        
-                        const totalBudgetDirect = chantier.budgetMO + chantier.budgetST + chantier.budgetFournitures + chantier.budgetLocations;
-                        const totalDepenseDirect = coutMOActuel + depenseST + depenseFournitures + depenseLocations;
-                        const totalResteDirect = resteMO + resteST + resteFournitures + resteLocations;
-                        
-                        const montantImprevus = totalBudgetDirect * (imprevusPct / 100);
-                        const coutTotalProjete = totalDepenseDirect + totalResteDirect + montantImprevus;
-                        const margePrevisionnelle = chantier.devisValide - coutTotalProjete;
-                        const margePct = chantier.devisValide > 0 ? (margePrevisionnelle / chantier.devisValide) * 100 : 0;
-                        
-                        function updateCell(id, value, isCurrency = true) {
-                            const el = document.getElementById(id);
-                            if (el) el.textContent = isCurrency ? formatCurrency(value) : value;
-                        }
-                        
-                        updateCell('budget-mo', chantier.budgetMO);
-                        updateCell('depense-mo', coutMOActuel);
-                        updateCell('reste-mo', resteMO);
-                        // ... (autres mises à jour)
-                    }
-                    
-                    document.getElementById('inputs-card').addEventListener('input', updateDashboard);
-                    if (chantiers.length > 0) updateDashboard();
-                },
-                'planning': () => {
-                    // La classe GanttChart et son initialisation
-                    const ganttContainer = document.getElementById('ganttContainer');
-                    if (ganttContainer) {
-                        // Mettre ici la classe GanttChart complète
-                        // ...
-                        // const gantt = new GanttChart('ganttContainer');
-                        // ...
-                        console.log("Module Planning initialisé.");
-                    }
-                },
-                'equipe': () => {
-                     console.log("Module Équipe initialisé.");
-                },
-                'chantier': () => {
-                     console.log("Module Chantier initialisé.");
-                },
-                'travaux_materiaux': () => {
-                     console.log("Module Travaux & Matériaux initialisé.");
-                },
-                'reunion': () => {
-                    console.log("Module Réunion initialisé.");
-                }
-            };
-
-            navLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    navLinks.forEach(l => l.classList.remove('active'));
-                    e.currentTarget.classList.add('active');
-                    loadModule(e.currentTarget.dataset.module);
+        const app = createApp({
+            setup() {
+                // --- DONNÉES CENTRALISÉES (le "store") ---
+                const state = ref({
+                    chantiers: [
+                        { id: 1, name: 'Rénovation Usine Lyon', devisValide: 55000, budgetMO: 24000, budgetFournitures: 12000, budgetLocations: 3000, budgetST: 0 },
+                        { id: 2, name: 'Chantier Naval - La Ciotat', devisValide: 210000, budgetMO: 90000, budgetFournitures: 40000, budgetLocations: 15000, budgetST: 25000 },
+                    ],
+                    planning: {
+                        1: [{ id: 1, heuresHomme: 217, progression: 65 }],
+                        2: []
+                    },
+                    currentModule: 'tableau-de-bord',
                 });
-            });
 
-            loadModule('tableau_de_bord');
+                // --- COMPOSANT "TABLEAU DE BORD" ---
+                const TableauDeBord = {
+                    template: `
+                        <div>
+                            <h1>Tableau de Bord de Gestion</h1>
+                            <div class="card">
+                                <h2>Données d'Entrée</h2>
+                                <div class="input-grid">
+                                    <div><label>Chantier</label><select v-model="selectedChantierId" class="form-select"><option v-for="c in state.chantiers" :value="c.id">{{ c.name }}</option></select></div>
+                                    <div><label>Coût par Opérateur (€/h)</label><input type="number" v-model.number="coutOperateur" class="form-input"></div>
+                                    <div><label>Heures MO Réalisées (h)</label><input type="number" :value="heuresRealisees" class="form-input" readonly></div>
+                                    <div><label>Dépenses Sous-Traitance (€)</label><input type="number" v-model.number="depenseST" class="form-input"></div>
+                                    <div><label>Dépenses Fournitures (€)</label><input type="number" v-model.number="depenseFournitures" class="form-input"></div>
+                                    <div><label>Dépenses Locations (€)</label><input type="number" v-model.number="depenseLocations" class="form-input"></div>
+                                    <div><label>Imprévus (%)</label><input type="number" v-model.number="imprevusPct" class="form-input"></div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <h2>Analyse Financière</h2>
+                                <table class="financial-table">
+                                    <thead><tr><th>Catégorie</th><th>Budgété (€)</th><th>Dépensé (€)</th><th>Reste (€)</th></tr></thead>
+                                    <tbody>
+                                        <tr><th>Main d'œuvre</th><td>{{ format(chantier.budgetMO) }}</td><td>{{ format(coutMOActuel) }}</td><td>{{ format(resteMO) }}</td></tr>
+                                        <tr><th>Sous-Traitance</th><td>{{ format(chantier.budgetST) }}</td><td>{{ format(depenseST) }}</td><td>{{ format(resteST) }}</td></tr>
+                                        <tr><th>Fournitures</th><td>{{ format(chantier.budgetFournitures) }}</td><td>{{ format(depenseFournitures) }}</td><td>{{ format(resteFournitures) }}</td></tr>
+                                        <tr><th>Locations</th><td>{{ format(chantier.budgetLocations) }}</td><td>{{ format(depenseLocations) }}</td><td>{{ format(resteLocations) }}</td></tr>
+                                        <tr class="total-row"><th>TOTAL Coûts Directs</th><td>{{ format(totalBudgetDirect) }}</td><td>{{ format(totalDepenseDirect) }}</td><td>{{ format(totalResteDirect) }}</td></tr>
+                                    </tbody>
+                                    <tfoot><tr class="grand-total-row"><th colspan="3">COÛT TOTAL PROJETÉ</th><td>{{ format(coutTotalProjete) }}</td></tr></tfoot>
+                                </table>
+                            </div>
+                            <div class="card">
+                                <h2>Indicateurs de Performance (KPI)</h2>
+                                <div class="kpi-grid">
+                                    <div class="kpi-card"><h3>Prix de Vente</h3><p class="value">{{ format(chantier.devisValide) }}</p></div>
+                                    <div class="kpi-card"><h3>Coût Projeté</h3><p class="value">{{ format(coutTotalProjete) }}</p></div>
+                                    <div class="kpi-card"><h3>Marge Prévisionnelle</h3><p class="value" :class="margePrevisionnelle >= 0 ? 'positive' : 'negative'">{{ format(margePrevisionnelle) }}</p></div>
+                                    <div class="kpi-card"><h3>Taux de Marge</h3><p class="value" :class="margePct >= 0 ? 'positive' : 'negative'">{{ margePct.toFixed(1) }} %</p></div>
+                                </div>
+                            </div>
+                        </div>`,
+                    setup() {
+                        const selectedChantierId = ref(state.value.chantiers[0].id);
+                        const coutOperateur = ref(14);
+                        const depenseST = ref(0);
+                        const depenseFournitures = ref(10500);
+                        const depenseLocations = ref(0);
+                        const imprevusPct = ref(7);
+
+                        const chantier = computed(() => state.value.chantiers.find(c => c.id === selectedChantierId.value));
+                        const tasks = computed(() => state.value.planning[selectedChantierId.value] || []);
+                        
+                        const heuresRealisees = computed(() => tasks.value.reduce((sum, task) => sum + (task.heuresHomme * (task.progression / 100)), 0));
+                        const coutMOActuel = computed(() => heuresRealisees.value * coutOperateur.value);
+                        
+                        const resteMO = computed(() => chantier.value.budgetMO - coutMOActuel.value);
+                        const resteST = computed(() => chantier.value.budgetST - depenseST.value);
+                        const resteFournitures = computed(() => chantier.value.budgetFournitures - depenseFournitures.value);
+                        const resteLocations = computed(() => chantier.value.budgetLocations - depenseLocations.value);
+
+                        const totalBudgetDirect = computed(() => chantier.value.budgetMO + chantier.value.budgetST + chantier.value.budgetFournitures + chantier.value.budgetLocations);
+                        const totalDepenseDirect = computed(() => coutMOActuel.value + depenseST.value + depenseFournitures.value + depenseLocations.value);
+                        const totalResteDirect = computed(() => resteMO.value + resteST.value + resteFournitures.value + resteLocations.value);
+                        
+                        const coutTotalProjete = computed(() => totalDepenseDirect.value + totalResteDirect.value + (totalBudgetDirect.value * (imprevusPct.value / 100)));
+                        const margePrevisionnelle = computed(() => chantier.value.devisValide - coutTotalProjete.value);
+                        const margePct = computed(() => chantier.value.devisValide > 0 ? (margePrevisionnelle.value / chantier.value.devisValide) * 100 : 0);
+                        
+                        const format = (value) => Math.round(value).toLocaleString('fr-FR') + ' €';
+
+                        return { state, selectedChantierId, coutOperateur, depenseST, depenseFournitures, depenseLocations, imprevusPct, chantier, tasks, heuresRealisees, coutMOActuel, resteMO, resteST, resteFournitures, resteLocations, totalBudgetDirect, totalDepenseDirect, totalResteDirect, coutTotalProjete, margePrevisionnelle, margePct, format };
+                    }
+                };
+                
+                // --- COMPOSANT "PLANNING" (placeholder) ---
+                const Planning = {
+                    template: `<div><h1>Module Planning</h1><p>Ce module est en cours de construction.</p></div>`
+                };
+
+                return { ...state.value, currentModule: state.value.currentModule, TableauDeBord, Planning };
+            },
+            // On déclare les composants pour pouvoir les utiliser dans le HTML
+            components: {
+                'tableau-de-bord': 'TableauDeBord',
+                'planning': 'Planning'
+            }
         });
+
+        // Monter l'application sur notre div #app
+        app.mount('#app');
+
     </script>
 </body>
 </html>
