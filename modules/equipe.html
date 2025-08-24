@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Équipe - Tugrul V0.8.1</title>
+    <link rel="stylesheet" href="../assets/css/shared.css">
+    <link rel="stylesheet" href="../assets/css/print.css" media="print">
+    <style>
+        :root {
+            --primary-red: #dc2626;
+            --primary-orange: #ff6600;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+            --white: #ffffff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-900: #111827;
+            --bg-primary: var(--gray-50);
+            --bg-secondary: var(--white);
+            --text-primary: var(--gray-900);
+            --text-secondary: var(--gray-600);
+            --border-primary: var(--gray-200);
+            --border-secondary: var(--gray-300);
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --radius-md: 0.375rem;
+            --radius-lg: 0.5rem;
+            --radius-xl: 0.75rem;
+            --radius-full: 9999px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: var(--bg-primary); 
+            color: var(--text-primary); 
+            line-height: 1.6; 
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: var(--space-6); }
+        
+        .page-header { text-align: center; margin-bottom: var(--space-8); }
+        .page-title { 
+            font-size: 2.25rem; 
+            font-weight: 700; 
+            color: var(--primary-red); 
+            margin-bottom: var(--space-2); 
+        }
+        .page-subtitle { font-size: 1.125rem; color: var(--text-secondary); }
+        
+        .actions-bar { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: var(--space-6); 
+            flex-wrap: wrap; 
+            gap: var(--space-4); 
+        }
+        
+        .search-filters { 
+            display: flex; 
+            gap: var(--space-4); 
+            align-items: center; 
+            flex-wrap: wrap; 
+        }
+        
+        .search-input { 
+            padding: var(--space-3); 
+            border: 1px solid var(--border-secondary); 
+            border-radius: var(--radius-md); 
+            font-size: 0.875rem; 
+            min-width: 250px; 
+        }
+        
+        .filter-select { 
+            padding: var(--space-2) var(--space-3); 
+            border: 1px solid var(--border-secondary); 
+            border-radius: var(--radius-md); 
+            font-size: 0.875rem; 
+            background: var(--bg-secondary); 
+        }
+        
+        .btn { 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: var(--space-2); 
+            padding: var(--space-3) var(--space-4); 
+            border: 1px solid transparent; 
+            border-radius: var(--radius-md); 
+            font-size: 0.875rem; 
+            font-weight: 500; 
+            cursor: pointer; 
+            transition: all var(--transition-fast); 
+            text-decoration: none; 
+        }
+        
+        .btn-primary { 
+            background: var(--primary-red); 
+            color: var(--white); 
+            border-color: var(--primary-red); 
+        }
+        
+        .btn-primary:hover { 
+            background: #b91c1c; 
+            transform: translateY(-1px); 
+            box-shadow: var(--shadow-md); 
+        }
+        
+        .btn-secondary { 
+            background: var(--gray-100); 
+            color: var(--gray-700); 
+            border-color: var(--gray-300); 
+        }
+        
+        .btn-secondary:hover { background: var(--gray-200); }
+        
+        .btn-sm { 
+            padding: var(--space-2) var(--space-3); 
+            font-size: 0.75rem; 
+        }
+        
+        .btn-danger { 
+            background: var(--error); 
+            color: var(--white); 
+            border-color: var(--error); 
+        }
+        
+        .btn-danger:hover { background: #dc2626; }
+        
+        .stats-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: var(--space-4); 
+            margin-bottom: var(--space-8); 
+        }
+        
+        .stat-card { 
+            background: var(--bg-secondary); 
+            border: 1px solid var(--border-primary); 
+            border-radius: var(--radius-lg); 
+            padding: var(--space-4); 
+            text-align: center; 
+            transition: all var(--transition-fast); 
+        }
+        
+        .stat-card:hover { 
+            transform: translateY(-2px); 
+            box-shadow: var(--shadow-md); 
+        }
+        
+        .stat-value { 
+            font-size: 2rem; 
+            font-weight: 700; 
+            color: var(--primary-red); 
+        }
+        
+        .stat-label { 
+            font-size: 0.875rem; 
+            color: var(--text-secondary); 
+            margin-top: var(--space-1); 
+        }
+        
+        .team-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: var(--space-6); 
+            margin-bottom: var(--space-8); 
+        }
+        
+        .member-card { 
+            background: var(--bg-secondary); 
+            border: 1px solid var(--border-primary); 
+            border-radius: var(--radius-xl); 
+            padding: var(--space-6); 
+            transition: all var(--transition-normal); 
+            position: relative; 
+            overflow: hidden; 
+        }
+        
+        .member-card:hover { 
+            transform: translateY(-4px); 
+            box-shadow: var(--shadow-lg); 
+        }
+        
+        .member-card::before { 
+            content: ''; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            height: 4px; 
+            background: linear-gradient(90deg, var(--primary-red), var(--primary-orange)); 
+        }
+        
+        .member-header { 
+            display: flex; 
+            align-items: center; 
+            margin-bottom: var(--space-4); 
+        }
+        
+        .member-avatar { 
+            width: 60px; 
+            height: 60px; 
+            background: var(--primary-red); 
+            color: var(--white); 
+            border-radius: var(--radius-full); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.5rem; 
+            font-weight: 600; 
+            margin-right: var(--space-4); 
+            flex-shrink: 0; 
+        }
+        
+        .member-info h3 { 
+            font-size: 1.25rem; 
+            font-weight: 600; 
+            color: var(--text-primary); 
+            margin-bottom: var(--space-1); 
+        }
+        
+        .member-role { 
+            font-size: 0.875rem; 
+            color: var(--text-secondary); 
+            font-weight: 500; 
+        }
+        
+        .member-details { margin-bottom: var(--space-4); }
+        
+        .detail-row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: baseline; 
+            gap: 1rem; 
+            margin-bottom: var(--space-2); 
+            font-size: 0.875rem; 
+        }
+        
+        .detail-label { 
+            color: var(--text-secondary); 
+            font-weight: 500; 
+        }
+        
+        .detail-value { 
+            color: var(--text-primary); 
+            text-align: right; 
+        }
+        
+        .member-actions { 
+            display: flex; 
+            gap: var(--space-2); 
+            justify-content: flex-end; 
+        }
+        
+        .availability-badge { 
+            display: inline-block; 
+            padding: var(--space-1) var(--space-2); 
+            border-radius: var(--radius-full); 
+            font-size: 0.75rem; 
+            font-weight: 500; 
+        }
+        
+        .availability-badge.available { 
+            background: rgba(16, 185, 129, 0.1); 
+            color: var(--success); 
+        }
+        
+        .availability-badge.unavailable { 
+            background: rgba(245, 158, 11, 0.1); 
+            color: var(--warning); 
+        }
+        
+        .modal-overlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0; 
+            background: rgba(0, 0, 0, 0.5); 
+            backdrop-filter: blur(4px); 
+            z-index: 1000; 
+            display: none; 
+            align-items: center; 
+            justify-content: center; 
+            padding: var(--space-4); 
+            animation: fadeIn 0.2s ease forwards; 
+        }
+        
+        .modal { 
+            background: var(--bg-secondary); 
+            border-radius: var(--radius-xl); 
+            box-shadow: var(--shadow-lg); 
+            max-width: 600px; 
+            width: 100%; 
+            max-height: 90vh; 
+            overflow-y: auto; 
+            transform: scale(0.95); 
+            animation: modalSlideIn 0.2s ease forwards; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        .modal-header { 
+            padding: var(--space-6); 
+            border-bottom: 1px solid var(--border-primary); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        
+        .modal-title { 
+            font-size: 1.5rem; 
+            font-weight: 600; 
+            color: var(--text-primary); 
+        }
+        
+        .modal-close { 
+            background: none; 
+            border: none; 
+            font-size: 1.5rem; 
+            color: var(--text-secondary); 
+            cursor: pointer; 
+            padding: var(--space-1); 
+            border-radius: var(--radius-md); 
+            transition: all var(--transition-fast); 
+        }
+        
+        .modal-close:hover { 
+            background: var(--gray-100); 
+            color: var(--text-primary); 
+        }
+        
+        .modal-body { 
+            padding: var(--space-6); 
+            overflow-y: auto; 
+        }
+        
+        .form-grid { display: grid; gap: var(--space-4); }
+        .form-grid-2 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+        
+        .form-group { margin-bottom: 0; }
+        
+        .form-label { 
+            display: block; 
+            font-weight: 500; 
+            color: var(--text-primary); 
+            margin-bottom: var(--space-2); 
+            font-size: 0.875rem; 
+        }
+        
+        .form-label.required::after { content: ' *'; color: var(--error); }
+        
+        .form-input, .form-select, .form-textarea { 
+            width: 100%; 
+            padding: var(--space-3); 
+            border: 1px solid var(--border-secondary); 
+            border-radius: var(--radius-md); 
+            font-size: 1rem; 
+            color: var(--text-primary); 
+            background: var(--bg-secondary); 
+            transition: all var(--transition-fast); 
+        }
+        
+        .form-input:focus, .form-select:focus, .form-textarea:focus { 
+            outline: none; 
+            border-color: var(--primary-red); 
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1); 
+        }
+        
+        .modal-actions { 
+            display: flex; 
+            gap: var(--space-3); 
+            justify-content: flex-end; 
+            padding: var(--space-6); 
+            border-top: 1px solid var(--border-primary); 
+            margin-top: auto; 
+        }
+        
+        .empty-state { 
+            text-align: center; 
+            padding: var(--space-8); 
+            color: var(--text-secondary); 
+        }
+        
+        .hidden { display: none; }
+        
+        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes modalSlideIn { to { transform: scale(1); } }
+
+        /* Navigation de retour */
+        .back-nav {
+            margin-bottom: var(--space-6);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            color: var(--primary-red);
+            text-decoration: none;
+            font-weight: 500;
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+        }
+
+        .back-link:hover {
+            background: var(--gray-100);
+        }
+
+        /* Styles d'impression A4 */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 10pt;
+                line-height: 1.3;
+                margin: 0;
+                padding: 15mm;
+            }
+
+            .container {
+                max-width: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            .page-header {
+                margin-bottom: 15pt;
+                text-align: center;
+                border-bottom: 2pt solid var(--primary-red);
+                padding-bottom: 8pt;
+            }
+
+            .page-title {
+                font-size: 16pt;
+                margin-bottom: 4pt;
+            }
+
+            .page-subtitle {
+                font-size: 10pt;
+                margin-bottom: 8pt;
+            }
+
+            .back-nav,
+            .actions-bar,
+            .btn,
+            .member-actions {
+                display: none !important;
+            }
+
+            .stats-grid {
+                display: grid !important;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8pt;
+                margin-bottom: 12pt;
+                break-inside: avoid;
+            }
+
+            .stat-card {
+                border: 1pt solid #ccc;
+                padding: 6pt;
+                text-align: center;
+                break-inside: avoid;
+            }
+
+            .stat-value {
+                font-size: 14pt;
+                color: black !important;
+            }
+
+            .team-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8pt;
+                margin-bottom: 0;
+            }
+
+            .member-card {
+                border: 1pt solid #ccc;
+                padding: 8pt;
+                margin-bottom: 6pt;
+                break-inside: avoid;
+                page-break-inside: avoid;
+                box-shadow: none;
+            }
+
+            .member-card::before {
+                display: none;
+            }
+
+            .member-header {
+                margin-bottom: 6pt;
+            }
+
+            .member-avatar {
+                width: 30px;
+                height: 30px;
+                font-size: 12pt;
+                margin-right: 6pt;
+                background: #ccc !important;
+                color: black !important;
+            }
+
+            .member-info h3 {
+                font-size: 11pt;
+                margin-bottom: 2pt;
+            }
+
+            .member-role {
+                font-size: 9pt;
+            }
+
+            .member-details {
+                margin-bottom: 6pt;
+            }
+
+            .detail-row {
+                font-size: 9pt;
+                margin-bottom: 3pt;
+            }
+
+            .availability-badge {
+                font-size: 8pt;
+                padding: 1pt 3pt;
+                border: 1pt solid #ccc;
+                background: white !important;
+                color: black !important;
+            }
+
+            .modal-overlay {
+                display: none !important;
+            }
+
+            .empty-state {
+                display: none !important;
+            }
+
+            /* Éviter les coupures */
+            .member-card,
+            .stat-card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            h1, h2, h3 {
+                break-after: avoid;
+                page-break-after: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="back-nav">
+            <!-- Retour à l'accueil depuis un module : utiliser le chemin relatif correct -->
+            <a href="../index.html" class="back-link">
+                ← Retour à l'accueil
+            </a>
+        </nav>
+
+        <div class="page-header">
+            <h1 class="page-title">Gestion Équipe</h1>
+            <p class="page-subtitle">Base de données du personnel : collaborateurs, intérimaires et sous-traitants</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalMembers">0</div>
+                <div class="stat-label">Effectif total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="availableMembers">0</div>
+                <div class="stat-label">Disponibles</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="unavailableMembers">0</div>
+                <div class="stat-label">Indisponibles</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="certifiedMembers">0</div>
+                <div class="stat-label">Certifiés</div>
+            </div>
+        </div>
+
+        <div class="actions-bar">
+            <div class="search-filters">
+                <input type="text" class="search-input" id="searchInput" placeholder="🔍 Rechercher par nom, poste...">
+                <select class="filter-select" id="filterRole">
+                    <option value="">Tous les postes</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" id="addMemberBtn">➕ Ajouter une personne</button>
+        </div>
+        
+        <div class="team-grid" id="teamGrid"></div>
+
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <h3>👥 Aucune personne trouvée</h3>
+            <p>Commencez par ajouter du personnel à votre base de données.</p>
+            <button class="btn btn-primary" onclick="teamModule.addMember()">Ajouter la première personne</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="memberModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Ajouter une personne</h2>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="memberForm">
+                    <input type="hidden" id="memberId" name="id">
+                    <div class="form-grid">
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label required" for="firstName">Prénom</label>
+                                <input type="text" id="firstName" name="firstName" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required" for="lastName">Nom</label>
+                                <input type="text" id="lastName" name="lastName" class="form-input" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label required" for="role">Poste / Statut</label>
+                            <select id="role" name="role" class="form-select" required></select>
+                        </div>
+                        
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label" for="phone">Téléphone</label>
+                                <input type="tel" id="phone" name="phone" class="form-input" placeholder="06 XX XX XX XX">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="email">Email</label>
+                                <input type="email" id="email" name="email" class="form-input">
+                            </div>
+                        </div>
+
+                        <hr style="margin: 1rem 0; border: none; border-top: 1px solid var(--border-primary);">
+
+                        <div class="form-group">
+                            <label class="form-label">Disponibilité</label>
+                            <select id="availabilityType" name="availabilityType" class="form-select">
+                                <option value="available">Disponible</option>
+                                <option value="conge">En Congé</option>
+                                <option value="arret">Arrêt Maladie</option>
+                                <option value="formation">En Formation</option>
+                            </select>
+                        </div>
+
+                        <div id="availabilityDetails" class="hidden">
+                             <div class="form-grid form-grid-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="availabilityStart">Date de début</label>
+                                    <input type="date" id="availabilityStart" name="availabilityStart" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="availabilityEnd">Date de fin</label>
+                                    <input type="date" id="availabilityEnd" name="availabilityEnd" class="form-input">
+                                </div>
+                            </div>
+                            <div class="form-group hidden" id="formationDetails">
+                                <label class="form-label" for="formationType">Type de formation</label>
+                                <input type="text" id="formationType" name="formationType" class="form-input">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="certifications">Certifications</label>
+                            <input type="text" id="certifications" name="certifications" class="form-input" placeholder="Ex: CACES, Soudage, ATEX...">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="cancelBtn">Annuler</button>
+                <button type="submit" class="btn btn-primary" id="saveBtn" form="memberForm">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="notification-template" style="display: none;">
+        <div class="notification">
+            <span class="notification-icon"></span>
+            <span class="notification-message"></span>
+        </div>
+    </div>
+
+    <script>
+    class TeamModule {
+        constructor() {
+            this.roles = {
+                'responsable-agence': "Responsable d'agence",
+                'charge-affaires': "Chargé d'affaires",
+                'conducteur-travaux': "Conducteur de travaux",
+                'chef-chantier': "Chef de chantier",
+                'chef-equipe': "Chef d'équipe",
+                'operateur': "Opérateur",
+                'hse': "HSE",
+                'interimaire': "Intérimaire",
+                'sous-traitant': "Sous-traitant",
+                'altrad-autre': "Altrad Autres"
+            };
+            this.members = this.loadMembers();
+            if (this.members.length === 0) {
+                this.initializeRealData();
+            }
+            this.filteredMembers = [...this.members];
+            this.init();
+        }
+
+        init() {
+            this.populateRoleFilters();
+            this.setupEventListeners();
+            this.applyFilters();
+        }
+
+        populateRoleFilters() {
+            const roleFilter = document.getElementById('filterRole');
+            const roleForm = document.getElementById('role');
+            roleFilter.innerHTML = '<option value="">Tous les postes</option>';
+            roleForm.innerHTML = '';
+            for (const [key, value] of Object.entries(this.roles)) {
+                roleFilter.innerHTML += `<option value="${key}">${value}</option>`;
+                roleForm.innerHTML += `<option value="${key}">${value}</option>`;
+            }
+        }
+
+        setupEventListeners() {
+            document.getElementById('addMemberBtn').addEventListener('click', () => this.openModal());
+            document.getElementById('closeModal').addEventListener('click', () => this.closeModal());
+            document.getElementById('cancelBtn').addEventListener('click', () => this.closeModal());
+            document.getElementById('memberForm').addEventListener('submit', (e) => this.handleSubmit(e));
+            document.getElementById('searchInput').addEventListener('input', () => this.applyFilters());
+            document.getElementById('filterRole').addEventListener('change', () => this.applyFilters());
+            document.getElementById('memberModal').addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal-overlay')) this.closeModal();
+            });
+            document.getElementById('availabilityType').addEventListener('change', (e) => this.toggleAvailabilityDetails(e.target.value));
+        }
+
+        loadMembers() {
+            try {
+                const saved = localStorage.getItem('equipe_data_v3');
+                return saved ? JSON.parse(saved) : [];
+            } catch (error) { console.error('Erreur de chargement:', error); return []; }
+        }
+
+        saveMembers() {
+            try {
+                localStorage.setItem('equipe_data_v3', JSON.stringify(this.members));
+            } catch (error) { console.error('Erreur de sauvegarde:', error); }
+        }
+        
+        generateId() {
+            return 'member_' + Date.now() + Math.random().toString(36).substring(2, 9);
+        }
+        
+        getInitials(firstName, lastName) { 
+            return (firstName.charAt(0) + (lastName || ' ').charAt(0)).toUpperCase(); 
+        }
+        
+        getRoleDisplayName(role) { 
+            return this.roles[role] || role; 
+        }
+
+        getAvailabilityDisplay(member) {
+            const availability = member.availability || { type: 'available' };
+            const formatDate = (date) => date ? new Date(date).toLocaleDateString('fr-FR') : '...';
+            switch (availability.type) {
+                case 'conge': return `<span class="availability-badge unavailable">En Congé (fin: ${formatDate(availability.end)})</span>`;
+                case 'arret': return `<span class="availability-badge unavailable">Arrêt Maladie (fin: ${formatDate(availability.end)})</span>`;
+                case 'formation': return `<span class="availability-badge unavailable">En Formation (${availability.formationType || ''})</span>`;
+                default: return '<span class="availability-badge available">Disponible</span>';
+            }
+        }
+        
+        render() {
+            this.renderMembers();
+            this.updateStats();
+        }
+
+        renderMembers() {
+            const grid = document.getElementById('teamGrid');
+            const emptyState = document.getElementById('emptyState');
+            if (this.filteredMembers.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+            grid.innerHTML = this.filteredMembers.map(member => `
+                <div class="member-card" data-id="${member.id}">
+                    <div class="member-header">
+                        <div class="member-avatar">${this.getInitials(member.firstName, member.lastName)}</div>
+                        <div class="member-info">
+                            <h3>${member.firstName} ${member.lastName}</h3>
+                            <div class="member-role">${this.getRoleDisplayName(member.role)}</div>
+                        </div>
+                    </div>
+                    <div class="member-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Téléphone:</span>
+                            <span class="detail-value">${member.phone || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Email:</span>
+                            <span class="detail-value">${member.email || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Disponibilité:</span>
+                            <span class="detail-value">${this.getAvailabilityDisplay(member)}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Certifications:</span>
+                            <span class="detail-value">${member.certifications || 'Aucune'}</span>
+                        </div>
+                    </div>
+                    <div class="member-actions">
+                        <button class="btn btn-sm btn-secondary" onclick="teamModule.editMember('${member.id}')">✏️ Modifier</button>
+                        <button class="btn btn-sm btn-danger" onclick="teamModule.deleteMember('${member.id}')">🗑️ Supprimer</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        updateStats() {
+            const total = this.members.length;
+            const available = this.members.filter(m => !m.availability || m.availability.type === 'available').length;
+            const certified = this.members.filter(m => m.certifications && m.certifications.trim()).length;
+            document.getElementById('totalMembers').textContent = total;
+            document.getElementById('availableMembers').textContent = available;
+            document.getElementById('unavailableMembers').textContent = total - available;
+            document.getElementById('certifiedMembers').textContent = certified;
+        }
+
+        openModal(member = null) {
+            const form = document.getElementById('memberForm');
+            form.reset();
+            if (member) {
+                document.getElementById('modalTitle').textContent = 'Modifier la personne';
+                Object.keys(member).forEach(key => {
+                    const field = form.elements[key];
+                    if (field && typeof member[key] !== 'object') field.value = member[key] || '';
+                });
+                const availability = member.availability || { type: 'available' };
+                form.elements.availabilityType.value = availability.type;
+                form.elements.availabilityStart.value = availability.start || '';
+                form.elements.availabilityEnd.value = availability.end || '';
+                form.elements.formationType.value = availability.formationType || '';
+            } else {
+                document.getElementById('modalTitle').textContent = 'Ajouter une personne';
+                form.elements.id.value = this.generateId();
+            }
+            this.toggleAvailabilityDetails(form.elements.availabilityType.value);
+            document.getElementById('memberModal').style.display = 'flex';
+        }
+
+        closeModal() {
+            document.getElementById('memberModal').style.display = 'none';
+        }
+
+        toggleAvailabilityDetails(type) {
+            document.getElementById('availabilityDetails').classList.toggle('hidden', type === 'available');
+            document.getElementById('formationDetails').classList.toggle('hidden', type !== 'formation');
+        }
+
+        handleSubmit(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            if (!data.firstName || !data.lastName || !data.role) {
+                this.showNotification('Veuillez remplir les champs Prénom, Nom et Poste.', 'error');
+                return;
+            }
+            const memberData = {
+                id: data.id, firstName: data.firstName, lastName: data.lastName, role: data.role,
+                phone: data.phone, email: data.email, certifications: data.certifications,
+                availability: {
+                    type: data.availabilityType, start: data.availabilityStart,
+                    end: data.availabilityEnd, formationType: data.formationType
+                }
+            };
+            const memberIndex = this.members.findIndex(m => m.id === memberData.id);
+            if (memberIndex > -1) {
+                this.members[memberIndex] = memberData;
+                this.showNotification('Personne modifiée avec succès', 'success');
+            } else {
+                this.members.push(memberData);
+                this.showNotification('Personne ajoutée avec succès', 'success');
+            }
+            this.saveMembers();
+            this.applyFilters();
+            this.closeModal();
+        }
+
+        editMember(id) {
+            const member = this.members.find(m => m.id === id);
+            if (member) this.openModal(member);
+        }
+
+        deleteMember(id) {
+            const member = this.members.find(m => m.id === id);
+            if (member && confirm(`Voulez-vous vraiment supprimer ${member.firstName} ${member.lastName} ?`)) {
+                this.members = this.members.filter(m => m.id !== id);
+                this.saveMembers();
+                this.applyFilters();
+                this.showNotification('Personne supprimée', 'info');
+            }
+        }
+
+        applyFilters() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const role = document.getElementById('filterRole').value;
+            this.filteredMembers = this.members.filter(m => {
+                const matchSearch = (`${m.firstName} ${m.lastName}`).toLowerCase().includes(search) || this.getRoleDisplayName(m.role).toLowerCase().includes(search);
+                const matchRole = !role || m.role === role;
+                return matchSearch && matchRole;
+            });
+            this.render();
+        }
+        
+        showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `<span>${type === 'success' ? '✓' : 'ℹ'}</span><span>${message}</span>`;
+            notification.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 2000; 
+                background: ${type === 'success' ? '#10b981' : '#3b82f6'}; 
+                color: white; padding: 12px 20px; border-radius: 8px; 
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-weight: 500;
+                transform: translateX(100%); transition: transform 0.3s ease;
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.style.transform = 'translateX(0)', 100);
+            setTimeout(() => { 
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        initializeRealData() {
+            this.members = [
+                // Management
+                { id: this.generateId(), firstName: 'MARTIN', lastName: 'HANGARD', role: 'responsable-agence', phone: '0634567890', email: 'martin.hangard@altrad.com', certifications: 'Management, Sécurité' },
+                { id: this.generateId(), firstName: 'YASAR', lastName: 'ERTUGRUL', role: 'conducteur-travaux', phone: '0645678901', email: 'yasar.ertugrul@altrad.com', certifications: 'Conducteur de travaux' },
+                { id: this.generateId(), firstName: 'SYLVAIN', lastName: 'GARREAU', role: 'charge-affaires', phone: '0656789012', email: 'sylvain.garreau@altrad.com' },
+                { id: this.generateId(), firstName: 'LOU', lastName: 'PIEDIGROSSI', role: 'hse', phone: '0667890123', email: 'lou.piedigrossi@altrad.com', certifications: 'HSE, Sécurité' },
+                
+                // Chef de chantier
+                { id: this.generateId(), firstName: 'FARID', lastName: 'MESSAL', role: 'chef-chantier', phone: '0611223344', certifications: 'Management, Secourisme' },
+                
+                // Chefs d'équipe
+                { id: this.generateId(), firstName: 'A', lastName: 'MOHAMED', role: 'chef-equipe', phone: '0633445566' },
+                { id: this.generateId(), firstName: 'ANTUNEZ', lastName: 'LOIC', role: 'chef-equipe', phone: '0644556677' },
+                { id: this.generateId(), firstName: 'CLEMENTE', lastName: 'MICKAEL', role: 'chef-equipe', phone: '0666778899' },
+                { id: this.generateId(), firstName: 'CUKUR', lastName: 'MUSTAFA', role: 'chef-equipe', phone: '0688990011' },
+                { id: this.generateId(), firstName: 'GRANDADAM', lastName: 'G', role: 'chef-equipe', phone: '0612121212' },
+                { id: this.generateId(), firstName: 'RIBEIRO-CASAL', lastName: 'A', role: 'chef-equipe', phone: '0645454545', availability: { type: 'conge', end: '2025-09-05' } },
+                { id: this.generateId(), firstName: 'MOREAU', lastName: 'JC', role: 'chef-equipe', phone: '0656565656' },
+                
+                // Opérateurs
+                { id: this.generateId(), firstName: 'BLANC', lastName: 'MARQUIS D', role: 'operateur', phone: '0655667788' },
+                { id: this.generateId(), firstName: 'CUKUR', lastName: 'AYHAN', role: 'operateur', phone: '0677889900' },
+                { id: this.generateId(), firstName: 'MORGADO', lastName: 'ALEX', role: 'operateur', phone: '0699001122' },
+                { id: this.generateId(), firstName: 'ROCHDI', lastName: 'YOUSSEF', role: 'operateur', phone: '0600112233' },
+                { id: this.generateId(), firstName: 'HADIDI', lastName: 'A', role: 'operateur', phone: '0623232323' },
+                { id: this.generateId(), firstName: 'ROBIC', lastName: 'NICOLAS', role: 'operateur', phone: '0634343434' },
+                
+                // Altrad autre
+                { id: this.generateId(), firstName: 'DJEBBAR', lastName: 'Khalil', role: 'altrad-autre', phone: '0622334455' },
+                
+                // Sous-traitants
+                { id: this.generateId(), firstName: 'EURO PEINTURE', lastName: '1', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'EURO PEINTURE', lastName: '2', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'EURO PEINTURE', lastName: '3', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'EURO PEINTURE', lastName: '4', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'SAINT\'ELEC', lastName: '1', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'SAINT\'ELEC', lastName: '2', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'SAINT\'ELEC', lastName: '3', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'SAINT\'ELEC', lastName: '4', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'SAINT\'ELEC', lastName: '5', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'SAINT\'ELEC', lastName: '6', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'DALZEMIR', lastName: '1', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'DALZEMIR', lastName: '2', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'DALZEMIR', lastName: '3', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'DALZEMIR', lastName: '4', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'DALZEMIR', lastName: '5', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'DALZEMIR', lastName: '6', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'DALZEMIR', lastName: '7', role: 'sous-traitant' },
+                { id: this.generateId(), firstName: 'GUILLE', lastName: 'Pascal', role: 'sous-traitant' },
+                
+                // Intérimaires
+                { id: this.generateId(), firstName: 'NASSER', lastName: 'MESSAL', role: 'interimaire' },
+                { id: this.generateId(), firstName: 'LAARAJ', lastName: '', role: 'interimaire' }
+            ];
+            this.saveMembers();
+        }
+    }
+
+    let teamModule;
+    document.addEventListener('DOMContentLoaded', () => { 
+        teamModule = new TeamModule(); 
+    });
+    </script>
+</body>
+</html>
