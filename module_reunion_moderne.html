@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Réunion - Équipe 41</title>
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --primary-red: #dc2626;
+            --primary-orange: #ea580c;
+            --primary-blue: #2563eb;
+            --success: #16a34a;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --info: #0ea5e9;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-700: #374151;
+            --gray-900: #111827;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(180deg, var(--primary-red), var(--primary-orange));
+            color: white;
+            z-index: 1000;
+            overflow-y: auto;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem 1rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-header p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 1rem 0;
+        }
+
+        .sidebar li {
+            margin: 0.3rem 0;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 1rem 1.5rem;
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 0 25px 25px 0;
+            margin-right: 1rem;
+            font-weight: 500;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            transform: translateX(8px);
+        }
+
+        /* Main Content */
+        .content-with-sidebar {
+            margin-left: 260px;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .page-header {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            border-left: 6px solid var(--primary-red);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, var(--primary-red)20, var(--primary-orange)20);
+            border-radius: 50%;
+            transform: translate(50%, -50%);
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-red), var(--primary-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: var(--gray-700);
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Mode Selector */
+        .mode-selector {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            padding: 1.2rem 2rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 0.75rem;
+            background: var(--white);
+            color: var(--gray-700);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .mode-btn:hover::before {
+            left: 100%;
+        }
+
+        .mode-btn:hover {
+            border-color: var(--primary-red);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, var(--primary-red), var(--primary-orange));
+            color: white;
+            border-color: var(--primary-red);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Form Cards */
+        .meeting-form {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .meeting-form.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-card {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-red), var(--primary-orange));
+        }
+
+        .form-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-red);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+        }
+
+        .multi-select {
+            position: relative;
+        }
+
+        .multi-select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            border: 2px solid var(--gray-200);
+            border-top: none;
+            border-radius: 0 0 0.75rem 0.75rem;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+        }
+
+        .multi-select-dropdown.show {
+            display: block;
+        }
+
+        .multi-select-option {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .multi-select-option:hover {
+            background: var(--gray-100);
+        }
+
+        .multi-select-option.selected {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--primary-red);
+        }
+
+        /* Thèmes Section */
+        .themes-section {
+            background: var(--gray-50);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .theme-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: var(--white);
+            border: 2px solid var(--gray-200);
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-checkbox:hover {
+            border-color: var(--primary-red);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .theme-checkbox.selected {
+            border-color: var(--primary-red);
+            background: rgba(220, 38, 38, 0.05);
+        }
+
+        .theme-checkbox input[type="checkbox"] {
+            width: 1.2rem;
+            height: 1.2rem;
+            accent-color: var(--primary-red);
+        }
+
+        /* Control Points */
+        .control-points {
+            margin: 2rem 0;
+        }
+
+        .control-category {
+            background: var(--white);
+            border: 2px solid var(--gray-200);
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .category-header {
+            background: linear-gradient(135deg, var(--primary-red), var(--primary-orange));
+            color: white;
+            padding: 1.5rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .category-content {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .control-items {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+        }
+
+        .control-item:hover {
+            background: var(--gray-50);
+        }
+
+        .control-item input[type="checkbox"] {
+            width: 1.1rem;
+            height: 1.1rem;
+            accent-color: var(--primary-red);
+        }
+
+        .comments-section textarea {
+            width: 100%;
+            height: 150px;
+            border: 2px solid var(--gray-200);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        /* Participants Section */
+        .participants-section {
+            background: var(--gray-50);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .participants-table {
+            background: var(--white);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .participants-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .participants-table th {
+            background: var(--gray-100);
+            padding: 1.25rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-900);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .participants-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .participants-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .participants-table select,
+        .participants-table input {
+            border: 1px solid var(--gray-300);
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+        }
+
+        /* Action Buttons */
+        .btn {
+            padding: 0.875rem 1.75rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), #1e40af);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #b45309);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #b91c1c);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            margin-top: 1rem;
+        }
+
+        .btn-remove {
+            background: var(--danger);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        /* Chantier Notes Section */
+        .chantier-notes-section {
+            background: var(--gray-50);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .notes-item {
+            background: var(--white);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+        }
+
+        .notes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .notes-chantier {
+            font-weight: 600;
+            color: var(--primary-red);
+            font-size: 1.1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content-with-sidebar {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .category-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .mode-selector {
+                flex-direction: column;
+            }
+
+            .mode-btn {
+                width: 100%;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .sidebar, 
+            .header-actions, 
+            .mode-selector,
+            .form-actions { 
+                display: none; 
+            }
+            .content-with-sidebar { 
+                margin-left: 0; 
+            }
+            .meeting-form { 
+                display: block !important; 
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar permanent -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                🏗️ Gestionnaire Chantier
+            </div>
+            <div class="sidebar-subtitle">
+                Équipe 41 - Chasse sur Rhône
+            </div>
+        </div>
+        
+        <div class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Principal</div>
+                <a href="index_v2.2.html" class="nav-item">
+                    <span class="icon">🏠</span>
+                    Tableau de Bord
+                </a>
+                <a href="planning_booster.html" class="nav-item">
+                    <span class="icon">📅</span>
+                    Planning
+                    <span class="badge">3</span>
+                </a>
+                <a href="pointage_booster.html" class="nav-item">
+                    <span class="icon">⏰</span>
+                    Pointage
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Gestion</div>
+                <a href="module_equipe_modifie.html" class="nav-item">
+                    <span class="icon">👥</span>
+                    Équipe
+                </a>
+                <a href="module_travaux_materiaux_corrige.html" class="nav-item">
+                    <span class="icon">🔧</span>
+                    Travaux & Matériaux
+                </a>
+                <a href="module_reunion_moderne.html" class="nav-item active">
+                    <span class="icon">🗓️</span>
+                    Réunions
+                    <span class="badge">2</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Analyse</div>
+                <a href="index_v2.2.html" class="nav-item" onclick="alert('Module en développement')">
+                    <span class="icon">💰</span>
+                    Finances
+                </a>
+                <a href="index_v2.2.html" class="nav-item" onclick="alert('Module en développement')">
+                    <span class="icon">📊</span>
+                    Rapports
+                </a>
+                <a href="index_v2.2.html" class="nav-item" onclick="alert('Module en développement')">
+                    <span class="icon">⚙️</span>
+                    Paramètres
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>🗗️ Gestion Chantier</h2>
+            <p>Équipe 41 - Chasse sur Rhône</p>
+        </div>
+        <ul>
+            <li><a href="index_v2.2.html">🏠 Accueil</a></li>
+            <li><a href="index_v2.2.html">🏗️ Nouveau Chantier</a></li>
+            <li><a href="planning_booster.html">📅 Planning</a></li>
+            <li><a href="index_v2.2.html">💰 Analyse Financière</a></li>
+            <li><a href="module_reunion_moderne.html">🗓️ Réunions</a></li>
+            <li><a href="module_equipe_modifie.html">👥 Équipe</a></li>
+            <li><a href="module_travaux_materiaux_corrige.html">🔧 Travaux & Matériaux</a></li>
+            <li><a href="index_v2.2.html">📊 Synthèse Globale</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-with-sidebar">
+        <!-- Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <div>
+                    <h1 class="page-title">🗓️ Module Réunion</h1>
+                    <p class="page-subtitle">Équipe 41 - Chasse sur Rhône • Altrad Prezioso</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-success" onclick="window.print()">🖨️ Imprimer</button>
+                    <button class="btn btn-primary" onclick="exportMeeting()">📤 Exporter</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mode Selector -->
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="demarrage">
+                🚀 Réunion de Démarrage
+            </button>
+            <button class="mode-btn" data-mode="chantier">
+                🏗️ Réunion Chantier
+            </button>
+            <button class="mode-btn" data-mode="equipe">
+                👥 Réunion Équipe 41
+            </button>
+        </div>
+
+        <!-- Réunion de Démarrage -->
+        <div id="form-demarrage" class="meeting-form active">
+            <div class="form-card">
+                <h2 class="form-title">🚀 Compte-Rendu de Démarrage / Causerie</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Chantier concerné</label>
+                        <select class="form-select" id="chantier-select">
+                            <option value="">Sélectionner un chantier</option>
+                            <option value="Halle 9 - 22541114486">Halle 9 - 22541114486</option>
+                            <option value="Grand Lyon – Pont de Chasse - 2211113275">Grand Lyon – Pont de Chasse - 2211113275</option>
+                            <option value="VICHY - 22341113974">VICHY - 22341113974</option>
+                            <option value="CAMPENON BERNARD - 22441114303">CAMPENON BERNARD - 22441114303</option>
+                            <option value="EFFIA PARKING BARET - 22541114454">EFFIA PARKING BARET - 22541114454</option>
+                            <option value="EFFIA PARKING CANNES - 22541114465">EFFIA PARKING CANNES - 22541114465</option>
+                            <option value="Mirage 2000 - 22541100038">Mirage 2000 - 22541100038</option>
+                            <option value="QPARK FAVENTINE">QPARK FAVENTINE</option>
+                            <option value="BOUYGUE - VELODROME - 22541114488">BOUYGUE - VELODROME - 22541114488</option>
+                            <option value="FRAMATOME - 22141100002">FRAMATOME - 22141100002</option>
+                            <option value="Atelier St Maurice">Atelier St Maurice</option>
+                            <option value="SAINT GOBAIN - Atelier - 22541100038">SAINT GOBAIN - Atelier - 22541100038</option>
+                            <option value="EFFIA – MONTPELLIER - 22541100038">EFFIA – MONTPELLIER - 22541100038</option>
+                            <option value="EFFIA – Parking Cour JULIEN - 2254114490">EFFIA – Parking Cour JULIEN - 2254114490</option>
+                            <option value="CNR VAUGRIS - 22541100038">CNR VAUGRIS - 22541100038</option>
+                            <option value="QPARK HDV Marseille">QPARK HDV Marseille</option>
+                            <option value="EFFIA BEZIERS - 22541100038">EFFIA BEZIERS - 22541100038</option>
+                            <option value="EFFIA – Parking Chateaucreux - 2234114193">EFFIA – Parking Chateaucreux - 2234114193</option>
+                            <option value="ADISEO PONTICELLI - 22541100038">ADISEO PONTICELLI - 22541100038</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Animateur</label>
+                        <select class="form-select" id="animateur-select">
+                            <option value="">Sélectionner un animateur</option>
+                            <option value="ERTUGRUL YASAR">ERTUGRUL YASAR</option>
+                            <option value="SYLVAIN GARREAU">SYLVAIN GARREAU</option>
+                            <option value="LOU PIEDIGROSSI">LOU PIEDIGROSSI</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-input" id="meeting-date">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Lieu</label>
+                        <select class="form-select" id="lieu-select">
+                            <option value="">Sélectionner un lieu</option>
+                            <option value="Siège">Siège</option>
+                            <option value="Agence">Agence</option>
+                            <option value="Chantier">Chantier</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">N° Dossier</label>
+                        <input type="text" class="form-input" id="dossier-number" placeholder="Ex: 22541100038">
+                    </div>
+                </div>
+
+                <!-- Participants Section -->
+                <div class="participants-section">
+                    <h3 class="section-title">👥 Participants</h3>
+                    <div class="multi-select">
+                        <button type="button" class="form-select" id="participants-btn" onclick="toggleParticipantsDropdown()">
+                            Sélectionner des participants
+                        </button>
+                        <div class="multi-select-dropdown" id="participants-dropdown">
+                            <div class="multi-select-option" data-value="A MOHAMED">
+                                <input type="checkbox" id="part-1"> A MOHAMED
+                            </div>
+                            <div class="multi-select-option" data-value="ANTUNEZ LOIC">
+                                <input type="checkbox" id="part-2"> ANTUNEZ LOIC
+                            </div>
+                            <div class="multi-select-option" data-value="BLANC MARQUIS D">
+                                <input type="checkbox" id="part-3"> BLANC MARQUIS D
+                            </div>
+                            <div class="multi-select-option" data-value="CLEMENTE MICKAEL">
+                                <input type="checkbox" id="part-4"> CLEMENTE MICKAEL
+                            </div>
+                            <div class="multi-select-option" data-value="CUKUR AYHAN">
+                                <input type="checkbox" id="part-5"> CUKUR AYHAN
+                            </div>
+                            <div class="multi-select-option" data-value="CUKUR MUSTAFA">
+                                <input type="checkbox" id="part-6"> CUKUR MUSTAFA
+                            </div>
+                            <div class="multi-select-option" data-value="MORGADO ALEX">
+                                <input type="checkbox" id="part-7"> MORGADO ALEX
+                            </div>
+                            <div class="multi-select-option" data-value="ROCHDI YOUSSEF">
+                                <input type="checkbox" id="part-8"> ROCHDI YOUSSEF
+                            </div>
+                            <div class="multi-select-option" data-value="GRANDADAM G">
+                                <input type="checkbox" id="part-9"> GRANDADAM G
+                            </div>
+                            <div class="multi-select-option" data-value="HADIDI A">
+                                <input type="checkbox" id="part-10"> HADIDI A
+                            </div>
+                            <div class="multi-select-option" data-value="ROBIC NICOLAS">
+                                <input type="checkbox" id="part-11"> ROBIC NICOLAS
+                            </div>
+                            <div class="multi-select-option" data-value="RIBEIRO-CASAL A">
+                                <input type="checkbox" id="part-12"> RIBEIRO-CASAL A
+                            </div>
+                            <div class="multi-select-option" data-value="MOREAU JC">
+                                <input type="checkbox" id="part-13"> MOREAU JC
+                            </div>
+                            <div class="multi-select-option" data-value="FARID MESSAL">
+                                <input type="checkbox" id="part-14"> FARID MESSAL
+                            </div>
+                            <div class="multi-select-option" data-value="MENDY jeune">
+                                <input type="checkbox" id="part-15"> MENDY jeune
+                            </div>
+                            <div class="multi-select-option" data-value="Ag45-1">
+                                <input type="checkbox" id="part-16"> Ag45-1
+                            </div>
+                            <div class="multi-select-option" data-value="MENDY Doyen">
+                                <input type="checkbox" id="part-17"> MENDY Doyen
+                            </div>
+                            <div class="multi-select-option" data-value="DJEBBAR Khalil">
+                                <input type="checkbox" id="part-18"> DJEBBAR Khalil
+                            </div>
+                            <div class="multi-select-option" data-value="NASSER MESSAL">
+                                <input type="checkbox" id="part-19"> NASSER MESSAL
+                            </div>
+                            <div class="multi-select-option" data-value="LAARAJ">
+                                <input type="checkbox" id="part-20"> LAARAJ
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thèmes Abordés -->
+                <div class="themes-section">
+                    <h3 class="section-title">🎯 Thèmes Abordés</h3>
+                    <div class="themes-grid">
+                        <label class="theme-checkbox">
+                            <input type="checkbox" id="theme-qualite">
+                            <span>Qualité</span>
+                        </label>
+                        <label class="theme-checkbox">
+                            <input type="checkbox" id="theme-securite">
+                            <span>Sécurité</span>
+                        </label>
+                        <label class="theme-checkbox">
+                            <input type="checkbox" id="theme-procede">
+                            <span>Procédé</span>
+                        </label>
+                        <label class="theme-checkbox">
+                            <input type="checkbox" id="theme-peinture">
+                            <span>Peinture</span>
+                        </label>
+                        <label class="theme-checkbox">
+                            <input type="checkbox" id="theme-calorifuge">
+                            <span>Calorifuge</span>
+                        </label>
+                        <label class="theme-checkbox">
+                            <input type="checkbox" id="theme-echafaudage">
+                            <span>Échafaudage</span>
+                        </label>
+                        <label class="theme-checkbox">
+                            <input type="checkbox" id="theme-autres">
+                            <span>Autres</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Points de Contrôle -->
+                <div class="control-points">
+                    <h3 class="section-title">📋 Points de Contrôle</h3>
+                    
+                    <!-- Procédé -->
+                    <div class="control-category">
+                        <div class="category-header">
+                            🔧 Procédé
+                        </div>
+                        <div class="category-content">
+                            <div class="control-items">
+                                <label class="control-item">
+                                    <input type="checkbox">
+                                    <span>Consignes mise en œuvre</span>
+                                </label>
+                                <label class="control-item">
+                                    <input type="checkbox">
+                                    <span>Consignes sur produit</span>
+                                </label>
+                                <label class="control-item">
+                                    <input type="checkbox">
+                                    <span>Matériel spécifique</span>
+                                </label>
+                                <label class="control-item">
+                                    <input type="checkbox">
+                                    <span>Opérations à risque</span>
+                                </label>
+                            </div>
+                            <div class="comments-section">
+                                <label for="procede-comments" class="form-label">Commentaires</label>
+                                <textarea id="procede-comments" placeholder="Port du masque à peinture pendant l'application des revêtements..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sécurité -->
+                    <div class="control-category">
+                        <div class="category-header">
+                            🛡️ Sécurité
+                        </div>
+                        <div class="category-content">
+                            <div class="control-items">
+                                <label class="control-item">
+                                    <input type="checkbox">
+                                    <span>Présentation du chantier</span>
+                                </label>
+                                <label class="control-item">
+                                    <input type="checkbox">
+                                    <span>Commentaires du PPSPS ou du PdP</span>
+                                </label>
+                                <label class="control-item">
+                                    <input type="checkbox">
+                                    <span>Consignes en cas d'accident ou d'incendie</span>
+                                </label>
+                                <label class="control-item">
+                                    <input type="checkbox">
+                                    <span>Consignes sécurité générale/spéc. au site</span>
+                                </label>
+                                <label class="control-item">
+                                    <input type="checkbox">
+                                    <span>Travaux, risques et mesures de prévention</span>
+                                </label>
+                                <label class="control-item">
+                                    <input type="checkbox">
+                                    <span>Utilisation des EPC et EPI</span>
+                                </label>
+                            </div>
+                            <div class="comments-section">
+                                <label for="securite-comments" class="form-label">Commentaires</label>
+                                <textarea id="securite-comments" placeholder="• Port du Harnais,&#10;• Respect du Pdp&#10;• Port de tenue spécifique Fonderie&#10;• Accueil sécurité (le premier jour)&#10;• Port Lunettes de sécurité+ Protection auditive&#10;• Oxygénomètre fourni par TRIMET"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Qualité -->
+                    <div class="control-category">
+                        <div class="category-header">
+                            ✅ Qualité
+                        </div>
+                        <div class="category-content">
+                            <div class="control-items">
+                                <label class="control-item">
+                                    <input type="checkbox">
+                                    <span>Exigences de contrôle</span>
+                                </label>
+                                <label class="control-item">
+                                    <input type="checkbox">
+                                    <span>Critères d'acceptation</span>
+                                </label>
+                                <label class="control-item">
+                                    <input type="checkbox">
+                                    <span>Points de contrôle et d'arrêt</span>
+                                </label>
+                                <label class="control-item">
+                                    <input type="checkbox">
+                                    <span>Matériel de contrôle</span>
+                                </label>
+                                <label class="control-item">
+                                    <input type="checkbox">
+                                    <span>Documents à renseigner</span>
+                                </label>
+                            </div>
+                            <div class="comments-section">
+                                <label for="qualite-comments" class="form-label">Commentaires</label>
+                                <textarea id="qualite-comments" placeholder="• Remplir Fiche Journalière + PV Réception"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Participants Table -->
+                <div class="participants-section">
+                    <h3 class="section-title">✍️ Présents</h3>
+                    <div class="participants-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Agence</th>
+                                    <th>Signature</th>
+                                    <th>Commentaires</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="presents-table">
+                                <tr>
+                                    <td>
+                                        <select class="form-select">
+                                            <option value="">Sélectionner une personne</option>
+                                            <option value="A MOHAMED">A MOHAMED</option>
+                                            <option value="ANTUNEZ LOIC">ANTUNEZ LOIC</option>
+                                            <option value="BLANC MARQUIS D">BLANC MARQUIS D</option>
+                                            <option value="CLEMENTE MICKAEL">CLEMENTE MICKAEL</option>
+                                            <option value="CUKUR AYHAN">CUKUR AYHAN</option>
+                                            <option value="CUKUR MUSTAFA">CUKUR MUSTAFA</option>
+                                            <option value="MORGADO ALEX">MORGADO ALEX</option>
+                                            <option value="ROCHDI YOUSSEF">ROCHDI YOUSSEF</option>
+                                            <option value="GRANDADAM G">GRANDADAM G</option>
+                                            <option value="HADIDI A">HADIDI A</option>
+                                            <option value="ROBIC NICOLAS">ROBIC NICOLAS</option>
+                                            <option value="RIBEIRO-CASAL A">RIBEIRO-CASAL A</option>
+                                            <option value="MOREAU JC">MOREAU JC</option>
+                                            <option value="FARID MESSAL">FARID MESSAL</option>
+                                            <option value="MENDY jeune">MENDY jeune</option>
+                                            <option value="Ag45-1">Ag45-1</option>
+                                            <option value="MENDY Doyen">MENDY Doyen</option>
+                                            <option value="DJEBBAR Khalil">DJEBBAR Khalil</option>
+                                            <option value="NASSER MESSAL">NASSER MESSAL</option>
+                                            <option value="LAARAJ">LAARAJ</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-input" value="41">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-input" placeholder="Signature">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-input" placeholder="Commentaires">
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn-remove" onclick="removePresent(this)">❌</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button type="button" class="btn btn-add" onclick="addPresent()">➕ Ajouter un participant</button>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-success" onclick="saveMeeting()">💾 Enregistrer</button>
+                    <button class="btn btn-warning" onclick="resetForm()">🔄 Réinitialiser</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Réunion Chantier -->
+        <div id="form-chantier" class="meeting-form">
+            <div class="form-card">
+                <h2 class="form-title">🏗️ Réunion de Chantier</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Chantier</label>
+                        <select class="form-select">
+                            <option value="">Sélectionner un chantier</option>
+                            <option value="Halle 9 - 22541114486">Halle 9 - 22541114486</option>
+                            <option value="Grand Lyon – Pont de Chasse - 2211113275">Grand Lyon – Pont de Chasse - 2211113275</option>
+                            <option value="VICHY - 22341113974">VICHY - 22341113974</option>
+                            <option value="CAMPENON BERNARD - 22441114303">CAMPENON BERNARD - 22441114303</option>
+                            <option value="EFFIA PARKING BARET - 22541114454">EFFIA PARKING BARET - 22541114454</option>
+                            <option value="EFFIA PARKING CANNES - 22541114465">EFFIA PARKING CANNES - 22541114465</option>
+                            <option value="Mirage 2000 - 22541100038">Mirage 2000 - 22541100038</option>
+                            <option value="QPARK FAVENTINE">QPARK FAVENTINE</option>
+                            <option value="BOUYGUE - VELODROME - 22541114488">BOUYGUE - VELODROME - 22541114488</option>
+                            <option value="FRAMATOME - 22141100002">FRAMATOME - 22141100002</option>
+                            <option value="Atelier St Maurice">Atelier St Maurice</option>
+                            <option value="SAINT GOBAIN - Atelier - 22541100038">SAINT GOBAIN - Atelier - 22541100038</option>
+                            <option value="EFFIA – MONTPELLIER - 22541100038">EFFIA – MONTPELLIER - 22541100038</option>
+                            <option value="EFFIA – Parking Cour JULIEN - 2254114490">EFFIA – Parking Cour JULIEN - 2254114490</option>
+                            <option value="CNR VAUGRIS - 22541100038">CNR VAUGRIS - 22541100038</option>
+                            <option value="QPARK HDV Marseille">QPARK HDV Marseille</option>
+                            <option value="EFFIA BEZIERS - 22541100038">EFFIA BEZIERS - 22541100038</option>
+                            <option value="EFFIA – Parking Chateaucreux - 2234114193">EFFIA – Parking Chateaucreux - 2234114193</option>
+                            <option value="ADISEO PONTICELLI - 22541100038">ADISEO PONTICELLI - 22541100038</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Animateur</label>
+                        <select class="form-select">
+                            <option value="">Sélectionner un animateur</option>
+                            <option value="ERTUGRUL YASAR">ERTUGRUL YASAR</option>
+                            <option value="SYLVAIN GARREAU">SYLVAIN GARREAU</option>
+                            <option value="LOU PIEDIGROSSI">LOU PIEDIGROSSI</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Phase du projet</label>
+                        <select class="form-select">
+                            <option value="preparation">Préparation</option>
+                            <option value="execution">Exécution</option>
+                            <option value="finition">Finition</option>
+                            <option value="reception">Réception</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Avancement (%)</label>
+                        <input type="number" class="form-input" min="0" max="100" value="0">
+                    </div>
+                </div>
+
+                <!-- Participants -->
+                <div class="participants-section">
+                    <h3 class="section-title">👥 Participants</h3>
+                    <div class="themes-grid">
+                        <label class="theme-checkbox">
+                            <input type="checkbox" id="part-mo">
+                            <span>Maître d'ouvrage</span>
+                        </label>
+                        <label class="theme-checkbox">
+                            <input type="checkbox" id="part-moe">
+                            <span>Maître d'œuvre</span>
+                        </label>
+                        <label class="theme-checkbox">
+                            <input type="checkbox" id="part-csps">
+                            <span>CSPS</span>
+                        </label>
+                        <label class="theme-checkbox">
+                            <input type="checkbox" id="part-autres">
+                            <span>Autres (préciser)</span>
+                        </label>
+                    </div>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label class="form-label">Autres participants (préciser)</label>
+                        <textarea class="form-textarea" placeholder="Préciser les autres participants..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Points abordés</label>
+                    <textarea class="form-textarea" placeholder="Décrire les points principaux abordés lors de la réunion..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Difficultés rencontrées</label>
+                    <textarea class="form-textarea" placeholder="Décrire les difficultés rencontrées..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Solutions proposées</label>
+                    <textarea class="form-textarea" placeholder="Décrire les solutions proposées..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-success" onclick="saveMeeting()">💾 Enregistrer</button>
+                    <button class="btn btn-warning" onclick="resetForm()">🔄 Réinitialiser</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Réunion Équipe 41 -->
+        <div id="form-equipe" class="meeting-form">
+            <div class="form-card">
+                <h2 class="form-title">👥 Réunion Équipe 41</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Animateur</label>
+                        <select class="form-select">
+                            <option value="">Sélectionner un animateur</option>
+                            <option value="ERTUGRUL YASAR">ERTUGRUL YASAR</option>
+                            <option value="SYLVAIN GARREAU">SYLVAIN GARREAU</option>
+                            <option value="LOU PIEDIGROSSI">LOU PIEDIGROSSI</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Type de réunion</label>
+                        <select class="form-select">
+                            <option value="hebdomadaire">Réunion hebdomadaire</option>
+                            <option value="mensuelle">Réunion mensuelle</option>
+                            <option value="extraordinaire">Réunion extraordinaire</option>
+                            <option value="formation">Formation/Brief</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Présents / Total</label>
+                        <input type="text" class="form-input" id="presents-count" readonly>
+                    </div>
+                </div>
+
+                <!-- Participants -->
+                <div class="participants-section">
+                    <h3 class="section-title">👥 Participants</h3>
+                    <div class="multi-select">
+                        <button type="button" class="form-select" id="equipe-participants-btn" onclick="toggleEquipeParticipantsDropdown()">
+                            Sélectionner des participants
+                        </button>
+                        <div class="multi-select-dropdown" id="equipe-participants-dropdown">
+                            <div class="multi-select-option" data-value="A MOHAMED">
+                                <input type="checkbox" id="equipe-part-1"> A MOHAMED
+                            </div>
+                            <div class="multi-select-option" data-value="ANTUNEZ LOIC">
+                                <input type="checkbox" id="equipe-part-2"> ANTUNEZ LOIC
+                            </div>
+                            <div class="multi-select-option" data-value="BLANC MARQUIS D">
+                                <input type="checkbox" id="equipe-part-3"> BLANC MARQUIS D
+                            </div>
+                            <div class="multi-select-option" data-value="CLEMENTE MICKAEL">
+                                <input type="checkbox" id="equipe-part-4"> CLEMENTE MICKAEL
+                            </div>
+                            <div class="multi-select-option" data-value="CUKUR AYHAN">
+                                <input type="checkbox" id="equipe-part-5"> CUKUR AYHAN
+                            </div>
+                            <div class="multi-select-option" data-value="CUKUR MUSTAFA">
+                                <input type="checkbox" id="equipe-part-6"> CUKUR MUSTAFA
+                            </div>
+                            <div class="multi-select-option" data-value="MORGADO ALEX">
+                                <input type="checkbox" id="equipe-part-7"> MORGADO ALEX
+                            </div>
+                            <div class="multi-select-option" data-value="ROCHDI YOUSSEF">
+                                <input type="checkbox" id="equipe-part-8"> ROCHDI YOUSSEF
+                            </div>
+                            <div class="multi-select-option" data-value="GRANDADAM G">
+                                <input type="checkbox" id="equipe-part-9"> GRANDADAM G
+                            </div>
+                            <div class="multi-select-option" data-value="HADIDI A">
+                                <input type="checkbox" id="equipe-part-10"> HADIDI A
+                            </div>
+                            <div class="multi-select-option" data-value="ROBIC NICOLAS">
+                                <input type="checkbox" id="equipe-part-11"> ROBIC NICOLAS
+                            </div>
+                            <div class="multi-select-option" data-value="RIBEIRO-CASAL A">
+                                <input type="checkbox" id="equipe-part-12"> RIBEIRO-CASAL A
+                            </div>
+                            <div class="multi-select-option" data-value="MOREAU JC">
+                                <input type="checkbox" id="equipe-part-13"> MOREAU JC
+                            </div>
+                            <div class="multi-select-option" data-value="FARID MESSAL">
+                                <input type="checkbox" id="equipe-part-14"> FARID MESSAL
+                            </div>
+                            <div class="multi-select-option" data-value="MENDY jeune">
+                                <input type="checkbox" id="equipe-part-15"> MENDY jeune
+                            </div>
+                            <div class="multi-select-option" data-value="Ag45-1">
+                                <input type="checkbox" id="equipe-part-16"> Ag45-1
+                            </div>
+                            <div class="multi-select-option" data-value="MENDY Doyen">
+                                <input type="checkbox" id="equipe-part-17"> MENDY Doyen
+                            </div>
+                            <div class="multi-select-option" data-value="DJEBBAR Khalil">
+                                <input type="checkbox" id="equipe-part-18"> DJEBBAR Khalil
+                            </div>
+                            <div class="multi-select-option" data-value="NASSER MESSAL">
+                                <input type="checkbox" id="equipe-part-19"> NASSER MESSAL
+                            </div>
+                            <div class="multi-select-option" data-value="LAARAJ">
+                                <input type="checkbox" id="equipe-part-20"> LAARAJ
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ordre du jour</label>
+                    <textarea class="form-textarea" placeholder="Points à aborder lors de la réunion..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Informations partagées</label>
+                    <textarea class="form-textarea" placeholder="Informations importantes communiquées à l'équipe..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Feedback équipe</label>
+                    <textarea class="form-textarea" placeholder="Retours et suggestions de l'équipe..."></textarea>
+                </div>
+
+                <!-- Notes par Chantier -->
+                <div class="chantier-notes-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h3 class="section-title">📝 Notes par Chantier</h3>
+                        <button type="button" class="btn btn-add btn-small" onclick="addChantierNote()">➕ Ajouter Chantier</button>
+                    </div>
+                    <div id="chantier-notes-container">
+                        <!-- Les notes de chantier seront ajoutées ici -->
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-success" onclick="saveMeeting()">💾 Enregistrer</button>
+                    <button class="btn btn-warning" onclick="resetForm()">🔄 Réinitialiser</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Données globales
+        let selectedParticipants = [];
+        let selectedEquipeParticipants = [];
+
+        // Liste complète des chantiers
+        const chantiers = [
+            'Halle 9 - 22541114486',
+            'Grand Lyon – Pont de Chasse - 2211113275',
+            'VICHY - 22341113974',
+            'CAMPENON BERNARD - 22441114303',
+            'EFFIA PARKING BARET - 22541114454',
+            'EFFIA PARKING CANNES - 22541114465',
+            'Mirage 2000 - 22541100038',
+            'QPARK FAVENTINE',
+            'BOUYGUE - VELODROME - 22541114488',
+            'FRAMATOME - 22141100002',
+            'Atelier St Maurice',
+            'SAINT GOBAIN - Atelier - 22541100038',
+            'EFFIA – MONTPELLIER - 22541100038',
+            'EFFIA – Parking Cour JULIEN - 2254114490',
+            'CNR VAUGRIS - 22541100038',
+            'QPARK HDV Marseille',
+            'EFFIA BEZIERS - 22541100038',
+            'EFFIA – Parking Chateaucreux - 2234114193',
+            'ADISEO PONTICELLI - 22541100038'
+        ];
+
+        // Gestion des modes
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Retirer la classe active de tous les boutons et formulaires
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.meeting-form').forEach(f => f.classList.remove('active'));
+
+                // Ajouter la classe active au bouton cliqué
+                btn.classList.add('active');
+
+                // Afficher le formulaire correspondant
+                const mode = btn.dataset.mode;
+                document.getElementById(`form-${mode}`).classList.add('active');
+            });
+        });
+
+        // Gestion des participants (démarrage)
+        function toggleParticipantsDropdown() {
+            const dropdown = document.getElementById('participants-dropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Gestion des participants (équipe 41)
+        function toggleEquipeParticipantsDropdown() {
+            const dropdown = document.getElementById('equipe-participants-dropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Gestion de la sélection des participants
+        document.getElementById('participants-dropdown').addEventListener('click', function(e) {
+            if (e.target.type === 'checkbox') {
+                updateSelectedParticipants();
+            }
+        });
+
+        document.getElementById('equipe-participants-dropdown').addEventListener('click', function(e) {
+            if (e.target.type === 'checkbox') {
+                updateEquipeParticipants();
+            }
+        });
+
+        function updateSelectedParticipants() {
+            const checkboxes = document.querySelectorAll('#participants-dropdown input[type="checkbox"]:checked');
+            selectedParticipants = Array.from(checkboxes).map(cb => 
+                cb.closest('.multi-select-option').dataset.value
+            );
+            
+            const btn = document.getElementById('participants-btn');
+            if (selectedParticipants.length === 0) {
+                btn.textContent = 'Sélectionner des participants';
+            } else {
+                btn.textContent = `${selectedParticipants.length} participant(s) sélectionné(s)`;
+            }
+        }
+
+        function updateEquipeParticipants() {
+            const checkboxes = document.querySelectorAll('#equipe-participants-dropdown input[type="checkbox"]:checked');
+            selectedEquipeParticipants = Array.from(checkboxes).map(cb => 
+                cb.closest('.multi-select-option').dataset.value
+            );
+            
+            const btn = document.getElementById('equipe-participants-btn');
+            if (selectedEquipeParticipants.length === 0) {
+                btn.textContent = 'Sélectionner des participants';
+            } else {
+                btn.textContent = `${selectedEquipeParticipants.length} participant(s) sélectionné(s)`;
+            }
+
+            // Mettre à jour le compteur présents/total
+            const totalEquipe = 20; // Nombre total de membres de l'équipe
+            document.getElementById('presents-count').value = `${selectedEquipeParticipants.length}/${totalEquipe}`;
+        }
+
+        // Gestion des thèmes
+        document.querySelectorAll('.theme-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                this.classList.toggle('selected');
+            });
+        });
+
+        // Gestion des participants présents
+        function addPresent() {
+            const tbody = document.getElementById('presents-table');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>
+                    <select class="form-select">
+                        <option value="">Sélectionner une personne</option>
+                        <option value="A MOHAMED">A MOHAMED</option>
+                        <option value="ANTUNEZ LOIC">ANTUNEZ LOIC</option>
+                        <option value="BLANC MARQUIS D">BLANC MARQUIS D</option>
+                        <option value="CLEMENTE MICKAEL">CLEMENTE MICKAEL</option>
+                        <option value="CUKUR AYHAN">CUKUR AYHAN</option>
+                        <option value="CUKUR MUSTAFA">CUKUR MUSTAFA</option>
+                        <option value="MORGADO ALEX">MORGADO ALEX</option>
+                        <option value="ROCHDI YOUSSEF">ROCHDI YOUSSEF</option>
+                        <option value="GRANDADAM G">GRANDADAM G</option>
+                        <option value="HADIDI A">HADIDI A</option>
+                        <option value="ROBIC NICOLAS">ROBIC NICOLAS</option>
+                        <option value="RIBEIRO-CASAL A">RIBEIRO-CASAL A</option>
+                        <option value="MOREAU JC">MOREAU JC</option>
+                        <option value="FARID MESSAL">FARID MESSAL</option>
+                        <option value="MENDY jeune">MENDY jeune</option>
+                        <option value="Ag45-1">Ag45-1</option>
+                        <option value="MENDY Doyen">MENDY Doyen</option>
+                        <option value="DJEBBAR Khalil">DJEBBAR Khalil</option>
+                        <option value="NASSER MESSAL">NASSER MESSAL</option>
+                        <option value="LAARAJ">LAARAJ</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" class="form-input" value="41">
+                </td>
+                <td>
+                    <input type="text" class="form-input" placeholder="Signature">
+                </td>
+                <td>
+                    <input type="text" class="form-input" placeholder="Commentaires">
+                </td>
+                <td>
+                    <button type="button" class="btn-remove" onclick="removePresent(this)">❌</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        }
+
+        function removePresent(btn) {
+            btn.closest('tr').remove();
+        }
+
+        // Gestion des notes par chantier
+        function addChantierNote() {
+            const container = document.getElementById('chantier-notes-container');
+            const noteDiv = document.createElement('div');
+            noteDiv.className = 'notes-item';
+            
+            noteDiv.innerHTML = `
+                <div class="notes-header">
+                    <select class="form-select" style="width: 300px;">
+                        <option value="">Sélectionner un chantier</option>
+                        ${chantiers.map(chantier => `<option value="${chantier}">${chantier}</option>`).join('')}
+                    </select>
+                    <button type="button" class="btn-remove" onclick="removeChantierNote(this)">❌ Supprimer</button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes et observations</label>
+                    <textarea class="form-textarea" rows="4" placeholder="Saisir les notes et observations pour ce chantier..."></textarea>
+                </div>
+            `;
+            
+            container.appendChild(noteDiv);
+        }
+
+        function removeChantierNote(btn) {
+            btn.closest('.notes-item').remove();
+        }
+
+        // Fermer les dropdowns en cliquant à l'extérieur
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.multi-select')) {
+                document.querySelectorAll('.multi-select-dropdown').forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                });
+            }
+        });
+
+        // Fonctions de sauvegarde et réinitialisation
+        function saveMeeting() {
+            // Logique de sauvegarde ici
+            alert('Réunion sauvegardée avec succès !');
+        }
+
+        function resetForm() {
+            if (confirm('Êtes-vous sûr de vouloir réinitialiser le formulaire ?')) {
+                document.querySelectorAll('input, select, textarea').forEach(input => {
+                    if (input.type === 'checkbox') {
+                        input.checked = false;
+                    } else {
+                        input.value = '';
+                    }
+                });
+                selectedParticipants = [];
+                selectedEquipeParticipants = [];
+                document.getElementById('participants-btn').textContent = 'Sélectionner des participants';
+                document.getElementById('equipe-participants-btn').textContent = 'Sélectionner des participants';
+                document.getElementById('presents-count').value = '';
+                
+                // Réinitialiser les thèmes
+                document.querySelectorAll('.theme-checkbox').forEach(checkbox => {
+                    checkbox.classList.remove('selected');
+                });
+
+                // Vider les notes de chantier
+                document.getElementById('chantier-notes-container').innerHTML = '';
+            }
+        }
+
+        function exportMeeting() {
+            // Logique d'exportation ici
+            alert('Réunion exportée !');
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Définir la date actuelle
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelectorAll('input[type="date"]').forEach(input => {
+                input.value = today;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travaux & Matériaux - Gestion de Chantier</title>
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --primary-red: #dc2626;
+            --primary-orange: #ea580c;
+            --primary-blue: #2563eb;
+            --success: #16a34a;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --info: #0ea5e9;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-900: #111827;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 240px;
+            height: 100vh;
+            background: linear-gradient(180deg, var(--primary-red), var(--primary-orange));
+            color: white;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 2rem 0;
+        }
+
+        .sidebar li {
+            margin: 0.5rem 0;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 1rem 1.5rem;
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-radius: 0 25px 25px 0;
+            margin-right: 1rem;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        /* Main Content */
+        .content-with-sidebar {
+            margin-left: 240px;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .travaux-header {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            border-left: 6px solid var(--primary-red);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-red), var(--primary-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+
+        /* Résumé dynamique */
+        .resume-dynamique {
+            background: linear-gradient(135deg, var(--primary-red), var(--primary-orange));
+            color: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .resume-dynamique::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .resume-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .resume-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .resume-item h4 {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .resume-item p {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        /* Tabs */
+        .tabs-container {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+
+        .tabs-header {
+            display: flex;
+            border-bottom: 1px solid var(--gray-200);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 1rem 2rem;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 1rem 1rem 0 0;
+            color: var(--gray-900);
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            background: var(--gray-50);
+        }
+
+        .tab-btn.active {
+            background: var(--primary-red);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .tab-content {
+            padding: 2rem;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Form Styles */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            padding: 0.75rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .required::after {
+            content: '*';
+            color: var(--danger);
+            margin-left: 0.2rem;
+        }
+
+        /* Multi-select checkboxes */
+        .multi-select {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.8rem;
+            background: var(--gray-100);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .checkbox-item:hover {
+            background: var(--gray-200);
+        }
+
+        .checkbox-item.selected {
+            background: var(--primary-red);
+            color: white;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin: 0;
+        }
+
+        /* Dynamic Tables */
+        .dynamic-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            margin: 1rem 0;
+        }
+
+        .dynamic-table th {
+            background: var(--gray-100);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-900);
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .dynamic-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-100);
+            vertical-align: middle;
+        }
+
+        .dynamic-table tr:hover {
+            background: var(--gray-50);
+        }
+
+        .dynamic-table input,
+        .dynamic-table select {
+            padding: 0.5rem;
+            border: 1px solid var(--gray-200);
+            border-radius: 0.3rem;
+            width: 100%;
+        }
+
+        /* Calculation Summary */
+        .calculation-summary {
+            background: var(--gray-50);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .summary-item {
+            text-align: center;
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .summary-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary-red);
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-label {
+            font-size: 0.9rem;
+            color: var(--gray-900);
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        /* Auto-save indicator */
+        .auto-save {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--success);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1001;
+        }
+
+        .auto-save.show {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content-with-sidebar {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .tabs-header {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                border-radius: 0;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .resume-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .sidebar, .btn { display: none; }
+            .content-with-sidebar { margin-left: 0; }
+            .tabs-container { break-inside: avoid; }
+            .tab-content { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar permanent -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                🏗️ Gestionnaire Chantier
+            </div>
+            <div class="sidebar-subtitle">
+                Équipe 41 - Chasse sur Rhône
+            </div>
+        </div>
+        
+        <div class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Principal</div>
+                <a href="index_v2.2.html" class="nav-item">
+                    <span class="icon">🏠</span>
+                    Tableau de Bord
+                </a>
+                <a href="planning_booster.html" class="nav-item">
+                    <span class="icon">📅</span>
+                    Planning
+                    <span class="badge">3</span>
+                </a>
+                <a href="pointage_booster.html" class="nav-item">
+                    <span class="icon">⏰</span>
+                    Pointage
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Gestion</div>
+                <a href="module_equipe_modifie.html" class="nav-item">
+                    <span class="icon">👥</span>
+                    Équipe
+                </a>
+                <a href="module_travaux_materiaux_corrige.html" class="nav-item active">
+                    <span class="icon">🔧</span>
+                    Travaux & Matériaux
+                </a>
+                <a href="module_reunion_moderne.html" class="nav-item">
+                    <span class="icon">🗓️</span>
+                    Réunions
+                    <span class="badge">2</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Analyse</div>
+                <a href="index_v2.2.html" class="nav-item" onclick="alert('Module en développement')">
+                    <span class="icon">💰</span>
+                    Finances
+                </a>
+                <a href="index_v2.2.html" class="nav-item" onclick="alert('Module en développement')">
+                    <span class="icon">📊</span>
+                    Rapports
+                </a>
+                <a href="index_v2.2.html" class="nav-item" onclick="alert('Module en développement')">
+                    <span class="icon">⚙️</span>
+                    Paramètres
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <ul>
+            <li><a href="index_v2.2.html">🏠 Accueil</a></li>
+            <li><a href="index_v2.2.html">🏗️ Nouveau Chantier</a></li>
+            <li><a href="planning_booster.html">📅 Planning</a></li>
+            <li><a href="index_v2.2.html">💰 Analyse Financière</a></li>
+            <li><a href="module_reunion_moderne.html">🗓️ Réunions</a></li>
+            <li><a href="module_equipe_modifie.html">👥 Équipe</a></li>
+            <li><a href="module_travaux_materiaux_corrige.html" class="active">🔧 Travaux & Matériaux</a></li>
+            <li><a href="parametres.html">⚙️ Paramètres</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-with-sidebar">
+        <!-- Header -->
+        <div class="travaux-header">
+            <div class="header-content">
+                <div>
+                    <h1 class="page-title">🔧 Travaux & Matériaux</h1>
+                    <p class="page-subtitle">Équipe 41 - Chasse sur Rhône • Altrad Prezioso</p>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-success" onclick="window.print()">🖨️ Imprimer</button>
+                    <button class="btn btn-warning" onclick="exportData()">📤 Exporter</button>
+                    <button class="btn btn-primary" onclick="saveAll()">💾 Enregistrer Tout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Résumé dynamique -->
+        <div class="resume-dynamique">
+            <div class="resume-content">
+                <h2 style="margin-bottom: 1rem;">📊 Résumé du Projet</h2>
+                <div class="resume-grid" id="resume-grid">
+                    <div class="resume-item">
+                        <h4>Surface Totale</h4>
+                        <p id="resume-surface">0.00 m²</p>
+                    </div>
+                    <div class="resume-item">
+                        <h4>Coût Matériaux</h4>
+                        <p id="resume-cout-materiaux">€0</p>
+                    </div>
+                    <div class="resume-item">
+                        <h4>Coût Total Estimé</h4>
+                        <p id="resume-cout-total">€0</p>
+                    </div>
+                    <div class="resume-item">
+                        <h4>Durée Estimée</h4>
+                        <p id="resume-duree">0 jours</p>
+                    </div>
+                    <div class="resume-item">
+                        <h4>Statut</h4>
+                        <p id="resume-statut">En préparation</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Tabs -->
+        <div class="tabs-container">
+            <div class="tabs-header">
+                <button class="tab-btn active" data-tab="surfaces">📏 Calcul des Surfaces</button>
+                <button class="tab-btn" data-tab="materiaux">🎨 Matériaux & Peintures</button>
+                <button class="tab-btn" data-tab="equipements">🛠️ Équipements</button>
+                <button class="tab-btn" data-tab="planning">📅 Planning Travaux</button>
+                <button class="tab-btn" data-tab="couts">💰 Estimation Coûts</button>
+            </div>
+
+            <!-- Tab 1: Calcul des Surfaces -->
+            <div class="tab-content active" id="tab-surfaces">
+                <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    📏 Calcul Automatique des Surfaces
+                </h3>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label required">🏗️ Type de Structure</label>
+                        <select class="form-select" id="structure-type">
+                            <option value="">Sélectionner le type</option>
+                            <option value="reservoir">Réservoir</option>
+                            <option value="canalisation">Canalisation</option>
+                            <option value="batiment">Bâtiment industriel</option>
+                            <option value="pont">Pont/Passerelle</option>
+                            <option value="autre">Autre structure</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">📐 Méthode de Calcul</label>
+                        <select class="form-select" id="calcul-method">
+                            <option value="">Sélectionner la méthode</option>
+                            <option value="dimensions">Dimensions exactes</option>
+                            <option value="perimetre">Périmètre + Hauteur</option>
+                            <option value="surface-connue">Surface déjà connue</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Dynamic Forms Based on Selection -->
+                <div id="dimensions-form" class="dynamic-form" style="display: none;">
+                    <h4 style="margin: 1.5rem 0 1rem; color: var(--primary-red);">📊 Dimensions</h4>
+                    <table class="dynamic-table">
+                        <thead>
+                            <tr>
+                                <th>Zone</th>
+                                <th>Longueur (m)</th>
+                                <th>Largeur (m)</th>
+                                <th>Hauteur (m)</th>
+                                <th>Surface (m²)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dimensions-tbody">
+                            <tr>
+                                <td><input type="text" placeholder="Zone 1" class="zone-name" oninput="autoSave()"></td>
+                                <td><input type="number" step="0.01" class="longueur" oninput="calculateSurface(this); autoSave()"></td>
+                                <td><input type="number" step="0.01" class="largeur" oninput="calculateSurface(this); autoSave()"></td>
+                                <td><input type="number" step="0.01" class="hauteur" oninput="calculateSurface(this); autoSave()"></td>
+                                <td><strong class="surface-result">0.00</strong></td>
+                                <td><button class="btn btn-small btn-danger" onclick="removeRow(this)">🗑️</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class="btn btn-success btn-small" onclick="addDimensionRow()">➕ Ajouter Zone</button>
+                </div>
+
+                <div id="surface-connue-form" class="dynamic-form" style="display: none;">
+                    <h4 style="margin: 1.5rem 0 1rem; color: var(--primary-red);">📋 Surfaces Connues</h4>
+                    <table class="dynamic-table">
+                        <thead>
+                            <tr>
+                                <th>Zone</th>
+                                <th>Description</th>
+                                <th>Surface (m²)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="surface-connue-tbody">
+                            <tr>
+                                <td><input type="text" placeholder="Zone 1" class="zone-name-connue" oninput="autoSave()"></td>
+                                <td><input type="text" placeholder="Description" class="zone-description" oninput="autoSave()"></td>
+                                <td><input type="number" step="0.01" class="surface-connue" oninput="updateTotalSurface(); autoSave()"></td>
+                                <td><button class="btn btn-small btn-danger" onclick="removeRow(this)">🗑️</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class="btn btn-success btn-small" onclick="addSurfaceConnueRow()">➕ Ajouter Zone</button>
+                </div>
+
+                <div class="calculation-summary">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary-red);">📋 Récapitulatif Surfaces</h4>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-value" id="total-surface">0.00</div>
+                            <div class="summary-label">Surface Totale (m²)</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value" id="surface-preparation">0.00</div>
+                            <div class="summary-label">Surface Préparation</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value" id="surface-peinture">0.00</div>
+                            <div class="summary-label">Surface Peinture</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value" id="coefficient-difficulte">1.2</div>
+                            <div class="summary-label">Coeff. Difficulté</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Matériaux & Peintures -->
+            <div class="tab-content" id="tab-materiaux">
+                <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    🎨 Matériaux & Peintures - Spécifications Complètes
+                </h3>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label required">🎯 Type de Traitement</label>
+                        <select class="form-select" id="traitement-type">
+                            <option value="">Sélectionner le traitement</option>
+                            <option value="anticorrosion">Anti-corrosion</option>
+                            <option value="decoration">Décoratif</option>
+                            <option value="protection">Protection industrielle</option>
+                            <option value="alimentaire">Contact alimentaire</option>
+                            <option value="autre">Autre (à spécifier)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="traitement-autre-group" style="display: none;">
+                        <label class="form-label">Spécifier le traitement</label>
+                        <input type="text" class="form-input" id="traitement-autre" placeholder="Spécifier le type de traitement">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">🔧 Type de Travaux</label>
+                        <select class="form-select" id="type-travaux">
+                            <option value="">Sélectionner le type</option>
+                            <option value="entretien">Entretien</option>
+                            <option value="neuf">Neuf</option>
+                            <option value="renovation">Rénovation</option>
+                            <option value="maintenance">Maintenance</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">🏭 Types de Surface</label>
+                        <select class="form-select" id="types-surface">
+                            <option value="">Sélectionner la surface</option>
+                            <option value="acier">ACIER</option>
+                            <option value="galva">GALVA</option>
+                            <option value="beton">BÉTON</option>
+                            <option value="aluminium">ALUMINIUM</option>
+                            <option value="inox">INOX</option>
+                            <option value="fonte">FONTE</option>
+                            <option value="autres">AUTRES</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">🌡️ Conditions d'Exposition</label>
+                        <select class="form-select" id="exposition-conditions">
+                            <option value="">Sélectionner les conditions</option>
+                            <option value="interieur">Intérieur sec</option>
+                            <option value="humide">Intérieur humide</option>
+                            <option value="exterieur">Extérieur normal</option>
+                            <option value="marin">Atmosphère marine</option>
+                            <option value="industriel">Atmosphère industrielle</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">🎨 Système Peinture</label>
+                        <select class="form-select" id="systeme-peinture">
+                            <option value="">Sélectionner le système</option>
+                            <option value="C3H">C3H</option>
+                            <option value="C3VH">C3VH</option>
+                            <option value="C4H">C4H</option>
+                            <option value="C4VH">C4VH</option>
+                            <option value="C5H">C5H</option>
+                            <option value="C5VH">C5VH</option>
+                            <option value="CXH">CXH</option>
+                            <option value="Im2H">Im2H</option>
+                            <option value="Im4H">Im4H</option>
+                            <option value="CX-Im4H">CX-Im4H</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">🎨 RAL</label>
+                        <input type="text" class="form-input" id="ral-color" placeholder="Ex: RAL 7035, RAL 9002...">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">🏢 Fournisseur</label>
+                        <select class="form-select" id="fournisseur">
+                            <option value="">Sélectionner le fournisseur</option>
+                            <option value="hempel">HEMPEL</option>
+                            <option value="akzo-nobel">AKZO NOBEL</option>
+                            <option value="jotun">JOTUN</option>
+                            <option value="carboline">CARBOLINE</option>
+                            <option value="freitag">FREITAG</option>
+                            <option value="goholit">GOHOLIT</option>
+                            <option value="maestria">MAESTRIA</option>
+                            <option value="sob-solution">SOB SOLUTION</option>
+                            <option value="autres">AUTRES</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Préparation Surface -->
+                <div class="form-group">
+                    <label class="form-label required">🔨 Préparation Surface</label>
+                    <div class="multi-select" id="preparation-surface">
+                        <div class="checkbox-item" data-value="sablage">
+                            <input type="checkbox" id="prep-sablage">
+                            <label for="prep-sablage">Sablage</label>
+                        </div>
+                        <div class="checkbox-item" data-value="granaillage">
+                            <input type="checkbox" id="prep-granaillage">
+                            <label for="prep-granaillage">Granaillage</label>
+                        </div>
+                        <div class="checkbox-item" data-value="nettoyage-hp">
+                            <input type="checkbox" id="prep-nettoyage">
+                            <label for="prep-nettoyage">Nettoyage HP</label>
+                        </div>
+                        <div class="checkbox-item" data-value="rincage">
+                            <input type="checkbox" id="prep-rincage">
+                            <label for="prep-rincage">Rinçage</label>
+                        </div>
+                        <div class="checkbox-item" data-value="protection">
+                            <input type="checkbox" id="prep-protection">
+                            <label for="prep-protection">Protection</label>
+                        </div>
+                        <div class="checkbox-item" data-value="degraissage">
+                            <input type="checkbox" id="prep-degraissage">
+                            <label for="prep-degraissage">Dégraissage</label>
+                        </div>
+                        <div class="checkbox-item" data-value="autres">
+                            <input type="checkbox" id="prep-autres">
+                            <label for="prep-autres">Autres</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Méthode Application -->
+                <div class="form-group">
+                    <label class="form-label required">🖌️ Méthode d'Application</label>
+                    <div class="multi-select" id="methode-application">
+                        <div class="checkbox-item" data-value="airless">
+                            <input type="checkbox" id="app-airless">
+                            <label for="app-airless">Airless</label>
+                        </div>
+                        <div class="checkbox-item" data-value="rouleau">
+                            <input type="checkbox" id="app-rouleau">
+                            <label for="app-rouleau">Rouleau</label>
+                        </div>
+                        <div class="checkbox-item" data-value="pinceaux">
+                            <input type="checkbox" id="app-pinceaux">
+                            <label for="app-pinceaux">Pinceaux</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tableau des matériaux calculé automatiquement -->
+                <h4 style="margin: 2rem 0 1rem; color: var(--primary-red);">📊 Calcul Automatique des Quantités</h4>
+                <table class="dynamic-table">
+                    <thead>
+                        <tr>
+                            <th>Étape</th>
+                            <th>Produit</th>
+                            <th>Rendement (m²/L)</th>
+                            <th>Surface (m²)</th>
+                            <th>Quantité Nécessaire</th>
+                            <th>Stock Disponible</th>
+                            <th>À Commander</th>
+                        </tr>
+                    </thead>
+                    <tbody id="materiaux-tbody">
+                        <!-- Will be populated automatically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tab 3: Équipements -->
+            <div class="tab-content" id="tab-equipements">
+                <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    🛠️ Équipements & Outillage
+                </h3>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">🏗️ Type de Chantier</label>
+                        <select class="form-select" id="chantier-type-equipement">
+                            <option value="standard">Standard</option>
+                            <option value="hauteur">Travail en hauteur</option>
+                            <option value="confine">Espace confiné</option>
+                            <option value="exterieur">Extérieur/Intempéries</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">👥 Nombre d'Opérateurs</label>
+                        <input type="number" class="form-input" id="nb-operateurs" min="1" max="20" value="2" oninput="updateEquipmentList(); updateCostBreakdown(); autoSave()">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">⏱️ Durée Estimée (jours)</label>
+                        <input type="number" class="form-input" id="duree-travaux" min="1" max="365" value="5" oninput="updateCostBreakdown(); autoSave()">
+                    </div>
+                </div>
+
+                <table class="dynamic-table">
+                    <thead>
+                        <tr>
+                            <th>Équipement</th>
+                            <th>Quantité Requise</th>
+                            <th>Disponible</th>
+                            <th>État</th>
+                            <th>Dernière Révision</th>
+                            <th>Action Requise</th>
+                        </tr>
+                    </thead>
+                    <tbody id="equipements-tbody">
+                        <!-- Will be populated automatically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tab 4: Planning Travaux -->
+            <div class="tab-content" id="tab-planning">
+                <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    📅 Planning des Travaux Intégré
+                </h3>
+
+                <div style="margin-bottom: 2rem;">
+                    <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Avancement Global</label>
+                    <div style="background: var(--gray-200); height: 20px; border-radius: 10px; overflow: hidden;">
+                        <div id="progress-global" style="height: 100%; background: linear-gradient(90deg, var(--success), #22c55e); width: 0%; transition: width 0.8s ease; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.8rem;">
+                            <span id="avancement-global">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="dynamic-table">
+                    <thead>
+                        <tr>
+                            <th>Phase</th>
+                            <th>Description</th>
+                            <th>Début Planifié</th>
+                            <th>Fin Planifiée</th>
+                            <th>Avancement</th>
+                            <th>Responsable</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody id="planning-tbody">
+                        <!-- Will be populated automatically -->
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                    <button class="btn btn-primary" onclick="syncWithPlanning()">🔄 Synchroniser avec Planning</button>
+                    <button class="btn btn-success" onclick="updateProgress()">📊 Mettre à jour Avancement</button>
+                </div>
+            </div>
+
+            <!-- Tab 5: Estimation Coûts -->
+            <div class="tab-content" id="tab-couts">
+                <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    💰 Estimation Automatique des Coûts
+                </h3>
+
+                <div class="calculation-summary">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary-red);">💹 Récapitulatif Financier</h4>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-value" id="cout-materiaux">€0</div>
+                            <div class="summary-label">Coût Matériaux</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value" id="cout-main-oeuvre">€0</div>
+                            <div class="summary-label">Main d'œuvre</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value" id="cout-equipements">€0</div>
+                            <div class="summary-label">Équipements</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value" id="cout-total">€0</div>
+                            <div class="summary-label">Total Estimé</div>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="dynamic-table">
+                    <thead>
+                        <tr>
+                            <th>Poste de Coût</th>
+                            <th>Quantité</th>
+                            <th>Prix Unitaire</th>
+                            <th>Sous-total</th>
+                            <th>% du Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="couts-tbody">
+                        <!-- Will be populated automatically -->
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+                    <button class="btn btn-warning" onclick="updatePricing()">💲 Mettre à jour Prix</button>
+                    <button class="btn btn-primary" onclick="generateQuote()">📄 Générer Devis</button>
+                    <button class="btn btn-success" onclick="syncWithFinancial()">🔄 Sync. Tableau de Bord</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bouton Ajouter Chantier -->
+        <div style="text-align: center; margin: 2rem 0;">
+            <button class="btn btn-success btn-large" onclick="ajouterChantier()">
+                ➕ AJOUTER CHANTIER
+            </button>
+        </div>
+    </div>
+
+    <!-- Auto-save indicator -->
+    <div class="auto-save" id="auto-save-indicator">
+        💾 Sauvegarde automatique...
+    </div>
+
+    <script>
+        // Global data object
+        let projectData = {
+            surfaces: {
+                total: 0,
+                zones: [],
+                coefficientDifficulte: 1.2,
+                methode: ''
+            },
+            materiaux: {
+                traitementType: '',
+                traitementAutre: '',
+                typeTravaux: '',
+                typesSurface: '',
+                expositionConditions: '',
+                systemePeinture: '',
+                ral: '',
+                fournisseur: '',
+                preparationSurface: [],
+                methodeApplication: [],
+                produits: []
+            },
+            equipements: [],
+            planning: [],
+            couts: {
+                materiaux: 0,
+                mainOeuvre: 0,
+                equipements: 0,
+                total: 0
+            }
+        };
+
+        // Mise à jour automatique du résumé
+        function updateResume() {
+            document.getElementById('resume-surface').textContent = projectData.surfaces.total.toFixed(2) + ' m²';
+            document.getElementById('resume-cout-materiaux').textContent = '€' + projectData.couts.materiaux.toLocaleString();
+            document.getElementById('resume-cout-total').textContent = '€' + projectData.couts.total.toLocaleString();
+            
+            const duree = parseInt(document.getElementById('duree-travaux')?.value) || 0;
+            document.getElementById('resume-duree').textContent = duree + ' jours';
+            
+            const statut = projectData.surfaces.total > 0 ? 'En cours de définition' : 'En préparation';
+            document.getElementById('resume-statut').textContent = statut;
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                btn.classList.add('active');
+                document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+                
+                // Update resume when switching tabs
+                updateResume();
+            });
+        });
+
+        // Dynamic form handling
+        document.getElementById('calcul-method').addEventListener('change', function() {
+            const method = this.value;
+            const dimensionsForm = document.getElementById('dimensions-form');
+            const surfaceConnueForm = document.getElementById('surface-connue-form');
+            
+            // Hide all forms first
+            dimensionsForm.style.display = 'none';
+            surfaceConnueForm.style.display = 'none';
+            
+            projectData.surfaces.methode = method;
+            
+            if (method === 'dimensions' || method === 'perimetre') {
+                dimensionsForm.style.display = 'block';
+            } else if (method === 'surface-connue') {
+                surfaceConnueForm.style.display = 'block';
+            }
+            
+            autoSave();
+            updateResume();
+        });
+
+        // Traitement type handling
+        document.getElementById('traitement-type').addEventListener('change', function() {
+            const autreGroup = document.getElementById('traitement-autre-group');
+            if (this.value === 'autre') {
+                autreGroup.style.display = 'block';
+            } else {
+                autreGroup.style.display = 'none';
+            }
+            projectData.materiaux.traitementType = this.value;
+            updateMaterialCalculations();
+            autoSave();
+        });
+
+        // Multi-select handling
+        document.querySelectorAll('.multi-select .checkbox-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const checkbox = this.querySelector('input[type="checkbox"]');
+                checkbox.checked = !checkbox.checked;
+                this.classList.toggle('selected', checkbox.checked);
+                
+                updateMultiSelectData();
+                updateMaterialCalculations();
+                autoSave();
+            });
+        });
+
+        function updateMultiSelectData() {
+            // Update preparation surface data
+            const prepItems = document.querySelectorAll('#preparation-surface .checkbox-item');
+            projectData.materiaux.preparationSurface = [];
+            prepItems.forEach(item => {
+                if (item.querySelector('input').checked) {
+                    projectData.materiaux.preparationSurface.push(item.dataset.value);
+                }
+            });
+
+            // Update methode application data
+            const methItems = document.querySelectorAll('#methode-application .checkbox-item');
+            projectData.materiaux.methodeApplication = [];
+            methItems.forEach(item => {
+                if (item.querySelector('input').checked) {
+                    projectData.materiaux.methodeApplication.push(item.dataset.value);
+                }
+            });
+        }
+
+        // Surface calculation
+        function calculateSurface(element) {
+            const row = element.closest('tr');
+            const longueur = parseFloat(row.querySelector('.longueur').value) || 0;
+            const largeur = parseFloat(row.querySelector('.largeur').value) || 0;
+            const hauteur = parseFloat(row.querySelector('.hauteur').value) || 0;
+            
+            let surface = 0;
+            const method = document.getElementById('calcul-method').value;
+            
+            if (method === 'dimensions') {
+                surface = longueur * largeur;
+            } else if (method === 'perimetre') {
+                surface = (longueur + largeur) * 2 * hauteur;
+            }
+            
+            row.querySelector('.surface-result').textContent = surface.toFixed(2);
+            updateTotalSurface();
+        }
+
+        function updateTotalSurface() {
+            let total = 0;
+            
+            // Calculate from dimensions
+            const surfaces = document.querySelectorAll('.surface-result');
+            surfaces.forEach(surface => {
+                total += parseFloat(surface.textContent) || 0;
+            });
+
+            // Calculate from known surfaces
+            const surfacesConnues = document.querySelectorAll('.surface-connue');
+            surfacesConnues.forEach(surface => {
+                total += parseFloat(surface.value) || 0;
+            });
+            
+            projectData.surfaces.total = total;
+            document.getElementById('total-surface').textContent = total.toFixed(2);
+            document.getElementById('surface-preparation').textContent = (total * 1.1).toFixed(2);
+            document.getElementById('surface-peinture').textContent = (total * projectData.surfaces.coefficientDifficulte).toFixed(2);
+            
+            updateMaterialCalculations();
+            updateCostBreakdown();
+            updateResume();
+        }
+
+        function addDimensionRow() {
+            const tbody = document.getElementById('dimensions-tbody');
+            const rowCount = tbody.children.length + 1;
+            
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" placeholder="Zone ${rowCount}" class="zone-name" oninput="autoSave()"></td>
+                <td><input type="number" step="0.01" class="longueur" oninput="calculateSurface(this); autoSave()"></td>
+                <td><input type="number" step="0.01" class="largeur" oninput="calculateSurface(this); autoSave()"></td>
+                <td><input type="number" step="0.01" class="hauteur" oninput="calculateSurface(this); autoSave()"></td>
+                <td><strong class="surface-result">0.00</strong></td>
+                <td><button class="btn btn-small btn-danger" onclick="removeRow(this)">🗑️</button></td>
+            `;
+            
+            tbody.appendChild(newRow);
+            autoSave();
+        }
+
+        function addSurfaceConnueRow() {
+            const tbody = document.getElementById('surface-connue-tbody');
+            const rowCount = tbody.children.length + 1;
+            
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" placeholder="Zone ${rowCount}" class="zone-name-connue" oninput="autoSave()"></td>
+                <td><input type="text" placeholder="Description" class="zone-description" oninput="autoSave()"></td>
+                <td><input type="number" step="0.01" class="surface-connue" oninput="updateTotalSurface(); autoSave()"></td>
+                <td><button class="btn btn-small btn-danger" onclick="removeRow(this)">🗑️</button></td>
+            `;
+            
+            tbody.appendChild(newRow);
+            autoSave();
+        }
+
+        function removeRow(button) {
+            button.closest('tr').remove();
+            updateTotalSurface();
+            autoSave();
+        }
+
+        // Material calculations
+        function updateMaterialCalculations() {
+            const surface = projectData.surfaces.total;
+            const traitement = document.getElementById('traitement-type').value;
+            const exposition = document.getElementById('exposition-conditions').value;
+            
+            const materialSpecs = {
+                'anticorrosion': {
+                    'interieur': [
+                        { etape: 'Préparation', produit: 'Dégraissant', rendement: 20, stock: 15 },
+                        { etape: 'Primaire', produit: 'Primaire époxy', rendement: 8, stock: 30 },
+                        { etape: 'Finition', produit: 'Peinture anti-corrosion', rendement: 6, stock: 50 }
+                    ],
+                    'exterieur': [
+                        { etape: 'Décapage', produit: 'Abrasif', rendement: 5, stock: 100 },
+                        { etape: 'Primaire', produit: 'Primaire zinc', rendement: 7, stock: 25 },
+                        { etape: 'Intermédiaire', produit: 'Peinture époxy', rendement: 8, stock: 40 },
+                        { etape: 'Finition', produit: 'Peinture polyuréthane', rendement: 6, stock: 35 }
+                    ]
+                },
+                'decoration': {
+                    'interieur': [
+                        { etape: 'Préparation', produit: 'Sous-couche', rendement: 12, stock: 20 },
+                        { etape: 'Finition', produit: 'Peinture décorative', rendement: 10, stock: 45 }
+                    ]
+                }
+            };
+            
+            const tbody = document.getElementById('materiaux-tbody');
+            tbody.innerHTML = '';
+            
+            if (traitement && exposition && surface > 0) {
+                let specs = [];
+                if (materialSpecs[traitement] && materialSpecs[traitement][exposition]) {
+                    specs = materialSpecs[traitement][exposition];
+                } else if (materialSpecs[traitement] && materialSpecs[traitement]['interieur']) {
+                    specs = materialSpecs[traitement]['interieur'];
+                } else {
+                    // Default specs for other treatments
+                    specs = [
+                        { etape: 'Préparation', produit: 'Produit de base', rendement: 10, stock: 20 },
+                        { etape: 'Application', produit: 'Produit principal', rendement: 8, stock: 30 }
+                    ];
+                }
+
+                let totalCost = 0;
+                
+                specs.forEach(spec => {
+                    const quantiteNecessaire = Math.ceil(surface / spec.rendement);
+                    const aCommander = Math.max(0, quantiteNecessaire - spec.stock);
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${spec.etape}</strong></td>
+                        <td>${spec.produit}</td>
+                        <td>${spec.rendement} m²/L</td>
+                        <td>${surface.toFixed(2)} m²</td>
+                        <td><strong>${quantiteNecessaire} L</strong></td>
+                        <td style="color: ${spec.stock >= quantiteNecessaire ? 'var(--success)' : 'var(--danger)'}">
+                            ${spec.stock} L
+                        </td>
+                        <td style="color: ${aCommander > 0 ? 'var(--warning)' : 'var(--success)'}; font-weight: 600;">
+                            ${aCommander > 0 ? aCommander + ' L' : '✅ OK'}
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                    
+                    totalCost += quantiteNecessaire * 25; // Estimation 25€/L
+                });
+                
+                projectData.couts.materiaux = totalCost;
+                updateCostBreakdown();
+                updateResume();
+            }
+        }
+
+        // Equipment management
+        function updateEquipmentList() {
+            const tbody = document.getElementById('equipements-tbody');
+            const chantierType = document.getElementById('chantier-type-equipement').value;
+            const nbOperateurs = parseInt(document.getElementById('nb-operateurs').value) || 2;
+            
+            const equipmentSpecs = {
+                'standard': [
+                    { nom: 'Pistolet à peinture', quantite: nbOperateurs, disponible: 4, etat: 'Bon' },
+                    { nom: 'Compresseur', quantite: 1, disponible: 2, etat: 'Excellent' },
+                    { nom: 'Échafaudage mobile', quantite: 1, disponible: 3, etat: 'Bon' },
+                    { nom: 'Bâche protection', quantite: Math.ceil(nbOperateurs/2), disponible: 8, etat: 'Moyen' }
+                ],
+                'hauteur': [
+                    { nom: 'Harnais de sécurité', quantite: nbOperateurs, disponible: 6, etat: 'Excellent' },
+                    { nom: 'Échafaudage fixe', quantite: 1, disponible: 1, etat: 'Bon' },
+                    { nom: 'Ligne de vie', quantite: 1, disponible: 2, etat: 'Excellent' },
+                    { nom: 'Casque avec jugulaire', quantite: nbOperateurs, disponible: 10, etat: 'Bon' }
+                ]
+            };
+            
+            tbody.innerHTML = '';
+            
+            if (equipmentSpecs[chantierType]) {
+                equipmentSpecs[chantierType].forEach(equip => {
+                    const actionRequise = equip.quantite > equip.disponible ? 'Location nécessaire' : 
+                                         equip.etat === 'Moyen' ? 'Révision recommandée' : 'RAS';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${equip.nom}</strong></td>
+                        <td style="text-align: center; font-weight: 600;">${equip.quantite}</td>
+                        <td style="text-align: center; color: ${equip.disponible >= equip.quantite ? 'var(--success)' : 'var(--danger)'}">
+                            ${equip.disponible}
+                        </td>
+                        <td style="text-align: center;">
+                            <span style="color: ${equip.etat === 'Excellent' ? 'var(--success)' : equip.etat === 'Bon' ? 'var(--info)' : 'var(--warning)'}">
+                                ${equip.etat}
+                            </span>
+                        </td>
+                        <td style="text-align: center; font-size: 0.8rem;">15/08/2024</td>
+                        <td style="text-align: center; font-weight: 600; color: ${actionRequise === 'RAS' ? 'var(--success)' : 'var(--warning)'}">
+                            ${actionRequise}
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        }
+
+        // Planning integration
+        function initializePlanning() {
+            const tbody = document.getElementById('planning-tbody');
+            const phases = [
+                { phase: 'Phase 1', description: 'Préparation et protection', duree: 2, responsable: 'ERTUGRUL YASAR' },
+                { phase: 'Phase 2', description: 'Traitement de surface', duree: 3, responsable: 'RIBEIRO-CASAL A.' },
+                { phase: 'Phase 3', description: 'Application primaire', duree: 2, responsable: 'DJEBBAR Khalil' },
+                { phase: 'Phase 4', description: 'Peinture de finition', duree: 3, responsable: 'MARTINEZ José' },
+                { phase: 'Phase 5', description: 'Contrôle et nettoyage', duree: 1, responsable: 'NASSER MESSAL' }
+            ];
+            
+            tbody.innerHTML = '';
+            let currentDate = new Date();
+            let totalAvancement = 0;
+            
+            phases.forEach((phase, index) => {
+                const debut = new Date(currentDate);
+                const fin = new Date(debut);
+                fin.setDate(debut.getDate() + phase.duree);
+                
+                const avancement = Math.random() * 100;
+                totalAvancement += avancement;
+                
+                const statut = avancement === 100 ? 'Terminé' : avancement > 0 ? 'En cours' : 'Planifié';
+                const statutColor = avancement === 100 ? 'var(--success)' : avancement > 0 ? 'var(--warning)' : 'var(--info)';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${phase.phase}</strong></td>
+                    <td>${phase.description}</td>
+                    <td>${debut.toLocaleDateString('fr-FR')}</td>
+                    <td>${fin.toLocaleDateString('fr-FR')}</td>
+                    <td>
+                        <div style="background: var(--gray-200); height: 20px; border-radius: 10px; overflow: hidden;">
+                            <div style="height: 100%; background: var(--success); width: ${avancement}%; transition: width 0.8s ease; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.8rem;">
+                                ${avancement.toFixed(0)}%
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-size: 0.8rem;">${phase.responsable}</td>
+                    <td style="color: ${statutColor}; font-weight: 600;">${statut}</td>
+                `;
+                tbody.appendChild(row);
+                
+                currentDate = new Date(fin);
+                currentDate.setDate(currentDate.getDate() + 1);
+            });
+            
+            const avancementGlobal = totalAvancement / phases.length;
+            document.getElementById('avancement-global').textContent = avancementGlobal.toFixed(0) + '%';
+            document.getElementById('progress-global').style.width = avancementGlobal + '%';
+        }
+
+        // Cost calculations
+        function updateCostBreakdown() {
+            const surface = projectData.surfaces.total;
+            const nbOperateurs = parseInt(document.getElementById('nb-operateurs')?.value) || 2;
+            const duree = parseInt(document.getElementById('duree-travaux')?.value) || 5;
+            
+            const coutMainOeuvre = nbOperateurs * duree * 8 * 35; // 35€/heure
+            const coutEquipements = duree * 150; // 150€/jour équipement
+            const coutTotal = projectData.couts.materiaux + coutMainOeuvre + coutEquipements;
+            
+            projectData.couts.mainOeuvre = coutMainOeuvre;
+            projectData.couts.equipements = coutEquipements;
+            projectData.couts.total = coutTotal;
+            
+            // Update display
+            document.getElementById('cout-materiaux').textContent = '€' + projectData.couts.materiaux.toLocaleString();
+            document.getElementById('cout-main-oeuvre').textContent = '€' + coutMainOeuvre.toLocaleString();
+            document.getElementById('cout-equipements').textContent = '€' + coutEquipements.toLocaleString();
+            document.getElementById('cout-total').textContent = '€' + coutTotal.toLocaleString();
+            
+            updateCostTable();
+            updateResume();
+        }
+
+        function updateCostTable() {
+            const tbody = document.getElementById('couts-tbody');
+            const total = projectData.couts.total;
+            
+            const costItems = [
+                { poste: 'Matériaux - Peintures', quantite: Math.ceil(projectData.surfaces.total / 8), prix: 25, sousTotal: projectData.couts.materiaux },
+                { poste: 'Main d\'œuvre', quantite: parseInt(document.getElementById('nb-operateurs')?.value || 2) * parseInt(document.getElementById('duree-travaux')?.value || 5) * 8, prix: 35, sousTotal: projectData.couts.mainOeuvre },
+                { poste: 'Location équipements', quantite: parseInt(document.getElementById('duree-travaux')?.value || 5), prix: 150, sousTotal: projectData.couts.equipements },
+                { poste: 'Frais généraux (10%)', quantite: 1, prix: total * 0.1, sousTotal: total * 0.1 }
+            ];
+            
+            tbody.innerHTML = '';
+            
+            costItems.forEach(item => {
+                const pourcentage = total > 0 ? (item.sousTotal / total * 100).toFixed(1) : 0;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${item.poste}</strong></td>
+                    <td style="text-align: center;">${item.quantite}</td>
+                    <td style="text-align: right;">€${item.prix.toFixed(2)}</td>
+                    <td style="text-align: right; font-weight: 600;">€${item.sousTotal.toLocaleString()}</td>
+                    <td style="text-align: center;">${pourcentage}%</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Event listeners for automatic updates
+        document.addEventListener('input', function(e) {
+            if (e.target.matches('.form-input, .form-select, .form-textarea')) {
+                setTimeout(() => {
+                    updateMaterialCalculations();
+                    updateCostBreakdown();
+                    updateResume();
+                    autoSave();
+                }, 100);
+            }
+        });
+
+        document.getElementById('chantier-type-equipement')?.addEventListener('change', updateEquipmentList);
+
+        // Auto-save functionality
+        function autoSave() {
+            showAutoSaveIndicator();
+            
+            localStorage.setItem('travaux_materiaux_data_v2', JSON.stringify(projectData));
+            
+            setTimeout(() => {
+                hideAutoSaveIndicator();
+            }, 2000);
+        }
+
+        function showAutoSaveIndicator() {
+            const indicator = document.getElementById('auto-save-indicator');
+            indicator.classList.add('show');
+        }
+
+        function hideAutoSaveIndicator() {
+            const indicator = document.getElementById('auto-save-indicator');
+            indicator.classList.remove('show');
+        }
+
+        // Ajouter Chantier functionality
+        function ajouterChantier() {
+            if (projectData.surfaces.total === 0) {
+                alert('Veuillez d\'abord définir les surfaces avant d\'ajouter le chantier.');
+                return;
+            }
+
+            const chantierData = {
+                id: Date.now(),
+                nom: prompt('Nom du chantier :') || `Chantier_${Date.now()}`,
+                type: document.getElementById('structure-type').value || 'Non spécifié',
+                surface: projectData.surfaces.total,
+                cout: projectData.couts.total,
+                duree: parseInt(document.getElementById('duree-travaux')?.value) || 0,
+                statut: 'À venir',
+                dateCreation: new Date().toISOString(),
+                specifications: {
+                    traitement: projectData.materiaux.traitementType,
+                    surface: projectData.materiaux.typesSurface,
+                    systeme: projectData.materiaux.systemePeinture,
+                    fournisseur: projectData.materiaux.fournisseur
+                }
+            };
+
+            // Sauvegarder dans les chantiers
+            let chantiers = JSON.parse(localStorage.getItem('chantiers_data') || '[]');
+            chantiers.push(chantierData);
+            localStorage.setItem('chantiers_data', JSON.stringify(chantiers));
+
+            // Notifier et rediriger
+            alert(`Chantier "${chantierData.nom}" ajouté avec succès !`);
+            
+            if (confirm('Voulez-vous aller à la page d\'accueil pour voir le chantier ?')) {
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Integration functions
+        function syncWithPlanning() {
+            showNotification('Planning synchronisé avec succès', 'success');
+            initializePlanning();
+            autoSave();
+        }
+
+        function updateProgress() {
+            showNotification('Avancement mis à jour', 'success');
+            initializePlanning();
+        }
+
+        function syncWithFinancial() {
+            localStorage.setItem('financial_sync_data', JSON.stringify({
+                source: 'travaux_materiaux',
+                couts: projectData.couts,
+                timestamp: new Date().toISOString()
+            }));
+            showNotification('Données synchronisées avec le tableau de bord financier', 'success');
+        }
+
+        function exportData() {
+            const exportData = {
+                ...projectData,
+                metadata: {
+                    exportDate: new Date().toISOString(),
+                    version: '2.0'
+                }
+            };
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `travaux_materiaux_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showNotification('Données exportées', 'success');
+        }
+
+        function saveAll() {
+            autoSave();
+            showNotification('Toutes les données sauvegardées', 'success');
+        }
+
+        function updatePricing() {
+            showNotification('Prix mis à jour', 'success');
+            updateCostBreakdown();
+        }
+
+        function generateQuote() {
+            alert('Fonctionnalité de génération de devis à implémenter');
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed; top: 2rem; right: 2rem; z-index: 3000;
+                padding: 1rem 1.5rem; border-radius: 0.5rem; color: white;
+                background: ${type === 'success' ? 'var(--success)' : type === 'danger' ? 'var(--danger)' : 'var(--info)'};
+                box-shadow: var(--shadow-lg); transform: translateX(100%);
+                transition: transform 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Auto-save every 30 seconds
+        setInterval(autoSave, 30000);
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePlanning();
+            updateEquipmentList();
+            updateCostBreakdown();
+            updateResume();
+            
+            // Load saved data if exists
+            const savedData = localStorage.getItem('travaux_materiaux_data_v2');
+            if (savedData) {
+                try {
+                    const loaded = JSON.parse(savedData);
+                    projectData = { ...projectData, ...loaded };
+                    
+                    // Restore form values
+                    if (projectData.surfaces.methode) {
+                        document.getElementById('calcul-method').value = projectData.surfaces.methode;
+                        document.getElementById('calcul-method').dispatchEvent(new Event('change'));
+                    }
+                    
+                    updateTotalSurface();
+                    updateResume();
+                } catch (error) {
+                    console.error('Erreur lors du chargement des données sauvegardées:', error);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

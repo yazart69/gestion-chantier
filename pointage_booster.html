@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pointage Booster - Gestionnaire de Chantier</title>
+    <style>
+        :root {
+            --primary-red: #dc2626;
+            --primary-orange: #ea580c;
+            --primary-blue: #2563eb;
+            --success: #16a34a;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --info: #0ea5e9;
+            --gray-50: #f8fafc;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+
+        /* Sidebar permanent */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(180deg, var(--primary-red), var(--primary-orange));
+            color: white;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            padding: 0 1.5rem 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.7;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: white;
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: white;
+            font-weight: 600;
+        }
+
+        .nav-item .icon {
+            display: inline-block;
+            width: 1.5rem;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+
+        .nav-item .badge {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--danger);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 1rem;
+            min-width: 1.2rem;
+            text-align: center;
+        }
+
+        /* Contenu principal */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            background: var(--gray-50);
+        }
+
+        .header {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--gray-200);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .header-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-red);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-red);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #15803d;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-red);
+            border: 2px solid var(--primary-red);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-red);
+            color: white;
+        }
+
+        .time-display {
+            font-family: 'Consolas', monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary-red);
+            background: var(--gray-100);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+
+        /* Contenu principal */
+        .content {
+            padding: 2rem;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--gray-100);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Formulaire de pointage */
+        .pointage-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--gray-700);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .time-input {
+            font-family: 'Consolas', monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Profil utilisateur */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-red), var(--primary-orange));
+            border-radius: 1rem;
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .user-avatar {
+            width: 4rem;
+            height: 4rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .user-info h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-info p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        /* Calcul automatique des heures */
+        .time-calculator {
+            background: var(--gray-50);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 2px dashed var(--gray-300);
+        }
+
+        .time-result {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .time-total {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-red);
+            font-family: 'Consolas', monospace;
+        }
+
+        /* Activités */
+        .activities-section {
+            margin-top: 1.5rem;
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--gray-50);
+            border-radius: 0.5rem;
+            border: 1px solid var(--gray-200);
+        }
+
+        .activity-checkbox {
+            width: 1.25rem;
+            height: 1.25rem;
+            accent-color: var(--primary-red);
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-duration {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            font-family: 'Consolas', monospace;
+        }
+
+        .add-activity {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .add-activity input {
+            flex: 1;
+        }
+
+        /* Historique */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .history-table th {
+            background: var(--gray-50);
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .history-table tr:hover {
+            background: var(--gray-50);
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-valide {
+            background: #dcfce7;
+            color: var(--success);
+        }
+
+        .status-attente {
+            background: #fef3c7;
+            color: var(--warning);
+        }
+
+        .status-rejete {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        /* Actions */
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid var(--gray-100);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar permanent -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                🏗️ Gestionnaire Chantier
+            </div>
+            <div class="sidebar-subtitle">
+                Équipe 41 - Chasse sur Rhône
+            </div>
+        </div>
+        
+        <div class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Principal</div>
+                <a href="index_v2.2.html" class="nav-item">
+                    <span class="icon">🏠</span>
+                    Tableau de Bord
+                </a>
+                <a href="planning_booster.html" class="nav-item">
+                    <span class="icon">📅</span>
+                    Planning
+                    <span class="badge">3</span>
+                </a>
+                <a href="pointage_booster.html" class="nav-item active">
+                    <span class="icon">⏰</span>
+                    Pointage
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Gestion</div>
+                <a href="module_equipe_modifie.html" class="nav-item">
+                    <span class="icon">👥</span>
+                    Équipe
+                </a>
+                <a href="module_travaux_materiaux_corrige.html" class="nav-item">
+                    <span class="icon">🔧</span>
+                    Travaux & Matériaux
+                </a>
+                <a href="module_reunion_moderne.html" class="nav-item">
+                    <span class="icon">🗓️</span>
+                    Réunions
+                    <span class="badge">2</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Analyse</div>
+                <a href="#" class="nav-item" onclick="alert('Module en développement')">
+                    <span class="icon">💰</span>
+                    Finances
+                </a>
+                <a href="#" class="nav-item" onclick="alert('Module en développement')">
+                    <span class="icon">📊</span>
+                    Rapports
+                </a>
+                <a href="#" class="nav-item" onclick="alert('Module en développement')">
+                    <span class="icon">⚙️</span>
+                    Paramètres
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu principal -->
+    <main class="main-content">
+        <header class="header">
+            <div class="header-top">
+                <h1 class="header-title">
+                    ⏰ Pointage Booster
+                </h1>
+                <div class="header-actions">
+                    <div class="time-display" id="current-time">
+                        17:45:32
+                    </div>
+                    <button class="btn btn-outline" onclick="exportPointage()">
+                        📤 Exporter
+                    </button>
+                    <button class="btn btn-primary" onclick="imprimerPointage()">
+                        🖨️ Imprimer
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="content">
+            <!-- Profil utilisateur -->
+            <div class="user-profile fade-in-up">
+                <div class="user-avatar" id="user-avatar">FM</div>
+                <div class="user-info">
+                    <h3 id="user-name">FARID MESSAL</h3>
+                    <p id="user-role">Chef de chantier - Équipe 41</p>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <!-- Formulaire de pointage -->
+                <div class="card fade-in-up">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            📝 Nouveau Pointage
+                        </h2>
+                        <span class="time-display" id="current-date">31/08/2024</span>
+                    </div>
+                    
+                    <form class="pointage-form" id="pointage-form">
+                        <div class="form-group">
+                            <label class="form-label">
+                                🏗️ Chantier
+                            </label>
+                            <select class="form-select" id="chantier-select" required>
+                                <option value="">Sélectionner un chantier</option>
+                                <option value="vichy">VICHY - 22341113974</option>
+                                <option value="campenon">CAMPENON BERNARD - 22441114303</option>
+                                <option value="pont-chasse">PONT DE CHASSE - 2211113275</option>
+                                <option value="effia">EFFIA PARKING - 22541114486</option>
+                            </select>
+                        </div>
+
+                        <div class="time-calculator">
+                            <h4>⏰ Heures de Travail</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Début</label>
+                                    <input type="time" class="form-input time-input" id="heure-debut" value="08:00" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Fin</label>
+                                    <input type="time" class="form-input time-input" id="heure-fin" value="17:30" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Pause (minutes)</label>
+                                    <input type="number" class="form-input" id="pause-minutes" value="60" min="0" max="180">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Heures supplémentaires</label>
+                                    <input type="number" class="form-input" id="heures-sup" value="0" min="0" max="8" step="0.5">
+                                </div>
+                            </div>
+                            <div class="time-result">
+                                <span>Total journée:</span>
+                                <span class="time-total" id="total-heures">8h30</span>
+                            </div>
+                        </div>
+
+                        <div class="activities-section">
+                            <h4>🔧 Activités Réalisées</h4>
+                            <div class="activity-list" id="activity-list">
+                                <div class="activity-item">
+                                    <input type="checkbox" class="activity-checkbox" checked>
+                                    <div class="activity-content">
+                                        <div class="activity-name">Sablage surfaces</div>
+                                        <div class="activity-duration">4h00</div>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <input type="checkbox" class="activity-checkbox" checked>
+                                    <div class="activity-content">
+                                        <div class="activity-name">Application primaire</div>
+                                        <div class="activity-duration">3h30</div>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <input type="checkbox" class="activity-checkbox" checked>
+                                    <div class="activity-content">
+                                        <div class="activity-name">Contrôle qualité</div>
+                                        <div class="activity-duration">1h00</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="add-activity">
+                                <input type="text" class="form-input" placeholder="Nouvelle activité..." id="nouvelle-activite">
+                                <input type="text" class="form-input" placeholder="Durée (ex: 2h30)" id="duree-activite" style="width: 120px;">
+                                <button type="button" class="btn btn-outline" onclick="ajouterActivite()">➕</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                💬 Commentaires / Observations
+                            </label>
+                            <textarea class="form-textarea" id="commentaires" placeholder="Observations, difficultés rencontrées, points d'attention..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                ✅ Validation
+                            </label>
+                            <select class="form-select" id="validation-select">
+                                <option value="auto">Auto-validation</option>
+                                <option value="chef-equipe">Chef d'équipe</option>
+                                <option value="conducteur">Conducteur de travaux</option>
+                                <option value="responsable">Responsable d'agence</option>
+                            </select>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" onclick="sauvegarderBrouillon()">
+                                💾 Sauvegarder
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                📤 Envoyer Pointage
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Historique des pointages -->
+                <div class="card fade-in-up">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            📊 Historique des Pointages
+                        </h2>
+                        <button class="btn btn-outline" onclick="voirToutHistorique()">
+                            Voir tout →
+                        </button>
+                    </div>
+                    
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Chantier</th>
+                                <th>Heures</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-tbody">
+                            <tr>
+                                <td>30/08/2024</td>
+                                <td>VICHY</td>
+                                <td>8h30</td>
+                                <td><span class="status-badge status-valide">Validé</span></td>
+                            </tr>
+                            <tr>
+                                <td>29/08/2024</td>
+                                <td>CAMPENON</td>
+                                <td>9h00</td>
+                                <td><span class="status-badge status-valide">Validé</span></td>
+                            </tr>
+                            <tr>
+                                <td>28/08/2024</td>
+                                <td>PONT DE CHASSE</td>
+                                <td>7h45</td>
+                                <td><span class="status-badge status-attente">En attente</span></td>
+                            </tr>
+                            <tr>
+                                <td>27/08/2024</td>
+                                <td>VICHY</td>
+                                <td>8h15</td>
+                                <td><span class="status-badge status-valide">Validé</span></td>
+                            </tr>
+                            <tr>
+                                <td>26/08/2024</td>
+                                <td>EFFIA</td>
+                                <td>8h00</td>
+                                <td><span class="status-badge status-rejete">Rejeté</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Mise à jour de l'heure en temps réel
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('fr-FR');
+            const dateString = now.toLocaleDateString('fr-FR');
+            document.getElementById('current-time').textContent = timeString;
+            document.getElementById('current-date').textContent = dateString;
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Calcul automatique des heures
+        function calculerHeures() {
+            const debut = document.getElementById('heure-debut').value;
+            const fin = document.getElementById('heure-fin').value;
+            const pauseMinutes = parseInt(document.getElementById('pause-minutes').value) || 0;
+            const heuresSup = parseFloat(document.getElementById('heures-sup').value) || 0;
+
+            if (debut && fin) {
+                const [heureDebut, minuteDebut] = debut.split(':').map(Number);
+                const [heureFin, minuteFin] = fin.split(':').map(Number);
+                
+                const minutesDebut = heureDebut * 60 + minuteDebut;
+                const minutesFin = heureFin * 60 + minuteFin;
+                
+                let totalMinutes = minutesFin - minutesDebut - pauseMinutes;
+                totalMinutes += heuresSup * 60;
+                
+                const heures = Math.floor(totalMinutes / 60);
+                const minutes = totalMinutes % 60;
+                
+                document.getElementById('total-heures').textContent = 
+                    `${heures}h${minutes.toString().padStart(2, '0')}`;
+            }
+        }
+
+        // Écouteurs pour le calcul automatique
+        document.getElementById('heure-debut').addEventListener('change', calculerHeures);
+        document.getElementById('heure-fin').addEventListener('change', calculerHeures);
+        document.getElementById('pause-minutes').addEventListener('input', calculerHeures);
+        document.getElementById('heures-sup').addEventListener('input', calculerHeures);
+
+        // Calcul initial
+        calculerHeures();
+
+        // Ajouter une activité
+        function ajouterActivite() {
+            const nom = document.getElementById('nouvelle-activite').value.trim();
+            const duree = document.getElementById('duree-activite').value.trim();
+            
+            if (nom && duree) {
+                const activityList = document.getElementById('activity-list');
+                const newActivity = document.createElement('div');
+                newActivity.className = 'activity-item';
+                newActivity.innerHTML = `
+                    <input type="checkbox" class="activity-checkbox" checked>
+                    <div class="activity-content">
+                        <div class="activity-name">${nom}</div>
+                        <div class="activity-duration">${duree}</div>
+                    </div>
+                `;
+                activityList.appendChild(newActivity);
+                
+                // Réinitialiser les champs
+                document.getElementById('nouvelle-activite').value = '';
+                document.getElementById('duree-activite').value = '';
+            }
+        }
+
+        // Gestion du formulaire
+        document.getElementById('pointage-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const chantier = document.getElementById('chantier-select').value;
+            const totalHeures = document.getElementById('total-heures').textContent;
+            const commentaires = document.getElementById('commentaires').value;
+            
+            if (!chantier) {
+                alert('Veuillez sélectionner un chantier');
+                return;
+            }
+            
+            // Simulation d'envoi
+            const confirmation = confirm(`Confirmer l'envoi du pointage ?\n\nChantier: ${chantier}\nHeures: ${totalHeures}\nCommentaires: ${commentaires || 'Aucun'}`);
+            
+            if (confirmation) {
+                // Ajouter à l'historique
+                ajouterAHistorique(chantier, totalHeures);
+                
+                // Réinitialiser le formulaire
+                document.getElementById('pointage-form').reset();
+                calculerHeures();
+                
+                alert('Pointage envoyé avec succès !');
+            }
+        });
+
+        // Ajouter à l'historique
+        function ajouterAHistorique(chantier, heures) {
+            const tbody = document.getElementById('history-tbody');
+            const newRow = document.createElement('tr');
+            const today = new Date().toLocaleDateString('fr-FR');
+            
+            newRow.innerHTML = `
+                <td>${today}</td>
+                <td>${chantier.toUpperCase()}</td>
+                <td>${heures}</td>
+                <td><span class="status-badge status-attente">En attente</span></td>
+            `;
+            
+            tbody.insertBefore(newRow, tbody.firstChild);
+        }
+
+        // Sauvegarder brouillon
+        function sauvegarderBrouillon() {
+            const formData = {
+                chantier: document.getElementById('chantier-select').value,
+                debut: document.getElementById('heure-debut').value,
+                fin: document.getElementById('heure-fin').value,
+                pause: document.getElementById('pause-minutes').value,
+                commentaires: document.getElementById('commentaires').value
+            };
+            
+            localStorage.setItem('pointage_brouillon', JSON.stringify(formData));
+            alert('Brouillon sauvegardé !');
+        }
+
+        // Charger brouillon au démarrage
+        function chargerBrouillon() {
+            const brouillon = localStorage.getItem('pointage_brouillon');
+            if (brouillon) {
+                const data = JSON.parse(brouillon);
+                document.getElementById('chantier-select').value = data.chantier || '';
+                document.getElementById('heure-debut').value = data.debut || '08:00';
+                document.getElementById('heure-fin').value = data.fin || '17:30';
+                document.getElementById('pause-minutes').value = data.pause || '60';
+                document.getElementById('commentaires').value = data.commentaires || '';
+                calculerHeures();
+            }
+        }
+
+        // Fonctions d'export et impression
+        function exportPointage() {
+            alert('Export en cours... (fonctionnalité en développement)');
+        }
+
+        function imprimerPointage() {
+            window.print();
+        }
+
+        function voirToutHistorique() {
+            alert('Redirection vers l\'historique complet... (fonctionnalité en développement)');
+        }
+
+        // Charger le brouillon au démarrage
+        chargerBrouillon();
+
+        // Simulation de changement d'utilisateur
+        const utilisateurs = [
+            { nom: 'FARID MESSAL', role: 'Chef de chantier', avatar: 'FM' },
+            { nom: 'ERTUGRUL YASAR', role: 'Conducteur de travaux', avatar: 'EY' },
+            { nom: 'LOU PIEDIGROSSI', role: 'HSE', avatar: 'LP' },
+            { nom: 'MORGADO ALEX', role: 'Opérateur', avatar: 'MA' }
+        ];
+
+        function changerUtilisateur() {
+            const user = utilisateurs[Math.floor(Math.random() * utilisateurs.length)];
+            document.getElementById('user-name').textContent = user.nom;
+            document.getElementById('user-role').textContent = user.role + ' - Équipe 41';
+            document.getElementById('user-avatar').textContent = user.avatar;
+        }
+
+        // Changer d'utilisateur toutes les 30 secondes (pour la démo)
+        // setInterval(changerUtilisateur, 30000);
+    </script>
+</body>
+</html>
+
